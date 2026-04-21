@@ -11,18 +11,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Checklist VTR" />
 
- <link rel="manifest" href="manifest.json" />
-<link rel="icon" href="icon-192.png" />
-<link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').catch(console.error);
-    });
-  }
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root{
@@ -605,9 +598,15 @@
   </div>
 
   <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(console.error);
+      });
+    }
+
     const SUPABASE_URL = 'https://nypebmbqcbrvbutamzrh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_VXTVVV8BENUaKIMWjhrk2w_JRNQkEvg';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const $ = (id) => document.getElementById(id);
 
@@ -667,7 +666,7 @@
 
       setLoginMsg('Entrando...', true);
 
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from('militares')
         .select('*')
         .eq('id_func', idFunc)
@@ -721,7 +720,7 @@
     }
 
     async function carregarVtrs() {
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from('vtrs')
         .select('*')
         .eq('ativo', true)
@@ -756,7 +755,7 @@
     async function carregarStatsHoje() {
       const today = hojeISO();
 
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from('checklists')
         .select('id')
         .eq('data_checklist', today);
@@ -769,7 +768,7 @@
     async function carregarFaltantesHoje() {
       const today = hojeISO();
 
-      const { data: checklistsHoje } = await supabase
+      const { data: checklistsHoje } = await sb
         .from('checklists')
         .select('id, vtr_id, data_checklist')
         .eq('data_checklist', today);
@@ -782,7 +781,7 @@
         return;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from('checklist_itens')
         .select(`
           id, status_item, observacao, quantidade_encontrada,
@@ -827,7 +826,7 @@
     }
 
     async function carregarCompartimentosDaVtr(vtrId) {
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from('compartimentos')
         .select('*')
         .eq('vtr_id', vtrId)
@@ -842,7 +841,7 @@
     }
 
     async function carregarItensDaVtr(vtrId) {
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from('itens')
         .select('*')
         .eq('vtr_id', vtrId)
@@ -979,7 +978,7 @@
         status: 'finalizado'
       };
 
-      const { data: checklistData, error: checklistError } = await supabase
+      const { data: checklistData, error: checklistError } = await sb
         .from('checklists')
         .upsert(payloadChecklist, {
           onConflict: 'vtr_id,data_checklist,turno'
@@ -1001,7 +1000,7 @@
         observacao: state.checklistItemsState[item.id]?.observacao || null
       }));
 
-      const { error: itensError } = await supabase
+      const { error: itensError } = await sb
         .from('checklist_itens')
         .upsert(itensPayload, {
           onConflict: 'checklist_id,item_id'
@@ -1039,7 +1038,7 @@
         return;
       }
 
-      const { error } = await supabase
+      const { error } = await sb
         .from('compartimentos')
         .insert({
           vtr_id: vtrId,
@@ -1073,7 +1072,7 @@
         return;
       }
 
-      const { error } = await supabase
+      const { error } = await sb
         .from('itens')
         .insert({
           vtr_id: vtrId,
@@ -1109,7 +1108,7 @@
 
       const vtr = state.vtrs.find(v => v.id === vtrId);
 
-      const { data: checklist, error: errChecklist } = await supabase
+      const { data: checklist, error: errChecklist } = await sb
         .from('checklists')
         .select(`
           *,
@@ -1126,7 +1125,7 @@
         return;
       }
 
-      const { data: itensRel, error: errItens } = await supabase
+      const { data: itensRel, error: errItens } = await sb
         .from('checklist_itens')
         .select(`
           *,
