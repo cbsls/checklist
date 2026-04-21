@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Checklist VTR • CBSLS</title>
+
+  <meta name="theme-color" content="#b71c1c" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Checklist VTR" />
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --bg:#f4f6f8;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#b71c1c;
+      --primary-dark:#8f1616;
+      --green:#1f8b4c;
+      --yellow:#e6a700;
+      --orange:#ef6c00;
+      --danger:#c62828;
+      --shadow:0 10px 30px rgba(0,0,0,.08);
+      --radius:20px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+    body{padding-bottom:94px}
+
+    .app{
+      width:min(1100px,100%);
+      margin:0 auto;
+      padding:14px 14px 120px;
+    }
+
+    .topbar{
+      position:sticky;top:0;z-index:20;
+      background:rgba(244,246,248,.96);
+      backdrop-filter:blur(10px);
+      padding:10px 0 12px;
+    }
+
+    .brand{
+      background:linear-gradient(135deg,var(--primary),#d32f2f);
+      color:#fff;
+      border-radius:24px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:22px;
+      line-height:1.2;
+    }
+
+    .brand p{
+      margin:6px 0 0;
+      font-size:13px;
+      opacity:.92;
+    }
+
+    .grid{
+      display:grid;
+      gap:14px;
+    }
+
+    .grid.cards{
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+
+    .card h2,.card h3{
+      margin:0 0 10px;
+    }
+
+    .muted{color:var(--muted)}
+    .small{font-size:12px}
+    .hidden{display:none !important}
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .col{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    label{
+      font-size:13px;
+      color:#374151;
+      font-weight:700;
+    }
+
+    input, select, textarea, button{
+      font:inherit;
+    }
+
+    input, select, textarea{
+      width:100%;
+      border:1px solid #d1d5db;
+      border-radius:14px;
+      padding:12px 14px;
+      background:#fff;
+      color:var(--text);
+      outline:none;
+    }
+
+    textarea{
+      min-height:90px;
+      resize:vertical;
+    }
+
+    button{
+      border:none;
+      border-radius:14px;
+      padding:12px 16px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .btn-primary{
+      background:var(--primary);
+      color:#fff;
+    }
+    .btn-primary:active{transform:scale(.99)}
+
+    .btn-secondary{
+      background:#eef2f7;
+      color:#1f2937;
+      border:1px solid #d9dee7;
+    }
+
+    .btn-success{
+      background:var(--green);
+      color:#fff;
+    }
+
+    .btn-warning{
+      background:var(--yellow);
+      color:#222;
+    }
+
+    .btn-danger{
+      background:var(--danger);
+      color:#fff;
+    }
+
+    .btn-orange{
+      background:var(--orange);
+      color:#fff;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+      gap:12px;
+    }
+
+    .stat{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:15px;
+      box-shadow:var(--shadow);
+    }
+
+    .stat .n{
+      font-size:26px;
+      font-weight:900;
+      margin-top:6px;
+    }
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin:14px 0 8px;
+    }
+
+    .vtr-list, .faltas-list, .comp-list{
+      display:grid;
+      gap:12px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:700;
+      background:#eef2f7;
+      color:#334155;
+    }
+
+    .pill.ok{background:#e8f5e9;color:#1b5e20}
+    .pill.warn{background:#fff8e1;color:#8d6e00}
+    .pill.bad{background:#ffebee;color:#b71c1c}
+    .pill.info{background:#e3f2fd;color:#0d47a1}
+
+    .vtr-card{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      box-shadow:var(--shadow);
+    }
+
+    .comp-card{
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      background:#fff;
+    }
+
+    .item-row{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+      margin-top:10px;
+      background:#fafafa;
+    }
+
+    .item-head{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+
+    .item-title{
+      font-weight:800;
+      font-size:15px;
+    }
+
+    .status-actions{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .status-btn{
+      padding:10px 8px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .status-btn.active.confere{
+      background:#e8f5e9;
+      border-color:#81c784;
+      color:#1b5e20;
+    }
+
+    .status-btn.active.faltando{
+      background:#fff8e1;
+      border-color:#ffd54f;
+      color:#8d6e00;
+    }
+
+    .status-btn.active.alterado{
+      background:#fff3e0;
+      border-color:#ffb74d;
+      color:#e65100;
+    }
+
+    .status-btn.active.avariado{
+      background:#ffebee;
+      border-color:#ef9a9a;
+      color:#b71c1c;
+    }
+
+    .tabbar{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:10px;
+      z-index:50;
+      width:min(980px,calc(100% - 14px));
+      background:rgba(255,255,255,.97);
+      border:1px solid var(--line);
+      border-radius:22px;
+      box-shadow:0 10px 24px rgba(0,0,0,.14);
+      padding:8px;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:8px;
+      backdrop-filter:blur(12px);
+    }
+
+    .tabbar button{
+      background:transparent;
+      color:#4b5563;
+      padding:10px 6px;
+      border-radius:14px;
+      border:none;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .tabbar button.active{
+      background:#fdecec;
+      color:var(--primary);
+    }
+
+    .login-wrap{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+
+    .login-card{
+      width:min(460px,100%);
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:26px;
+      box-shadow:var(--shadow);
+      padding:20px;
+    }
+
+    .login-card h1{
+      margin:0 0 8px;
+      font-size:24px;
+    }
+
+    .login-card p{
+      margin:0 0 18px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .msg{
+      margin-top:10px;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .msg.ok{color:#1b5e20}
+    .msg.err{color:#b71c1c}
+
+    .footer-space{height:20px}
+
+    @media (max-width:700px){
+      .status-actions{grid-template-columns:repeat(2,1fr)}
+      .tabbar{grid-template-columns:repeat(5,1fr)}
+      .brand h1{font-size:20px}
+    }
+  </style>
+</head>
+<body>
+  <div id="loginScreen" class="login-wrap">
+    <div class="login-card">
+      <h1>✅ Checklist VTR</h1>
+      <p>Conferência de material • CBSLS</p>
+
+      <div class="col">
+        <div>
+          <label for="loginIdFunc">Id Func</label>
+          <input id="loginIdFunc" type="text" placeholder="Digite seu Id Func" />
+        </div>
+
+        <div>
+          <label for="loginSenha">Senha</label>
+          <input id="loginSenha" type="password" placeholder="Digite sua senha" />
+        </div>
+
+        <button class="btn-primary" id="btnLogin">Entrar</button>
+        <div id="loginMsg" class="msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="appScreen" class="hidden">
+    <div class="app">
+      <div class="topbar">
+        <div class="brand">
+          <h1>🚒 Checklist de Conferência</h1>
+          <p id="brandInfo">CBSLS • Sistema online de materiais e faltantes</p>
+        </div>
+      </div>
+
+      <section id="tabInicio" class="tab-section">
+        <div class="section-title">
+          <h2>Início</h2>
+          <span class="pill info" id="userBadge">Não logado</span>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="muted small">VTRs ativas</div>
+            <div class="n" id="statVtrs">0</div>
+          </div>
+          <div class="stat">
+            <div class="muted small">Itens faltando hoje</div>
+            <div class="n" id="statFaltasHoje">0</div>
+          </div>
+          <div class="stat">
+            <div class="muted small">Checklist de hoje</div>
+            <div class="n" id="statHoje">0</div>
+          </div>
+          <div class="stat">
+            <div class="muted small">Usuário</div>
+            <div class="n" id="statUsuario" style="font-size:18px">-</div>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h2>Viaturas / Embarcações</h2>
+        </div>
+        <div id="vtrList" class="vtr-list"></div>
+      </section>
+
+      <section id="tabChecklist" class="tab-section hidden">
+        <div class="section-title">
+          <h2>Checklist do dia</h2>
+          <span class="pill" id="checklistInfo">Selecione uma VTR</span>
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <div style="flex:1;min-width:220px">
+              <label for="checkVtrSelect">VTR / Embarcação</label>
+              <select id="checkVtrSelect"></select>
+            </div>
+
+            <div style="width:160px">
+              <label for="checkTurno">Turno</label>
+              <select id="checkTurno">
+                <option value="">Sem turno</option>
+                <option value="Manhã">Manhã</option>
+                <option value="Tarde">Tarde</option>
+                <option value="Noite">Noite</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:10px">
+            <label for="checkObsGeral">Observação geral</label>
+            <textarea id="checkObsGeral" placeholder="Observações gerais do checklist"></textarea>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn-primary" id="btnCarregarChecklist">Carregar itens</button>
+            <button class="btn-success" id="btnSalvarChecklist">Salvar checklist</button>
+          </div>
+        </div>
+
+        <div id="compartimentosWrap" class="comp-list" style="margin-top:14px"></div>
+      </section>
+
+      <section id="tabFaltantes" class="tab-section hidden">
+        <div class="section-title">
+          <h2>Itens com problema</h2>
+          <button class="btn-secondary" id="btnAtualizarFaltantes">Atualizar</button>
+        </div>
+        <div id="faltasList" class="faltas-list"></div>
+      </section>
+
+      <section id="tabRelatorios" class="tab-section hidden">
+        <div class="section-title">
+          <h2>Relatórios</h2>
+        </div>
+
+        <div class="card">
+          <div class="row">
+            <div style="flex:1;min-width:220px">
+              <label for="relVtr">VTR / Embarcação</label>
+              <select id="relVtr"></select>
+            </div>
+
+            <div style="width:180px">
+              <label for="relData">Data</label>
+              <input type="date" id="relData" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn-primary" id="btnRelatorioDia">Gerar relatório diário</button>
+            <button class="btn-secondary" id="btnImprimir">Imprimir</button>
+          </div>
+
+          <div id="relatorioArea" style="margin-top:14px"></div>
+        </div>
+      </section>
+
+      <section id="tabAdmin" class="tab-section hidden">
+        <div class="section-title">
+          <h2>Administração</h2>
+          <span class="pill" id="adminBadge">Somente admin</span>
+        </div>
+
+        <div id="adminArea" class="grid hidden">
+          <div class="card">
+            <h3>Adicionar compartimento</h3>
+            <div class="col">
+              <div>
+                <label for="adminCompVtr">VTR</label>
+                <select id="adminCompVtr"></select>
+              </div>
+              <div>
+                <label for="adminCompNome">Nome do compartimento</label>
+                <input id="adminCompNome" type="text" placeholder="Ex.: Gaveta 01" />
+              </div>
+              <div>
+                <label for="adminCompOrdem">Ordem</label>
+                <input id="adminCompOrdem" type="number" placeholder="Ex.: 1" />
+              </div>
+              <button class="btn-primary" id="btnAddCompartimento">Salvar compartimento</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Adicionar item</h3>
+            <div class="col">
+              <div>
+                <label for="adminItemVtr">VTR</label>
+                <select id="adminItemVtr"></select>
+              </div>
+              <div>
+                <label for="adminItemCompartimento">Compartimento</label>
+                <select id="adminItemCompartimento"></select>
+              </div>
+              <div>
+                <label for="adminItemNome">Nome do item</label>
+                <input id="adminItemNome" type="text" placeholder="Nome do item" />
+              </div>
+              <div class="row">
+                <div style="flex:1;min-width:120px">
+                  <label for="adminItemQtd">Qtd padrão</label>
+                  <input id="adminItemQtd" type="number" step="0.01" value="1" />
+                </div>
+                <div style="flex:1;min-width:120px">
+                  <label for="adminItemOrdem">Ordem</label>
+                  <input id="adminItemOrdem" type="number" value="1" />
+                </div>
+              </div>
+              <div>
+                <label for="adminItemObs">Observação padrão</label>
+                <textarea id="adminItemObs" placeholder="Opcional"></textarea>
+              </div>
+              <button class="btn-primary" id="btnAddItem">Salvar item</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="adminNoAccess" class="card">
+          <p class="muted">Esta área é exibida somente para usuários com perfil <b>admin</b>.</p>
+        </div>
+      </section>
+
+      <div class="footer-space"></div>
+    </div>
+
+    <nav class="tabbar">
+      <button class="tabbtn active" data-tab="Inicio">🏠<br>Início</button>
+      <button class="tabbtn" data-tab="Checklist">✅<br>Checklist</button>
+      <button class="tabbtn" data-tab="Faltantes">⚠️<br>Faltantes</button>
+      <button class="tabbtn" data-tab="Relatorios">📄<br>Relatórios</button>
+      <button class="tabbtn" data-tab="Admin">⚙️<br>Admin</button>
+    </nav>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://nypebmbqcbrvbutamzrh.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_VXTVVV8BENUaKIMWjhrk2w_JRNQkEvg';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const $ = (id) => document.getElementById(id);
+
+    const state = {
+      user: null,
+      vtrs: [],
+      compartimentos: [],
+      itens: [],
+      checklistItemsState: {},
+      currentTab: 'Inicio'
+    };
+
+    function hojeISO() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function escapeHtml(str='') {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function setLoginMsg(msg, ok=false) {
+      $('loginMsg').textContent = msg || '';
+      $('loginMsg').className = 'msg ' + (ok ? 'ok' : 'err');
+    }
+
+    function setUserUI() {
+      const nome = state.user?.nome || '-';
+      $('userBadge').textContent = state.user ? `${nome} • ${state.user.perfil}` : 'Não logado';
+      $('statUsuario').textContent = nome;
+      $('brandInfo').textContent = state.user
+        ? `CBSLS • ${state.user.nome} • ${state.user.perfil}`
+        : 'CBSLS • Sistema online de materiais e faltantes';
+
+      const isAdmin = state.user?.perfil === 'admin';
+      $('adminArea').classList.toggle('hidden', !isAdmin);
+      $('adminNoAccess').classList.toggle('hidden', isAdmin);
+      $('adminBadge').textContent = isAdmin ? 'Acesso admin liberado' : 'Somente admin';
+    }
+
+    async function login() {
+      const idFunc = $('loginIdFunc').value.trim();
+      const senha = $('loginSenha').value.trim();
+
+      if (!idFunc || !senha) {
+        setLoginMsg('Informe Id Func e senha.');
+        return;
+      }
+
+      setLoginMsg('Entrando...', true);
+
+      const { data, error } = await supabase
+        .from('militares')
+        .select('*')
+        .eq('id_func', idFunc)
+        .eq('senha', senha)
+        .eq('ativo', true)
+        .maybeSingle();
+
+      if (error || !data) {
+        setLoginMsg('Login inválido.');
+        return;
+      }
+
+      state.user = data;
+      localStorage.setItem('checklist_user', JSON.stringify(data));
+      $('loginScreen').classList.add('hidden');
+      $('appScreen').classList.remove('hidden');
+
+      setUserUI();
+      await carregarBase();
+      setLoginMsg('', true);
+    }
+
+    function restaurarLogin() {
+      try {
+        const saved = localStorage.getItem('checklist_user');
+        if (!saved) return false;
+        state.user = JSON.parse(saved);
+        if (!state.user?.id) return false;
+        $('loginScreen').classList.add('hidden');
+        $('appScreen').classList.remove('hidden');
+        setUserUI();
+        carregarBase();
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    function preencherSelect(selectEl, items, valueKey='id', textKey='nome', placeholder='Selecione') {
+      selectEl.innerHTML = `<option value="">${placeholder}</option>` + items.map(item =>
+        `<option value="${item[valueKey]}">${escapeHtml(item[textKey])}</option>`
+      ).join('');
+    }
+
+    async function carregarBase() {
+      await Promise.all([
+        carregarVtrs(),
+        carregarFaltantesHoje(),
+        carregarStatsHoje()
+      ]);
+    }
+
+    async function carregarVtrs() {
+      const { data, error } = await supabase
+        .from('vtrs')
+        .select('*')
+        .eq('ativo', true)
+        .order('codigo', { ascending: true });
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      state.vtrs = data || [];
+      $('statVtrs').textContent = state.vtrs.length;
+
+      $('vtrList').innerHTML = state.vtrs.map(vtr => `
+        <div class="vtr-card">
+          <div>
+            <div style="font-size:17px;font-weight:900">${escapeHtml(vtr.codigo)}</div>
+            <div class="muted small">${escapeHtml(vtr.nome)} • ${escapeHtml(vtr.tipo || 'vtr')}</div>
+          </div>
+          <div class="row">
+            <button class="btn-primary" onclick="abrirChecklistDireto('${vtr.id}')">Abrir checklist</button>
+          </div>
+        </div>
+      `).join('');
+
+      preencherSelect($('checkVtrSelect'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
+      preencherSelect($('relVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
+      preencherSelect($('adminCompVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
+      preencherSelect($('adminItemVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
+    }
+
+    async function carregarStatsHoje() {
+      const today = hojeISO();
+
+      const { data, error } = await supabase
+        .from('checklists')
+        .select('id')
+        .eq('data_checklist', today);
+
+      if (!error) {
+        $('statHoje').textContent = (data || []).length;
+      }
+    }
+
+    async function carregarFaltantesHoje() {
+      const today = hojeISO();
+
+      const { data: checklistsHoje } = await supabase
+        .from('checklists')
+        .select('id, vtr_id, data_checklist')
+        .eq('data_checklist', today);
+
+      const checklistIds = (checklistsHoje || []).map(c => c.id);
+
+      if (!checklistIds.length) {
+        $('faltasList').innerHTML = `<div class="card"><span class="pill ok">Nenhum item com problema hoje</span></div>`;
+        $('statFaltasHoje').textContent = '0';
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('checklist_itens')
+        .select(`
+          id, status_item, observacao, quantidade_encontrada,
+          item:item_id (id, nome),
+          checklist:checklist_id (id, data_checklist, vtr_id)
+        `)
+        .in('checklist_id', checklistIds)
+        .neq('status_item', 'confere');
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      $('statFaltasHoje').textContent = (data || []).length;
+
+      if (!data || !data.length) {
+        $('faltasList').innerHTML = `<div class="card"><span class="pill ok">Nenhum item com problema hoje</span></div>`;
+        return;
+      }
+
+      const vtrMap = Object.fromEntries(state.vtrs.map(v => [v.id, v.codigo]));
+
+      $('faltasList').innerHTML = data.map(row => `
+        <div class="card">
+          <div class="row" style="justify-content:space-between">
+            <div>
+              <div style="font-weight:900">${escapeHtml(row.item?.nome || 'Item')}</div>
+              <div class="muted small">${escapeHtml(vtrMap[row.checklist?.vtr_id] || '-')} • ${escapeHtml(row.checklist?.data_checklist || '')}</div>
+            </div>
+            <span class="pill ${row.status_item === 'faltando' ? 'warn' : 'bad'}">${escapeHtml(row.status_item)}</span>
+          </div>
+          <div class="small muted" style="margin-top:8px">${escapeHtml(row.observacao || 'Sem observação')}</div>
+        </div>
+      `).join('');
+    }
+
+    async function abrirChecklistDireto(vtrId) {
+      alternarTab('Checklist');
+      $('checkVtrSelect').value = vtrId;
+      await carregarItensChecklist();
+    }
+
+    async function carregarCompartimentosDaVtr(vtrId) {
+      const { data, error } = await supabase
+        .from('compartimentos')
+        .select('*')
+        .eq('vtr_id', vtrId)
+        .eq('ativo', true)
+        .order('ordem', { ascending: true });
+
+      if (error) {
+        console.error(error);
+        return [];
+      }
+      return data || [];
+    }
+
+    async function carregarItensDaVtr(vtrId) {
+      const { data, error } = await supabase
+        .from('itens')
+        .select('*')
+        .eq('vtr_id', vtrId)
+        .eq('ativo', true)
+        .order('ordem', { ascending: true });
+
+      if (error) {
+        console.error(error);
+        return [];
+      }
+      return data || [];
+    }
+
+    async function carregarItensChecklist() {
+      const vtrId = $('checkVtrSelect').value;
+      if (!vtrId) {
+        alert('Selecione uma VTR.');
+        return;
+      }
+
+      const vtr = state.vtrs.find(v => v.id === vtrId);
+      $('checklistInfo').textContent = vtr ? `${vtr.codigo} • ${hojeISO()}` : 'Checklist';
+
+      state.compartimentos = await carregarCompartimentosDaVtr(vtrId);
+      state.itens = await carregarItensDaVtr(vtrId);
+      state.checklistItemsState = {};
+
+      for (const item of state.itens) {
+        state.checklistItemsState[item.id] = {
+          status: 'confere',
+          quantidade_encontrada: item.quantidade_padrao,
+          observacao: ''
+        };
+      }
+
+      renderChecklist();
+      await carregarCompartimentosAdmin();
+    }
+
+    function renderChecklist() {
+      const wrap = $('compartimentosWrap');
+
+      if (!state.compartimentos.length) {
+        wrap.innerHTML = `<div class="card"><span class="pill warn">Nenhum compartimento cadastrado para esta VTR.</span></div>`;
+        return;
+      }
+
+      const html = state.compartimentos.map(comp => {
+        const itens = state.itens.filter(i => i.compartimento_id === comp.id);
+
+        return `
+          <div class="comp-card">
+            <div class="row" style="justify-content:space-between">
+              <h3 style="margin:0">${escapeHtml(comp.nome)}</h3>
+              <span class="pill info">${itens.length} item(ns)</span>
+            </div>
+
+            ${itens.length ? itens.map(item => {
+              const st = state.checklistItemsState[item.id] || {};
+              return `
+                <div class="item-row">
+                  <div class="item-head">
+                    <div>
+                      <div class="item-title">${escapeHtml(item.nome)}</div>
+                      <div class="muted small">Qtd padrão: ${escapeHtml(item.quantidade_padrao)}</div>
+                      ${item.observacao_padrao ? `<div class="muted small">Obs padrão: ${escapeHtml(item.observacao_padrao)}</div>` : ''}
+                    </div>
+                  </div>
+
+                  <div class="status-actions">
+                    <button class="status-btn ${st.status === 'confere' ? 'active confere' : ''}" onclick="setItemStatus('${item.id}','confere')">✅ Confere</button>
+                    <button class="status-btn ${st.status === 'faltando' ? 'active faltando' : ''}" onclick="setItemStatus('${item.id}','faltando')">⚠️ Faltando</button>
+                    <button class="status-btn ${st.status === 'alterado' ? 'active alterado' : ''}" onclick="setItemStatus('${item.id}','alterado')">🔧 Alterado</button>
+                    <button class="status-btn ${st.status === 'avariado' ? 'active avariado' : ''}" onclick="setItemStatus('${item.id}','avariado')">🛠️ Avariado</button>
+                  </div>
+
+                  <div class="row" style="margin-top:10px">
+                    <div style="width:140px">
+                      <label>Qtd encontrada</label>
+                      <input type="number" step="0.01" value="${st.quantidade_encontrada ?? ''}" onchange="setItemQuantidade('${item.id}', this.value)" />
+                    </div>
+                    <div style="flex:1;min-width:200px">
+                      <label>Observação</label>
+                      <input type="text" value="${escapeHtml(st.observacao || '')}" onchange="setItemObservacao('${item.id}', this.value)" placeholder="Observação do item" />
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('') : `<div class="muted small" style="margin-top:8px">Sem itens neste compartimento.</div>`}
+          </div>
+        `;
+      }).join('');
+
+      wrap.innerHTML = html;
+    }
+
+    function setItemStatus(itemId, status) {
+      if (!state.checklistItemsState[itemId]) return;
+      state.checklistItemsState[itemId].status = status;
+      renderChecklist();
+    }
+
+    function setItemQuantidade(itemId, valor) {
+      if (!state.checklistItemsState[itemId]) return;
+      state.checklistItemsState[itemId].quantidade_encontrada = valor === '' ? null : Number(valor);
+    }
+
+    function setItemObservacao(itemId, valor) {
+      if (!state.checklistItemsState[itemId]) return;
+      state.checklistItemsState[itemId].observacao = valor || '';
+    }
+
+    async function salvarChecklist() {
+      const vtrId = $('checkVtrSelect').value;
+      const turno = $('checkTurno').value || null;
+      const observacaoGeral = $('checkObsGeral').value.trim();
+
+      if (!vtrId) {
+        alert('Selecione uma VTR.');
+        return;
+      }
+
+      if (!state.user?.id) {
+        alert('Usuário não identificado.');
+        return;
+      }
+
+      const payloadChecklist = {
+        vtr_id: vtrId,
+        militar_id: state.user.id,
+        data_checklist: hojeISO(),
+        turno,
+        observacao_geral: observacaoGeral,
+        status: 'finalizado'
+      };
+
+      const { data: checklistData, error: checklistError } = await supabase
+        .from('checklists')
+        .upsert(payloadChecklist, {
+          onConflict: 'vtr_id,data_checklist,turno'
+        })
+        .select()
+        .single();
+
+      if (checklistError || !checklistData) {
+        console.error(checklistError);
+        alert('Erro ao salvar checklist.');
+        return;
+      }
+
+      const itensPayload = state.itens.map(item => ({
+        checklist_id: checklistData.id,
+        item_id: item.id,
+        status_item: state.checklistItemsState[item.id]?.status || 'confere',
+        quantidade_encontrada: state.checklistItemsState[item.id]?.quantidade_encontrada,
+        observacao: state.checklistItemsState[item.id]?.observacao || null
+      }));
+
+      const { error: itensError } = await supabase
+        .from('checklist_itens')
+        .upsert(itensPayload, {
+          onConflict: 'checklist_id,item_id'
+        });
+
+      if (itensError) {
+        console.error(itensError);
+        alert('Checklist salvo, mas houve erro em alguns itens.');
+        return;
+      }
+
+      alert('Checklist salvo com sucesso.');
+      await carregarFaltantesHoje();
+      await carregarStatsHoje();
+    }
+
+    async function carregarCompartimentosAdmin() {
+      const vtrId = $('adminItemVtr').value || $('checkVtrSelect').value;
+      if (!vtrId) {
+        $('adminItemCompartimento').innerHTML = `<option value="">Selecione a VTR</option>`;
+        return;
+      }
+
+      const comps = await carregarCompartimentosDaVtr(vtrId);
+      preencherSelect($('adminItemCompartimento'), comps, 'id', 'nome', 'Selecione o compartimento');
+    }
+
+    async function adicionarCompartimento() {
+      const vtrId = $('adminCompVtr').value;
+      const nome = $('adminCompNome').value.trim();
+      const ordem = Number($('adminCompOrdem').value || 0);
+
+      if (!vtrId || !nome) {
+        alert('Informe VTR e nome do compartimento.');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('compartimentos')
+        .insert({
+          vtr_id: vtrId,
+          nome,
+          ordem,
+          ativo: true
+        });
+
+      if (error) {
+        console.error(error);
+        alert('Erro ao salvar compartimento.');
+        return;
+      }
+
+      $('adminCompNome').value = '';
+      $('adminCompOrdem').value = '';
+      alert('Compartimento salvo com sucesso.');
+      await carregarCompartimentosAdmin();
+    }
+
+    async function adicionarItem() {
+      const vtrId = $('adminItemVtr').value;
+      const compartimentoId = $('adminItemCompartimento').value;
+      const nome = $('adminItemNome').value.trim();
+      const quantidade = Number($('adminItemQtd').value || 1);
+      const ordem = Number($('adminItemOrdem').value || 0);
+      const observacao = $('adminItemObs').value.trim();
+
+      if (!vtrId || !compartimentoId || !nome) {
+        alert('Preencha VTR, compartimento e nome do item.');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('itens')
+        .insert({
+          vtr_id: vtrId,
+          compartimento_id: compartimentoId,
+          nome,
+          quantidade_padrao: quantidade,
+          ordem,
+          observacao_padrao: observacao || null,
+          ativo: true
+        });
+
+      if (error) {
+        console.error(error);
+        alert('Erro ao salvar item.');
+        return;
+      }
+
+      $('adminItemNome').value = '';
+      $('adminItemQtd').value = '1';
+      $('adminItemOrdem').value = '1';
+      $('adminItemObs').value = '';
+      alert('Item salvo com sucesso.');
+    }
+
+    async function gerarRelatorioDia() {
+      const vtrId = $('relVtr').value;
+      const data = $('relData').value || hojeISO();
+
+      if (!vtrId) {
+        alert('Selecione uma VTR.');
+        return;
+      }
+
+      const vtr = state.vtrs.find(v => v.id === vtrId);
+
+      const { data: checklist, error: errChecklist } = await supabase
+        .from('checklists')
+        .select(`
+          *,
+          militar:militar_id (nome)
+        `)
+        .eq('vtr_id', vtrId)
+        .eq('data_checklist', data)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (errChecklist || !checklist) {
+        $('relatorioArea').innerHTML = `<div class="card"><span class="pill warn">Nenhum checklist encontrado para a data informada.</span></div>`;
+        return;
+      }
+
+      const { data: itensRel, error: errItens } = await supabase
+        .from('checklist_itens')
+        .select(`
+          *,
+          item:item_id (nome)
+        `)
+        .eq('checklist_id', checklist.id);
+
+      if (errItens) {
+        console.error(errItens);
+        $('relatorioArea').innerHTML = `<div class="card"><span class="pill bad">Erro ao gerar relatório.</span></div>`;
+        return;
+      }
+
+      $('relatorioArea').innerHTML = `
+        <div class="card">
+          <h3 style="margin-top:0">Relatório diário</h3>
+          <div class="small muted">VTR: <b>${escapeHtml(vtr?.codigo || '-')}</b></div>
+          <div class="small muted">Data: <b>${escapeHtml(data)}</b></div>
+          <div class="small muted">Conferente: <b>${escapeHtml(checklist.militar?.nome || '-')}</b></div>
+          <div class="small muted">Turno: <b>${escapeHtml(checklist.turno || 'Sem turno')}</b></div>
+          <div class="small muted" style="margin-top:8px">Observação geral: ${escapeHtml(checklist.observacao_geral || 'Sem observação')}</div>
+
+          <div style="margin-top:14px;display:grid;gap:10px">
+            ${(itensRel || []).map(row => `
+              <div style="border:1px solid var(--line);border-radius:14px;padding:10px;background:#fafafa">
+                <div style="font-weight:800">${escapeHtml(row.item?.nome || 'Item')}</div>
+                <div class="small">Status: <b>${escapeHtml(row.status_item)}</b></div>
+                <div class="small">Qtd encontrada: <b>${escapeHtml(row.quantidade_encontrada ?? '')}</b></div>
+                <div class="small muted">Obs: ${escapeHtml(row.observacao || 'Sem observação')}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function imprimirRelatorio() {
+      window.print();
+    }
+
+    function alternarTab(tabName) {
+      state.currentTab = tabName;
+      document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+      document.querySelectorAll('.tabbtn').forEach(btn => btn.classList.remove('active'));
+
+      const sec = document.getElementById(`tab${tabName}`);
+      if (sec) sec.classList.remove('hidden');
+
+      const activeBtn = document.querySelector(`.tabbtn[data-tab="${tabName}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (tabName === 'Faltantes') carregarFaltantesHoje();
+      if (tabName === 'Relatorios') $('relData').value = hojeISO();
+    }
+
+    document.querySelectorAll('.tabbtn').forEach(btn => {
+      btn.addEventListener('click', () => alternarTab(btn.dataset.tab));
+    });
+
+    $('btnLogin').addEventListener('click', login);
+    $('btnCarregarChecklist').addEventListener('click', carregarItensChecklist);
+    $('btnSalvarChecklist').addEventListener('click', salvarChecklist);
+    $('btnAtualizarFaltantes').addEventListener('click', carregarFaltantesHoje);
+    $('btnRelatorioDia').addEventListener('click', gerarRelatorioDia);
+    $('btnImprimir').addEventListener('click', imprimirRelatorio);
+    $('btnAddCompartimento').addEventListener('click', adicionarCompartimento);
+    $('btnAddItem').addEventListener('click', adicionarItem);
+    $('adminItemVtr').addEventListener('change', carregarCompartimentosAdmin);
+
+    $('relData').value = hojeISO();
+
+    window.abrirChecklistDireto = abrirChecklistDireto;
+    window.setItemStatus = setItemStatus;
+    window.setItemQuantidade = setItemQuantidade;
+    window.setItemObservacao = setItemObservacao;
+
+    restaurarLogin();
+  </script>
+</body>
+</html>
