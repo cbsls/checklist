@@ -1,12 +1,8 @@
-const CACHE_NAME = 'checklist-cbsls-v1';
+const CACHE_NAME = 'checklist-cbsls-v2';
 
 const URLS_TO_CACHE = [
   './',
-  './index.html',
-  './manifest.json',
-  './sw.js',
-  './icon-192.png',
-  './icon-512.png'
+  './index.html'
 ];
 
 self.addEventListener('install', event => {
@@ -31,12 +27,12 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      return cached || fetch(event.request).then(response => {
+    fetch(event.request)
+      .then(response => {
         const cloned = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, cloned));
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, cloned)).catch(() => {});
         return response;
-      }).catch(() => caches.match('./index.html'));
-    })
+      })
+      .catch(() => caches.match(event.request).then(r => r || caches.match('./index.html')))
   );
 });
