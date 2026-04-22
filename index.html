@@ -503,6 +503,15 @@
       `).join('');
     }
 
+
+    async function abrirChecklistDireto(vtrId){
+      alternarTab('Checklist');
+      const select = $('checkVtrSelect');
+      if (select) select.value = vtrId;
+      await carregarItensChecklist();
+      window.scrollTo({ top:0, behavior:'smooth' });
+    }
+
     async function buscarChecklistExistente(vtrId, turno){
       const q = sb.from('checklists')
         .select('*')
