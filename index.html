@@ -473,7 +473,7 @@
       if ($('vtrList')) {
         $('vtrList').innerHTML = state.vtrs.map(vtr => {
           const ult = vtr.ultimo_checklist_em
-            ? `✅ Conferido em ${isoToBR(vtr.ultimo_checklist_em.slice(0,10))}${vtr.ultimo_checklist_hora ? ' às ' + vtr.ultimo_checklist_hora : ''} • CG ${escapeHtml(vtr.ultimo_checklist_por_nome || '-')}`
+            ? `✅ Conferido em ${isoToBR(String(vtr.ultimo_checklist_em).slice(0,10))}${vtr.ultimo_checklist_hora ? ' às ' + vtr.ultimo_checklist_hora : ''} • CG ${escapeHtml(vtr.ultimo_checklist_por_nome || '-')}`
             : 'Ainda não conferido hoje';
           return `
             <div class="vtr-card">
@@ -975,25 +975,31 @@
           : null
       }));
 
-      for (const row of itensPayload){
-        const { data: existing, error: selErr } = await sb.from('checklist_itens').select('id').eq('checklist_id', checklistId).eq('item_id', row.item_id).limit(1);
-        if (selErr){ console.error(selErr); return alert('Erro ao localizar item do checklist.'); }
+      const { error: itensError } = await sb
+        .from('checklist_itens')
+        .upsert(itensPayload, {
+          onConflict: 'checklist_id,item_id'
+        });
 
-        if (existing && existing[0]){
-          const { error } = await sb.from('checklist_itens').update(row).eq('id', existing[0].id);
-          if (error){ console.error(error); return alert('Erro ao atualizar itens do checklist.'); }
-        } else {
-          const { error } = await sb.from('checklist_itens').insert(row);
-          if (error){ console.error(error); return alert('Erro ao inserir itens do checklist.'); }
-        }
+      if (itensError){
+        console.error(itensError);
+        showToast('Erro ao salvar itens do checklist.', false);
+        return;
       }
 
       const hora = horaBR(new Date().toISOString());
-      await sb.from('vtrs').update({
+
+      const { error: vtrUpdErr } = await sb.from('vtrs').update({
         ultimo_checklist_em: hojeISO(),
         ultimo_checklist_por_nome: cgDiaNome || state.user.nome || null,
         ultimo_checklist_hora: hora
       }).eq('id', vtrId);
+
+      if (vtrUpdErr){
+        console.error(vtrUpdErr);
+        showToast('Checklist salvo, mas falhou ao atualizar status da VTR.', false);
+        return;
+      }
 
       showToast('Checklist salvo com sucesso.', true);
       state.checklistLocked = true;
