@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Checklist VTR • CBSLS</title>
-  <meta name="theme-color" content="#4f5660" />
+  <meta name="theme-color" content="#444b54" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -13,49 +13,530 @@
   <link rel="icon" href="icon-192.png" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root{
-      --bg:#e9edf2;--card:#f7f8fa;--card-2:#ffffff;--header:#4f5660;--header-2:#616872;
-      --text:#1f2937;--muted:#6b7280;--line:#d6dbe3;--line-2:#c8ced8;--blue:#2357d8;--green:#43a047;
-      --orange:#f57c00;--red:#c62828;--gray-pill:#8b9098;--shadow:0 8px 22px rgba(25,35,52,.08);--radius:14px;
+      --bg:#e7ecf1;
+      --card:#f7f9fb;
+      --white:#ffffff;
+      --header:#444b54;
+      --header-2:#5a616b;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#d1d7e0;
+      --line-2:#c4ccd7;
+      --blue:#2258da;
+      --blue-soft:#eef3ff;
+      --green:#43a047;
+      --green-soft:#edf7ee;
+      --orange:#f57c00;
+      --orange-soft:#fff4e8;
+      --red:#c62828;
+      --red-soft:#fdeeee;
+      --gray:#8b9098;
+      --gray-soft:#f3f5f7;
+      --shadow:0 8px 22px rgba(25,35,52,.08);
+      --radius:6px;
     }
-    *{box-sizing:border-box} html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
-    body{padding-bottom:118px}.app{width:min(1080px,100%);margin:0 auto;padding:0 12px 140px}.topbar{position:sticky;top:0;z-index:40;margin:0 -12px;padding:0 12px 10px;background:rgba(233,237,242,.96);backdrop-filter:blur(10px)}
-    .hero{background:linear-gradient(180deg,var(--header),var(--header-2));color:#fff;padding:18px 16px 16px;box-shadow:var(--shadow);border-radius:0 0 12px 12px}
-    .hero-head{display:flex;gap:14px;align-items:flex-start;justify-content:space-between}.hero-left{display:flex;gap:12px;align-items:flex-start;min-width:0;flex:1}
-    .hero-icon{font-size:40px;line-height:1;margin-top:2px}.hero-title{margin:0;font-size:21px;line-height:1.15;font-weight:900}.hero-sub{margin:6px 0 0;font-size:13px;font-weight:700;opacity:.98}
-    .date-now{text-align:center;margin:14px 0 0;font-size:14px;font-weight:900;letter-spacing:.3px;color:#eaf0ff}.top-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-    .btn{font:inherit;border:none;cursor:pointer;min-height:52px;border-radius:10px;padding:12px 14px;font-weight:900;transition:.15s ease}.btn:active{transform:scale(.99)}
-    .btn-primary{background:var(--blue);color:#fff;border:1px solid rgba(255,255,255,.16)}.btn-secondary{background:#727984;color:#fff;border:1px solid rgba(255,255,255,.16)}
-    .btn-ghost{background:#f8fafc;color:var(--blue);border:2px solid var(--blue)}.btn-card{background:#fff;color:var(--blue);border:2px solid var(--blue)}.btn-save{background:#1f8b4c;color:#fff;border:1px solid #17713d}
-    .tab-section{margin-top:14px}.hidden{display:none!important}.section-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0 10px}
-    .card{background:var(--card-2);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:14px}.card.soft{background:var(--card)}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.col{display:flex;flex-direction:column;gap:8px}label{font-size:13px;font-weight:800;color:#46515f}
-    input,select,textarea{width:100%;font:inherit;border:1px solid var(--line-2);border-radius:10px;padding:12px 12px;background:#fff;color:var(--text);outline:none} textarea{min-height:86px;resize:vertical}
-    .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:900;background:#eef2ff;color:#1d4ed8;border:1px solid #d5def9;white-space:nowrap}
-    .status-text{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:800;white-space:nowrap}.status-text.green{color:var(--green)}.status-text.orange{color:var(--orange)}.status-text.red{color:var(--red)}.status-text.gray{color:#8b9098}
-    .toolbar-card{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-top:12px}.toolbar-left{display:flex;gap:12px;align-items:flex-start}.toolbar-icon{font-size:28px;line-height:1;color:var(--blue);margin-top:4px}
-    .toolbar-title{font-size:14px;color:var(--blue);font-weight:900;line-height:1.3;text-transform:uppercase;margin-bottom:6px}.toolbar-desc{font-size:14px;color:#374151;line-height:1.45}
-    .list-head{margin-top:14px;background:#dde3eb;color:#425063;border:1px solid var(--line);border-radius:10px 10px 0 0;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:13px;text-transform:uppercase}
-    .comp-list{display:grid;gap:10px;margin-top:0}.comp-card{background:#f8f9fb;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
-    .comp-head{padding:14px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}.comp-number{width:42px;height:42px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;background:var(--gray-pill);color:#fff;border:2px solid var(--gray-pill);flex-shrink:0}
-    .comp-card.expanded .comp-number{background:#fff;color:var(--blue);border-color:var(--blue)}.comp-main{min-width:0}.comp-name-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:8px}.comp-name{font-size:18px;font-weight:900;line-height:1.2;word-break:break-word}
-    .comp-meta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.arrow-btn{width:48px;height:48px;border-radius:8px;border:1px solid var(--line);background:#eef1f5;color:#4b5563;font-size:28px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer}
-    .comp-body{border-top:1px solid #e6ebf2;padding:12px 14px 14px;background:#fbfcfd}.comp-body-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}.body-caption{font-size:13px;font-weight:900;color:#4b5563;text-transform:uppercase}
-    .item-list{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}.item-row{display:grid;grid-template-columns:58px 1.4fr 1fr 34px;gap:10px;align-items:center;min-height:48px;padding:0 10px;border-top:1px solid #edf1f5}.item-row:first-child{border-top:none}
-    .item-code{font-weight:400;color:#374151;font-size:14px}.item-name{font-size:14px;color:#2d3748;line-height:1.25}.item-chevron{color:#8a919d;font-size:28px;text-align:right;user-select:none;cursor:pointer}
-    .item-detail{padding:12px;border-top:1px solid #eef2f6;background:#fafbfd;display:none}.item-detail.open{display:block}.item-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-    .status-actions{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}.status-btn{border:1px solid var(--line);background:#fff;color:#475569;border-radius:10px;min-height:46px;font-size:12px;font-weight:900;cursor:pointer}
-    .status-btn.active.pendente{background:#f3f4f6;border-color:#d1d5db;color:#6b7280}.status-btn.active.confere{background:#e8f5e9;border-color:#8bc34a;color:#2e7d32}
-    .status-btn.active.faltando{background:#fff8e1;border-color:#ffd54f;color:#8d6e00}.status-btn.active.alterado{background:#fff3e0;border-color:#ffb74d;color:#ef6c00}.status-btn.active.avariado{background:#ffebee;border-color:#ef9a9a;color:#c62828}
-    .vtr-list,.faltas-list{display:grid;gap:10px}.vtr-card{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:14px}
-    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}.stat{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:14px}.stat .n{font-size:24px;font-weight:900;margin-top:6px}
-    .muted{color:var(--muted)}.small{font-size:12px}.msg{margin-top:10px;font-size:13px;font-weight:800}.msg.ok{color:#2e7d32}.msg.err{color:#c62828}.login-wrap{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
-    .login-card{width:min(460px,100%);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:20px}.login-card h1{margin:0 0 8px;font-size:24px}
-    .tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;z-index:50;width:min(980px,calc(100% - 14px));background:rgba(255,255,255,.98);border:1px solid var(--line);border-radius:18px;box-shadow:0 10px 24px rgba(0,0,0,.14);padding:8px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;backdrop-filter:blur(12px)}
-    .tabbar button{background:transparent;color:#5b6470;padding:12px 8px;min-height:68px;border-radius:12px;border:none;font-size:12px;font-weight:900;cursor:pointer}.tabbar button.active{background:#eef2ff;color:var(--blue)}
-    @media (max-width:860px){.toolbar-card{grid-template-columns:1fr}.item-detail-grid{grid-template-columns:1fr}.status-actions{grid-template-columns:repeat(2,1fr)}}
-    @media (max-width:700px){.hero-title{font-size:18px}.top-actions{grid-template-columns:1fr 1fr}.comp-name{font-size:16px}.item-row{grid-template-columns:48px 1.2fr .95fr 26px;gap:8px;padding:0 8px}.item-name,.item-code{font-size:13px}.item-chevron{font-size:24px}.list-head{font-size:12px;padding:10px 12px}}
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;padding:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:var(--bg);color:var(--text)
+    }
+    body{padding-bottom:118px}
+    button,input,select,textarea{font:inherit}
+
+    .app{
+      width:min(1080px,100%);
+      margin:0 auto;
+      padding:0 12px 145px;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      margin:0 -12px;
+      padding:0 12px 10px;
+      background:rgba(231,236,241,.96);
+      backdrop-filter:blur(10px);
+    }
+
+    .hero{
+      background:linear-gradient(180deg,var(--header),var(--header-2));
+      color:#fff;
+      padding:18px 16px 16px;
+      box-shadow:var(--shadow);
+      border-radius:0 0 8px 8px;
+    }
+
+    .hero-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+    .hero-left{display:flex;gap:12px;align-items:flex-start;min-width:0;flex:1}
+    .hero-icon{font-size:40px;line-height:1;margin-top:2px}
+    .hero-title{margin:0;font-size:21px;line-height:1.15;font-weight:900}
+    .hero-sub{margin:6px 0 0;font-size:13px;font-weight:700;opacity:.98}
+    .date-now{
+      text-align:center;
+      margin:14px 0 0;
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:.3px;
+      color:#edf2ff;
+    }
+
+    .top-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .btn{
+      min-height:52px;
+      border-radius:var(--radius);
+      padding:12px 14px;
+      font-weight:900;
+      border:none;
+      cursor:pointer;
+      transition:transform .12s ease, filter .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .btn:hover{filter:brightness(.99)}
+    .btn:active{transform:scale(.97)}
+
+    .btn-primary{background:var(--blue);color:#fff;border:1px solid rgba(255,255,255,.12)}
+    .btn-secondary{background:#737b86;color:#fff;border:1px solid rgba(255,255,255,.12)}
+    .btn-ghost{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+    .btn-card{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+    .btn-save{background:#1f8b4c;color:#fff;border:1px solid #17703d}
+    .btn-inline{
+      min-height:auto;
+      padding:8px 12px;
+      font-size:12px;
+      border-radius:var(--radius);
+    }
+
+    .tab-section{margin-top:14px}
+    .hidden{display:none!important}
+
+    .section-title{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      margin:8px 0 10px;
+    }
+
+    .card{
+      background:var(--white);
+      border:1px solid var(--line);
+      border-radius:8px;
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .card.soft{background:var(--card)}
+
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .col{display:flex;flex-direction:column;gap:8px}
+
+    label{
+      font-size:13px;
+      font-weight:800;
+      color:#46515f;
+    }
+
+    input,select,textarea{
+      width:100%;
+      border:1px solid var(--line-2);
+      border-radius:var(--radius);
+      padding:12px 12px;
+      background:#fff;
+      color:var(--text);
+      outline:none;
+    }
+    textarea{min-height:86px;resize:vertical}
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border-radius:999px;
+      padding:5px 10px;
+      font-size:12px;
+      font-weight:900;
+      background:#eef2ff;
+      color:#1d4ed8;
+      border:1px solid #d5def9;
+      white-space:nowrap;
+    }
+
+    .status-chip{
+      display:inline-flex;
+      align-items:center;
+      justify-content:flex-start;
+      gap:8px;
+      min-width:190px;
+      max-width:190px;
+      font-size:13px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .status-dot{
+      width:12px;height:12px;border-radius:999px;display:inline-block;flex:0 0 12px
+    }
+    .status-chip.green{color:var(--green)}
+    .status-chip.green .status-dot{background:var(--green)}
+    .status-chip.orange{color:var(--orange)}
+    .status-chip.orange .status-dot{background:var(--orange)}
+    .status-chip.red{color:var(--red)}
+    .status-chip.red .status-dot{background:var(--red)}
+    .status-chip.gray{color:var(--gray)}
+    .status-chip.gray .status-dot{
+      background:transparent;
+      border:2px solid var(--gray);
+      width:12px;height:12px
+    }
+
+    .toolbar-card{
+      display:grid;
+      grid-template-columns:1.5fr 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+    .toolbar-left{display:flex;gap:12px;align-items:flex-start}
+    .toolbar-icon{font-size:28px;line-height:1;color:var(--blue);margin-top:4px}
+    .toolbar-title{
+      font-size:14px;
+      color:var(--blue);
+      font-weight:900;
+      line-height:1.3;
+      text-transform:uppercase;
+      margin-bottom:6px;
+    }
+    .toolbar-desc{font-size:14px;color:#374151;line-height:1.45}
+
+    .list-head{
+      margin-top:14px;
+      background:#dde4eb;
+      color:#425063;
+      border:1px solid var(--line);
+      border-radius:8px 8px 0 0;
+      padding:12px 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      font-weight:900;
+      font-size:13px;
+      text-transform:uppercase;
+    }
+
+    .checklist-actionbar{
+      position:sticky;
+      top:146px;
+      z-index:35;
+      margin-top:12px;
+      background:rgba(231,236,241,.98);
+      backdrop-filter:blur(8px);
+      padding:8px 0;
+    }
+    .checklist-actionbar-inner{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .comp-list{display:grid;gap:10px;margin-top:0}
+
+    .comp-card{
+      background:#f8f9fb;
+      border:1px solid var(--line);
+      border-radius:8px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      transition:border-color .12s ease, box-shadow .12s ease, background .12s ease;
+    }
+    .comp-card.expanded{
+      border-color:#a8bff7;
+      box-shadow:0 8px 22px rgba(34,88,218,.10);
+      background:#fbfdff;
+    }
+
+    .comp-head{
+      padding:14px;
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      gap:12px;
+      align-items:center;
+    }
+
+    .comp-number{
+      width:42px;height:42px;border-radius:var(--radius);
+      display:flex;align-items:center;justify-content:center;
+      font-size:17px;font-weight:900;
+      background:var(--gray);color:#fff;border:2px solid var(--gray);
+      flex-shrink:0;
+    }
+    .comp-card.expanded .comp-number{
+      background:#fff;color:var(--blue);border-color:var(--blue)
+    }
+
+    .comp-main{min-width:0}
+
+    .comp-name-row{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:14px;
+      margin-bottom:8px;
+    }
+    .comp-name{
+      font-size:18px;
+      font-weight:900;
+      line-height:1.2;
+      word-break:break-word;
+    }
+    .comp-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+    }
+    .progress-text{
+      font-size:12px;
+      font-weight:900;
+      color:#546173;
+      white-space:nowrap;
+    }
+
+    .arrow-btn{
+      width:48px;height:48px;border-radius:var(--radius);
+      border:1px solid var(--line);
+      background:#eef1f5;color:#4b5563;
+      font-size:28px;font-weight:900;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;
+      transition:transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .arrow-btn:active{transform:scale(.96)}
+    .comp-card.expanded .arrow-btn{
+      background:#f3f7ff;border-color:#bdd0ff;color:var(--blue)
+    }
+
+    .comp-body{
+      border-top:1px solid #e6ebf2;
+      padding:12px 14px 14px;
+      background:#fbfcfd;
+    }
+    .comp-card.expanded .comp-body{background:#fdfefe}
+
+    .comp-body-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+
+    .body-caption{
+      font-size:13px;
+      font-weight:900;
+      color:#4b5563;
+      text-transform:uppercase;
+    }
+
+    .item-list{
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      overflow:hidden;
+      background:#fff;
+    }
+
+    .item-row{
+      display:grid;
+      grid-template-columns:58px 1.3fr 200px 34px;
+      gap:10px;
+      align-items:center;
+      min-height:50px;
+      padding:0 10px;
+      border-top:1px solid #edf1f5;
+      transition:background .12s ease;
+    }
+    .item-row:first-child{border-top:none}
+    .item-row:active{background:#f7fbff}
+
+    .item-code{
+      font-weight:400;
+      color:#374151;
+      font-size:14px;
+    }
+    .item-name{
+      font-size:14px;
+      color:#2d3748;
+      line-height:1.25;
+    }
+    .item-chevron{
+      color:#8a919d;
+      font-size:28px;
+      text-align:right;
+      user-select:none;
+      cursor:pointer;
+    }
+
+    .item-detail{
+      padding:12px;
+      border-top:1px solid #eef2f6;
+      background:#fafbfd;
+      display:none;
+    }
+    .item-detail.open{display:block}
+
+    .item-detail-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .status-actions{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:8px;
+      margin-bottom:10px;
+    }
+
+    .status-btn{
+      border:1px solid var(--line);
+      background:#fff;
+      color:#475569;
+      border-radius:var(--radius);
+      min-height:46px;
+      font-size:12px;
+      font-weight:900;
+      cursor:pointer;
+      transition:transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .status-btn:active{transform:scale(.96)}
+    .status-btn.active.pendente{background:#f3f4f6;border-color:#d1d5db;color:#6b7280}
+    .status-btn.active.confere{background:#e8f5e9;border-color:#8bc34a;color:#2e7d32}
+    .status-btn.active.faltando{background:#fff8e1;border-color:#ffd54f;color:#8d6e00}
+    .status-btn.active.alterado{background:#fff3e0;border-color:#ffb74d;color:#ef6c00}
+    .status-btn.active.avariado{background:#ffebee;border-color:#ef9a9a;color:#c62828}
+
+    .vtr-list,.faltas-list{display:grid;gap:10px}
+    .vtr-card{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:8px;
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+      gap:10px;
+    }
+    .stat{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:8px;
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .stat .n{font-size:24px;font-weight:900;margin-top:6px}
+
+    .muted{color:var(--muted)}
+    .small{font-size:12px}
+    .msg{margin-top:10px;font-size:13px;font-weight:800}
+    .msg.ok{color:#2e7d32}
+    .msg.err{color:#c62828}
+
+    .login-wrap{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:16px;
+    }
+    .login-card{
+      width:min(460px,100%);
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:8px;
+      box-shadow:var(--shadow);
+      padding:20px;
+    }
+    .login-card h1{margin:0 0 8px;font-size:24px}
+
+    .tabbar{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:10px;
+      z-index:50;
+      width:min(980px,calc(100% - 14px));
+      background:rgba(255,255,255,.98);
+      border:1px solid var(--line);
+      border-radius:12px;
+      box-shadow:0 10px 24px rgba(0,0,0,.14);
+      padding:8px;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:8px;
+      backdrop-filter:blur(12px);
+    }
+    .tabbar button{
+      background:transparent;
+      color:#5b6470;
+      padding:12px 8px;
+      min-height:68px;
+      border-radius:8px;
+      border:none;
+      font-size:12px;
+      font-weight:900;
+      cursor:pointer;
+      transition:transform .12s ease, background .12s ease;
+    }
+    .tabbar button:active{transform:scale(.97)}
+    .tabbar button.active{background:#eef2ff;color:var(--blue)}
+
+    @media (max-width:980px){
+      .item-row{grid-template-columns:52px 1.2fr 180px 28px}
+      .status-chip{min-width:180px;max-width:180px}
+    }
+    @media (max-width:860px){
+      .toolbar-card{grid-template-columns:1fr}
+      .item-detail-grid{grid-template-columns:1fr}
+      .status-actions{grid-template-columns:repeat(2,1fr)}
+      .checklist-actionbar-inner{grid-template-columns:1fr}
+      .checklist-actionbar{top:146px}
+    }
+    @media (max-width:700px){
+      .hero-title{font-size:18px}
+      .top-actions{grid-template-columns:1fr 1fr}
+      .comp-name{font-size:16px}
+      .list-head{font-size:12px;padding:10px 12px}
+      .item-row{
+        grid-template-columns:46px 1fr 140px 24px;
+        gap:8px;
+        padding:0 8px;
+      }
+      .item-name,.item-code{font-size:13px}
+      .item-chevron{font-size:24px}
+      .status-chip{
+        min-width:140px;
+        max-width:140px;
+        font-size:12px;
+      }
+      .progress-text{width:100%}
+    }
   </style>
 </head>
 <body>
@@ -107,6 +588,7 @@
 
       <section id="tabChecklist" class="tab-section hidden">
         <div class="section-title"><h2>Checklist do dia</h2><span class="pill" id="checklistInfo">Selecione uma VTR</span></div>
+
         <div class="card">
           <div class="row">
             <div style="flex:1;min-width:220px"><label for="checkVtrSelect">VTR / Embarcação</label><select id="checkVtrSelect"></select></div>
@@ -130,15 +612,22 @@
           <button class="btn btn-card" id="btnMarcarTodosCompartimentos">☑️&nbsp; MARCAR TODOS</button>
         </div>
 
+        <div class="checklist-actionbar">
+          <div class="checklist-actionbar-inner">
+            <button class="btn btn-save" id="btnSalvarBarraFixa">💾 SALVAR</button>
+            <button class="btn btn-ghost" id="btnExpandirTodos">EXPANDIR / RECOLHER TODOS</button>
+          </div>
+        </div>
+
         <div class="list-head">
           <span>COMPARTIMENTO / ITENS</span>
-          <button class="btn btn-ghost" id="btnExpandirTodos" style="min-height:auto;padding:8px 12px;font-size:12px;">EXPANDIR / RECOLHER TODOS</button>
+          <span>STATUS / PROGRESSO</span>
         </div>
         <div id="compartimentosWrap" class="comp-list"></div>
       </section>
 
       <section id="tabFaltantes" class="tab-section hidden">
-        <div class="section-title"><h2>Itens com problema</h2><button class="btn btn-ghost" id="btnAtualizarFaltantes" style="min-height:auto;padding:10px 14px;">Atualizar</button></div>
+        <div class="section-title"><h2>Itens com problema</h2><button class="btn btn-ghost btn-inline" id="btnAtualizarFaltantes">Atualizar</button></div>
         <div id="faltasList" class="faltas-list"></div>
       </section>
 
@@ -169,6 +658,7 @@
               <button class="btn btn-primary" id="btnAddCompartimento">Salvar compartimento</button>
             </div>
           </div>
+
           <div class="card">
             <h3>Adicionar item</h3>
             <div class="col">
@@ -198,25 +688,74 @@
   </div>
 
   <script>
-    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(console.error); }); }
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(console.error);
+      });
+    }
+
     const SUPABASE_URL = 'https://nypebmbqcbrvbutamzrh.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_VXTVVV8BENUaKIMWjhrk2w_JRNQkEvg';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const $ = (id) => document.getElementById(id);
-    const STATUS_LABEL = { pendente: '⏺ Pendente', confere: '✅ Confere', faltando: '⚠️ Faltando', alterado: '🔧 Alterado', avariado: '🛠️ Avariado' };
-    const state = { user:null, vtrs:[], compartimentos:[], itens:[], checklistItemsState:{}, currentTab:'Inicio', collapsed:{}, itemOpen:{}, compMarkedAll:{}, expandAllState:false };
 
-    function hojeISO(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-    function hojeBR(){ const d=new Date(); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; }
-    function escapeHtml(str=''){ return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;"); }
-    function setLoginMsg(msg, ok=false){ $('loginMsg').textContent = msg || ''; $('loginMsg').className = 'msg ' + (ok ? 'ok' : 'err'); }
-    function setTopoData(){ $('dataAtualTopo').textContent = hojeBR(); }
+    const STATUS_LABEL = {
+      pendente: 'Pendente',
+      confere: 'Confere',
+      faltando: 'Faltando',
+      alterado: 'Alterado',
+      avariado: 'Avariado'
+    };
+
+    const state = {
+      user:null,
+      vtrs:[],
+      compartimentos:[],
+      itens:[],
+      checklistItemsState:{},
+      currentTab:'Inicio',
+      collapsed:{},
+      itemOpen:{},
+      compMarkedAll:{},
+      expandAllState:false
+    };
+
+    function hojeISO(){
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function hojeBR(){
+      const d = new Date();
+      return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    }
+
+    function escapeHtml(str=''){
+      return String(str)
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
+
+    function setLoginMsg(msg, ok=false){
+      $('loginMsg').textContent = msg || '';
+      $('loginMsg').className = 'msg ' + (ok ? 'ok' : 'err');
+    }
+
+    function setTopoData(){
+      $('dataAtualTopo').textContent = hojeBR();
+    }
 
     function setUserUI(){
       const nome = state.user?.nome || '-';
       $('userBadge').textContent = state.user ? `${nome} • ${state.user.perfil}` : 'Não logado';
       $('statUsuario').textContent = nome;
-      $('brandInfo').textContent = state.user ? `CBSLS • ${state.user.nome} • ${state.user.perfil}` : 'CBSLS • Sistema online de materiais e faltantes';
+      $('brandInfo').textContent = state.user
+        ? `CBSLS • ${state.user.nome} • ${state.user.perfil}`
+        : 'CBSLS • Sistema online de materiais e faltantes';
+
       const isAdmin = state.user?.perfil === 'admin';
       $('adminArea').classList.toggle('hidden', !isAdmin);
       $('adminNoAccess').classList.toggle('hidden', isAdmin);
@@ -229,7 +768,14 @@
       if (!idFunc || !senha) return setLoginMsg('Informe Id Func e senha.');
       setLoginMsg('Entrando...', true);
 
-      const { data, error } = await sb.from('militares').select('*').eq('id_func', idFunc).eq('senha', senha).eq('ativo', true).maybeSingle();
+      const { data, error } = await sb
+        .from('militares')
+        .select('*')
+        .eq('id_func', idFunc)
+        .eq('senha', senha)
+        .eq('ativo', true)
+        .maybeSingle();
+
       if (error || !data) return setLoginMsg('Login inválido.');
 
       state.user = data;
@@ -252,25 +798,40 @@
         setUserUI();
         carregarBase();
         return true;
-      }catch{ return false; }
+      }catch{
+        return false;
+      }
     }
 
     function preencherSelect(selectEl, items, valueKey='id', textKey='nome', placeholder='Selecione'){
-      selectEl.innerHTML = `<option value="">${placeholder}</option>` + items.map(item => `<option value="${item[valueKey]}">${escapeHtml(item[textKey])}</option>`).join('');
+      selectEl.innerHTML = `<option value="">${placeholder}</option>` + items.map(item =>
+        `<option value="${item[valueKey]}">${escapeHtml(item[textKey])}</option>`
+      ).join('');
     }
 
-    async function carregarBase(){ await Promise.all([carregarVtrs(), carregarFaltantesHoje(), carregarStatsHoje()]); }
+    async function carregarBase(){
+      await Promise.all([carregarVtrs(), carregarFaltantesHoje(), carregarStatsHoje()]);
+    }
 
     async function carregarVtrs(){
-      const { data, error } = await sb.from('vtrs').select('*').eq('ativo', true).order('codigo', { ascending: true });
+      const { data, error } = await sb.from('vtrs').select('*').eq('ativo', true).order('codigo', { ascending:true });
       if (error) return console.error(error);
+
       state.vtrs = data || [];
       $('statVtrs').textContent = state.vtrs.length;
+
       $('vtrList').innerHTML = state.vtrs.map(vtr => `
         <div class="vtr-card">
-          <div><div style="font-size:17px;font-weight:900">${escapeHtml(vtr.codigo)}</div><div class="muted small">${escapeHtml(vtr.nome)} • ${escapeHtml(vtr.tipo || 'vtr')}</div></div>
-          <div class="row"><button class="btn btn-primary" onclick="abrirChecklistDireto('${vtr.id}')">Abrir checklist</button></div>
-        </div>`).join('');
+          <div>
+            <div style="font-size:17px;font-weight:900">${escapeHtml(vtr.codigo)}</div>
+            <div class="muted small">${escapeHtml(vtr.nome)} • ${escapeHtml(vtr.tipo || 'vtr')}</div>
+          </div>
+          <div class="row">
+            <button class="btn btn-primary" onclick="abrirChecklistDireto('${vtr.id}')">Abrir checklist</button>
+          </div>
+        </div>
+      `).join('');
+
       preencherSelect($('checkVtrSelect'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
       preencherSelect($('relVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
       preencherSelect($('adminCompVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
@@ -283,144 +844,268 @@
     }
 
     async function carregarFaltantesHoje(){
-      const { data: checklistsHoje } = await sb.from('checklists').select('id, vtr_id, data_checklist').eq('data_checklist', hojeISO());
+      const { data: checklistsHoje } = await sb
+        .from('checklists')
+        .select('id, vtr_id, data_checklist')
+        .eq('data_checklist', hojeISO());
+
       const checklistIds = (checklistsHoje || []).map(c => c.id);
-      if (!checklistIds.length) {
-        $('faltasList').innerHTML = `<div class="card"><span class="status-text gray">⏺ Nenhum item com problema hoje</span></div>`;
-        $('statFaltasHoje').textContent = '0'; return;
+
+      if (!checklistIds.length){
+        $('faltasList').innerHTML = `<div class="card"><span class="status-chip gray"><span class="status-dot"></span>Nenhum item com problema hoje</span></div>`;
+        $('statFaltasHoje').textContent = '0';
+        return;
       }
-      const { data, error } = await sb.from('checklist_itens').select(`id, status_item, observacao, quantidade_encontrada, item:item_id (id, nome), checklist:checklist_id (id, data_checklist, vtr_id)`).in('checklist_id', checklistIds).in('status_item', ['faltando','alterado','avariado']);
+
+      const { data, error } = await sb
+        .from('checklist_itens')
+        .select(`id, status_item, observacao, quantidade_encontrada, item:item_id (id, nome), checklist:checklist_id (id, data_checklist, vtr_id)`)
+        .in('checklist_id', checklistIds)
+        .in('status_item', ['faltando','alterado','avariado']);
+
       if (error) return console.error(error);
+
       $('statFaltasHoje').textContent = (data || []).length;
-      if (!data || !data.length) return $('faltasList').innerHTML = `<div class="card"><span class="status-text gray">⏺ Nenhum item com problema hoje</span></div>`;
+
+      if (!data || !data.length){
+        $('faltasList').innerHTML = `<div class="card"><span class="status-chip gray"><span class="status-dot"></span>Nenhum item com problema hoje</span></div>`;
+        return;
+      }
+
       const vtrMap = Object.fromEntries(state.vtrs.map(v => [v.id, v.codigo]));
       $('faltasList').innerHTML = data.map(row => `
         <div class="card">
           <div class="row" style="justify-content:space-between">
-            <div><div style="font-weight:900">${escapeHtml(row.item?.nome || 'Item')}</div><div class="muted small">${escapeHtml(vtrMap[row.checklist?.vtr_id] || '-')} • ${escapeHtml(row.checklist?.data_checklist || '')}</div></div>
-            <span class="status-text red">${escapeHtml(row.status_item)}</span>
+            <div>
+              <div style="font-weight:900">${escapeHtml(row.item?.nome || 'Item')}</div>
+              <div class="muted small">${escapeHtml(vtrMap[row.checklist?.vtr_id] || '-')} • ${escapeHtml(row.checklist?.data_checklist || '')}</div>
+            </div>
+            <span class="status-chip red"><span class="status-dot"></span>${escapeHtml(row.status_item)}</span>
           </div>
           <div class="small muted" style="margin-top:8px">${escapeHtml(row.observacao || 'Sem observação')}</div>
-        </div>`).join('');
+        </div>
+      `).join('');
     }
 
-    async function abrirChecklistDireto(vtrId){ alternarTab('Checklist'); $('checkVtrSelect').value = vtrId; await carregarItensChecklist(); window.scrollTo({ top:0, behavior:'smooth' }); }
-    async function carregarCompartimentosDaVtr(vtrId){ const { data, error } = await sb.from('compartimentos').select('*').eq('vtr_id', vtrId).eq('ativo', true).order('ordem', { ascending: true }); if (error) { console.error(error); return []; } return data || []; }
-    async function carregarItensDaVtr(vtrId){ const { data, error } = await sb.from('itens').select('*').eq('vtr_id', vtrId).eq('ativo', true).order('ordem', { ascending: true }); if (error) { console.error(error); return []; } return data || []; }
+    async function abrirChecklistDireto(vtrId){
+      alternarTab('Checklist');
+      $('checkVtrSelect').value = vtrId;
+      await carregarItensChecklist();
+      window.scrollTo({ top:0, behavior:'smooth' });
+    }
+
+    async function carregarCompartimentosDaVtr(vtrId){
+      const { data, error } = await sb.from('compartimentos').select('*').eq('vtr_id', vtrId).eq('ativo', true).order('ordem', { ascending:true });
+      if (error) { console.error(error); return []; }
+      return data || [];
+    }
+
+    async function carregarItensDaVtr(vtrId){
+      const { data, error } = await sb.from('itens').select('*').eq('vtr_id', vtrId).eq('ativo', true).order('ordem', { ascending:true });
+      if (error) { console.error(error); return []; }
+      return data || [];
+    }
 
     async function carregarItensChecklist(){
       const vtrId = $('checkVtrSelect').value;
       if (!vtrId) return alert('Selecione uma VTR.');
+
       const vtr = state.vtrs.find(v => v.id === vtrId);
       $('checklistInfo').textContent = vtr ? `${vtr.codigo} • ${hojeBR()}` : 'Checklist';
+
       state.compartimentos = await carregarCompartimentosDaVtr(vtrId);
       state.itens = await carregarItensDaVtr(vtrId);
-      state.checklistItemsState = {}; state.itemOpen = {}; state.compMarkedAll = {}; state.expandAllState = false;
-      state.compartimentos.forEach(comp => { if (typeof state.collapsed[comp.id] === 'undefined') state.collapsed[comp.id] = true; });
-      for (const item of state.itens) { state.checklistItemsState[item.id] = { status:'pendente', quantidade_encontrada:item.quantidade_padrao, observacao:'' }; }
+      state.checklistItemsState = {};
+      state.itemOpen = {};
+      state.compMarkedAll = {};
+      state.expandAllState = false;
+
+      state.compartimentos.forEach(comp => {
+        if (typeof state.collapsed[comp.id] === 'undefined') state.collapsed[comp.id] = true;
+      });
+
+      for (const item of state.itens){
+        state.checklistItemsState[item.id] = {
+          status:'pendente',
+          quantidade_encontrada:item.quantidade_padrao,
+          observacao:''
+        };
+      }
+
       if (state.compartimentos[0]) state.collapsed[state.compartimentos[0].id] = false;
+
       renderChecklist();
       await carregarCompartimentosAdmin();
     }
 
-    function getItensCompartimento(compId){ return state.itens.filter(i => i.compartimento_id === compId); }
+    function getItensCompartimento(compId){
+      return state.itens.filter(i => i.compartimento_id === compId);
+    }
+
+    function getCompProgress(compId){
+      const itens = getItensCompartimento(compId);
+      const total = itens.length;
+      let feitos = 0;
+      for (const item of itens){
+        const st = state.checklistItemsState[item.id]?.status || 'pendente';
+        if (st !== 'pendente') feitos++;
+      }
+      return { feitos, total };
+    }
+
     function getCompStatus(compId){
       const itens = getItensCompartimento(compId);
-      if (!itens.length) return { kind:'gray', text:'⏺ Pendente' };
+      if (!itens.length) return { kind:'gray', text:'Pendente' };
+
       const states = itens.map(i => state.checklistItemsState[i.id]?.status || 'pendente');
       const hasProblem = states.some(s => ['faltando','alterado','avariado'].includes(s));
       const allConfere = states.every(s => s === 'confere');
-      if (state.compMarkedAll[compId]) return { kind:'orange', text:'🟠 Marcado como confere' };
-      if (hasProblem) return { kind:'red', text:'🔴 Com divergência' };
-      if (allConfere) return { kind:'green', text:'✅ Conferido' };
-      return { kind:'gray', text:'⏺ Pendente' };
+
+      if (state.compMarkedAll[compId]) return { kind:'orange', text:'Marcado como confere' };
+      if (hasProblem) return { kind:'red', text:'Com divergência' };
+      if (allConfere) return { kind:'green', text:'Conferido' };
+      return { kind:'gray', text:'Pendente' };
     }
 
     function renderChecklist(){
       const wrap = $('compartimentosWrap');
-      if (!state.compartimentos.length) return wrap.innerHTML = `<div class="card"><span class="status-text gray">⏺ Nenhum compartimento cadastrado para esta VTR.</span></div>`;
+
+      if (!state.compartimentos.length){
+        wrap.innerHTML = `<div class="card"><span class="status-chip gray"><span class="status-dot"></span>Nenhum compartimento cadastrado para esta VTR.</span></div>`;
+        return;
+      }
 
       wrap.innerHTML = state.compartimentos.map((comp, idx) => {
         const itens = getItensCompartimento(comp.id);
         const collapsed = !!state.collapsed[comp.id];
         const compStatus = getCompStatus(comp.id);
+        const prog = getCompProgress(comp.id);
 
-        return `<div class="comp-card ${collapsed ? '' : 'expanded'}">
-          <div class="comp-head">
-            <div class="comp-number">${idx + 1}</div>
-            <div class="comp-main">
-              <div class="comp-name-row">
-                <div class="comp-name">${escapeHtml(comp.nome)}</div>
-                <span class="status-text ${compStatus.kind}">${escapeHtml(compStatus.text)}</span>
+        return `
+          <div class="comp-card ${collapsed ? '' : 'expanded'}">
+            <div class="comp-head">
+              <div class="comp-number">${idx + 1}</div>
+
+              <div class="comp-main">
+                <div class="comp-name-row">
+                  <div class="comp-name">${escapeHtml(comp.nome)}</div>
+                  <span class="status-chip ${compStatus.kind}"><span class="status-dot"></span>${escapeHtml(compStatus.text)}</span>
+                </div>
+
+                <div class="comp-meta">
+                  <span class="pill">${itens.length} item(ns)</span>
+                  <span class="progress-text">Progresso: ${prog.feitos}/${prog.total}</span>
+                </div>
               </div>
-              <div class="comp-meta"><span class="pill">${itens.length} item(ns)</span></div>
-            </div>
-            <button class="arrow-btn" onclick="toggleComp('${comp.id}')">${collapsed ? '⌄' : '⌃'}</button>
-          </div>
 
-          <div class="comp-body ${collapsed ? 'hidden' : ''}">
-            <div class="comp-body-head">
-              <div class="body-caption">Itens do compartimento</div>
-              <button class="btn btn-ghost" style="min-height:auto;padding:8px 12px;font-size:12px;" onclick="marcarTodosCompartimento('${comp.id}')">☑️ MARCAR TODOS COMO CONFERE</button>
+              <button class="arrow-btn" onclick="toggleComp('${comp.id}')">${collapsed ? '⌄' : '⌃'}</button>
             </div>
 
-            ${itens.length ? `<div class="item-list">${
-              itens.map((item, itemIdx) => {
-                const st = state.checklistItemsState[item.id] || {};
-                const detailOpen = !!state.itemOpen[item.id];
-                const showObs = ['faltando','alterado','avariado'].includes(st.status);
-                const stClass = st.status === 'confere' ? 'green' : (['faltando','alterado','avariado'].includes(st.status) ? 'red' : 'gray');
+            <div class="comp-body ${collapsed ? 'hidden' : ''}">
+              <div class="comp-body-head">
+                <div class="body-caption">Itens do compartimento</div>
+                <button class="btn btn-ghost btn-inline" onclick="marcarTodosCompartimento('${comp.id}')">☑️ MARCAR TODOS COMO CONFERE</button>
+              </div>
 
-                return `<div>
-                  <div class="item-row">
-                    <div class="item-code">${idx + 1}.${itemIdx + 1}</div>
-                    <div class="item-name">${escapeHtml(item.nome)}</div>
-                    <div class="status-text ${stClass}">${escapeHtml(STATUS_LABEL[st.status] || '⏺ Pendente')}</div>
-                    <div class="item-chevron" onclick="toggleItem('${item.id}')">${detailOpen ? '⌃' : '›'}</div>
-                  </div>
+              ${itens.length ? `
+                <div class="item-list">
+                  ${itens.map((item, itemIdx) => {
+                    const st = state.checklistItemsState[item.id] || {};
+                    const detailOpen = !!state.itemOpen[item.id];
+                    const showObs = ['faltando','alterado','avariado'].includes(st.status);
+                    const stClass = st.status === 'confere' ? 'green' : (['faltando','alterado','avariado'].includes(st.status) ? 'red' : 'gray');
 
-                  <div class="item-detail ${detailOpen ? 'open' : ''}">
-                    <div class="status-actions">
-                      <button class="status-btn ${st.status === 'pendente' ? 'active pendente' : ''}" onclick="setItemStatus('${item.id}','pendente')">⏺ Pendente</button>
-                      <button class="status-btn ${st.status === 'confere' ? 'active confere' : ''}" onclick="setItemStatus('${item.id}','confere')">✅ Confere</button>
-                      <button class="status-btn ${st.status === 'faltando' ? 'active faltando' : ''}" onclick="setItemStatus('${item.id}','faltando')">⚠️ Faltando</button>
-                      <button class="status-btn ${st.status === 'alterado' ? 'active alterado' : ''}" onclick="setItemStatus('${item.id}','alterado')">🔧 Alterado</button>
-                      <button class="status-btn ${st.status === 'avariado' ? 'active avariado' : ''}" onclick="setItemStatus('${item.id}','avariado')">🛠️ Avariado</button>
-                    </div>
+                    return `
+                      <div>
+                        <div class="item-row">
+                          <div class="item-code">${idx + 1}.${itemIdx + 1}</div>
+                          <div class="item-name">${escapeHtml(item.nome)}</div>
+                          <div class="status-chip ${stClass}"><span class="status-dot"></span>${escapeHtml(STATUS_LABEL[st.status] || 'Pendente')}</div>
+                          <div class="item-chevron" onclick="toggleItem('${item.id}')">${detailOpen ? '⌃' : '›'}</div>
+                        </div>
 
-                    <div class="item-detail-grid">
-                      <div><label>Qtd encontrada</label><input type="number" step="0.01" value="${st.quantidade_encontrada ?? ''}" onchange="setItemQuantidade('${item.id}', this.value)" /></div>
-                      <div><label>Qtd padrão</label><input type="text" value="${escapeHtml(item.quantidade_padrao ?? '')}" disabled /></div>
-                    </div>
+                        <div class="item-detail ${detailOpen ? 'open' : ''}">
+                          <div class="status-actions">
+                            <button class="status-btn ${st.status === 'pendente' ? 'active pendente' : ''}" onclick="setItemStatus('${item.id}','pendente')">⏺ Pendente</button>
+                            <button class="status-btn ${st.status === 'confere' ? 'active confere' : ''}" onclick="setItemStatus('${item.id}','confere')">✅ Confere</button>
+                            <button class="status-btn ${st.status === 'faltando' ? 'active faltando' : ''}" onclick="setItemStatus('${item.id}','faltando')">⚠️ Faltando</button>
+                            <button class="status-btn ${st.status === 'alterado' ? 'active alterado' : ''}" onclick="setItemStatus('${item.id}','alterado')">🔧 Alterado</button>
+                            <button class="status-btn ${st.status === 'avariado' ? 'active avariado' : ''}" onclick="setItemStatus('${item.id}','avariado')">🛠️ Avariado</button>
+                          </div>
 
-                    ${showObs ? `<div style="margin-top:10px"><label>Observação</label><input type="text" value="${escapeHtml(st.observacao || '')}" onchange="setItemObservacao('${item.id}', this.value)" placeholder="Descreva o problema encontrado" /></div>` : ''}
-                    ${item.observacao_padrao ? `<div style="margin-top:10px" class="small muted"><b>Obs padrão:</b> ${escapeHtml(item.observacao_padrao)}</div>` : ''}
-                  </div>
-                </div>`;
-              }).join('')
-            }</div>` : `<div class="small muted">Sem itens neste compartimento.</div>`}
+                          <div class="item-detail-grid">
+                            <div>
+                              <label>Qtd encontrada</label>
+                              <input type="number" step="0.01" value="${st.quantidade_encontrada ?? ''}" onchange="setItemQuantidade('${item.id}', this.value)" />
+                            </div>
+                            <div>
+                              <label>Qtd padrão</label>
+                              <input type="text" value="${escapeHtml(item.quantidade_padrao ?? '')}" disabled />
+                            </div>
+                          </div>
+
+                          ${showObs ? `
+                            <div style="margin-top:10px">
+                              <label>Observação</label>
+                              <input type="text" value="${escapeHtml(st.observacao || '')}" onchange="setItemObservacao('${item.id}', this.value)" placeholder="Descreva o problema encontrado" />
+                            </div>
+                          ` : ''}
+
+                          ${item.observacao_padrao ? `
+                            <div style="margin-top:10px" class="small muted"><b>Obs padrão:</b> ${escapeHtml(item.observacao_padrao)}</div>
+                          ` : ''}
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              ` : `<div class="small muted">Sem itens neste compartimento.</div>`}
+            </div>
           </div>
-        </div>`;
+        `;
       }).join('');
     }
 
     function setItemStatus(itemId, status){
       if (!state.checklistItemsState[itemId]) return;
       state.checklistItemsState[itemId].status = status;
+
       const item = state.itens.find(i => i.id === itemId);
       if (item) state.compMarkedAll[item.compartimento_id] = false;
-      if (!['faltando','alterado','avariado'].includes(status)) state.checklistItemsState[itemId].observacao = '';
+
+      if (!['faltando','alterado','avariado'].includes(status)){
+        state.checklistItemsState[itemId].observacao = '';
+      }
+
       renderChecklist();
     }
-    function setItemQuantidade(itemId, valor){ if (!state.checklistItemsState[itemId]) return; state.checklistItemsState[itemId].quantidade_encontrada = valor === '' ? null : Number(valor); }
-    function setItemObservacao(itemId, valor){ if (!state.checklistItemsState[itemId]) return; state.checklistItemsState[itemId].observacao = valor || ''; }
-    function toggleItem(itemId){ state.itemOpen[itemId] = !state.itemOpen[itemId]; renderChecklist(); }
+
+    function setItemQuantidade(itemId, valor){
+      if (!state.checklistItemsState[itemId]) return;
+      state.checklistItemsState[itemId].quantidade_encontrada = valor === '' ? null : Number(valor);
+    }
+
+    function setItemObservacao(itemId, valor){
+      if (!state.checklistItemsState[itemId]) return;
+      state.checklistItemsState[itemId].observacao = valor || '';
+    }
+
+    function toggleItem(itemId){
+      state.itemOpen[itemId] = !state.itemOpen[itemId];
+      renderChecklist();
+    }
 
     function marcarTodosCompartimento(compId){
       const itens = getItensCompartimento(compId);
-      itens.forEach(item => { if (!state.checklistItemsState[item.id]) return; state.checklistItemsState[item.id].status = 'confere'; state.checklistItemsState[item.id].observacao = ''; });
-      state.compMarkedAll[compId] = true; renderChecklist();
+      itens.forEach(item => {
+        if (!state.checklistItemsState[item.id]) return;
+        state.checklistItemsState[item.id].status = 'confere';
+        state.checklistItemsState[item.id].observacao = '';
+      });
+      state.compMarkedAll[compId] = true;
+      renderChecklist();
     }
+
     function marcarTodosOsCompartimentos(){
       state.compartimentos.forEach(comp => {
         getItensCompartimento(comp.id).forEach(item => {
@@ -432,98 +1117,234 @@
       });
       renderChecklist();
     }
-    function toggleComp(compId){ state.collapsed[compId] = !state.collapsed[compId]; renderChecklist(); }
-    function expandirOuRecolherTodos(){ state.expandAllState = !state.expandAllState; state.compartimentos.forEach(comp => { state.collapsed[comp.id] = !state.expandAllState; }); renderChecklist(); }
+
+    function toggleComp(compId){
+      state.collapsed[compId] = !state.collapsed[compId];
+      renderChecklist();
+    }
+
+    function expandirOuRecolherTodos(){
+      state.expandAllState = !state.expandAllState;
+      state.compartimentos.forEach(comp => {
+        state.collapsed[comp.id] = !state.expandAllState;
+      });
+      renderChecklist();
+    }
 
     async function salvarChecklist(){
       const vtrId = $('checkVtrSelect').value;
       const turno = $('checkTurno').value || null;
       const observacaoGeral = $('checkObsGeral').value.trim();
+
       if (!vtrId) return alert('Selecione uma VTR.');
       if (!state.user?.id) return alert('Usuário não identificado.');
 
-      const payloadChecklist = { vtr_id:vtrId, militar_id:state.user.id, data_checklist:hojeISO(), turno, observacao_geral:observacaoGeral, status:'finalizado' };
-      const { data: checklistData, error: checklistError } = await sb.from('checklists').upsert(payloadChecklist, { onConflict:'vtr_id,data_checklist,turno' }).select().single();
-      if (checklistError || !checklistData) { console.error(checklistError); return alert('Erro ao salvar checklist.'); }
+      const payloadChecklist = {
+        vtr_id:vtrId,
+        militar_id:state.user.id,
+        data_checklist:hojeISO(),
+        turno,
+        observacao_geral:observacaoGeral,
+        status:'finalizado'
+      };
+
+      const { data: checklistData, error: checklistError } = await sb
+        .from('checklists')
+        .upsert(payloadChecklist, { onConflict:'vtr_id,data_checklist,turno' })
+        .select()
+        .single();
+
+      if (checklistError || !checklistData){
+        console.error(checklistError);
+        return alert('Erro ao salvar checklist.');
+      }
 
       const itensPayload = state.itens.map(item => ({
         checklist_id: checklistData.id,
         item_id: item.id,
         status_item: state.checklistItemsState[item.id]?.status || 'pendente',
         quantidade_encontrada: state.checklistItemsState[item.id]?.quantidade_encontrada,
-        observacao: ['faltando','alterado','avariado'].includes(state.checklistItemsState[item.id]?.status) ? (state.checklistItemsState[item.id]?.observacao || null) : null
+        observacao: ['faltando','alterado','avariado'].includes(state.checklistItemsState[item.id]?.status)
+          ? (state.checklistItemsState[item.id]?.observacao || null)
+          : null
       }));
 
-      const { error: itensError } = await sb.from('checklist_itens').upsert(itensPayload, { onConflict:'checklist_id,item_id' });
-      if (itensError) { console.error(itensError); return alert('Checklist salvo, mas houve erro em alguns itens.'); }
+      const { error: itensError } = await sb
+        .from('checklist_itens')
+        .upsert(itensPayload, { onConflict:'checklist_id,item_id' });
+
+      if (itensError){
+        console.error(itensError);
+        return alert('Checklist salvo, mas houve erro em alguns itens.');
+      }
+
       alert('Checklist salvo com sucesso.');
-      await carregarFaltantesHoje(); await carregarStatsHoje();
+      await carregarFaltantesHoje();
+      await carregarStatsHoje();
     }
 
     async function carregarCompartimentosAdmin(){
       const vtrId = $('adminItemVtr').value || $('checkVtrSelect').value;
-      if (!vtrId) return $('adminItemCompartimento').innerHTML = `<option value="">Selecione a VTR</option>`;
+      if (!vtrId){
+        $('adminItemCompartimento').innerHTML = `<option value="">Selecione a VTR</option>`;
+        return;
+      }
       const comps = await carregarCompartimentosDaVtr(vtrId);
       preencherSelect($('adminItemCompartimento'), comps, 'id', 'nome', 'Selecione o compartimento');
     }
 
     async function adicionarCompartimento(){
-      const vtrId = $('adminCompVtr').value, nome = $('adminCompNome').value.trim(), ordem = Number($('adminCompOrdem').value || 0);
+      const vtrId = $('adminCompVtr').value;
+      const nome = $('adminCompNome').value.trim();
+      const ordem = Number($('adminCompOrdem').value || 0);
+
       if (!vtrId || !nome) return alert('Informe VTR e nome do compartimento.');
+
       const { error } = await sb.from('compartimentos').insert({ vtr_id:vtrId, nome, ordem, ativo:true });
-      if (error) { console.error(error); return alert('Erro ao salvar compartimento.'); }
-      $('adminCompNome').value = ''; $('adminCompOrdem').value = '';
-      alert('Compartimento salvo com sucesso.'); await carregarCompartimentosAdmin();
+      if (error){
+        console.error(error);
+        return alert('Erro ao salvar compartimento.');
+      }
+
+      $('adminCompNome').value = '';
+      $('adminCompOrdem').value = '';
+      alert('Compartimento salvo com sucesso.');
+      await carregarCompartimentosAdmin();
     }
 
     async function adicionarItem(){
-      const vtrId = $('adminItemVtr').value, compartimentoId = $('adminItemCompartimento').value, nome = $('adminItemNome').value.trim();
-      const quantidade = Number($('adminItemQtd').value || 1), ordem = Number($('adminItemOrdem').value || 0), observacao = $('adminItemObs').value.trim();
+      const vtrId = $('adminItemVtr').value;
+      const compartimentoId = $('adminItemCompartimento').value;
+      const nome = $('adminItemNome').value.trim();
+      const quantidade = Number($('adminItemQtd').value || 1);
+      const ordem = Number($('adminItemOrdem').value || 0);
+      const observacao = $('adminItemObs').value.trim();
+
       if (!vtrId || !compartimentoId || !nome) return alert('Preencha VTR, compartimento e nome do item.');
-      const { error } = await sb.from('itens').insert({ vtr_id:vtrId, compartimento_id:compartimentoId, nome, quantidade_padrao:quantidade, ordem, observacao_padrao:observacao || null, ativo:true });
-      if (error) { console.error(error); return alert('Erro ao salvar item.'); }
-      $('adminItemNome').value = ''; $('adminItemQtd').value = '1'; $('adminItemOrdem').value = '1'; $('adminItemObs').value = '';
+
+      const { error } = await sb.from('itens').insert({
+        vtr_id:vtrId,
+        compartimento_id:compartimentoId,
+        nome,
+        quantidade_padrao:quantidade,
+        ordem,
+        observacao_padrao:observacao || null,
+        ativo:true
+      });
+
+      if (error){
+        console.error(error);
+        return alert('Erro ao salvar item.');
+      }
+
+      $('adminItemNome').value = '';
+      $('adminItemQtd').value = '1';
+      $('adminItemOrdem').value = '1';
+      $('adminItemObs').value = '';
       alert('Item salvo com sucesso.');
     }
 
     async function gerarRelatorioDia(){
-      const vtrId = $('relVtr').value, data = $('relData').value || hojeISO();
+      const vtrId = $('relVtr').value;
+      const data = $('relData').value || hojeISO();
       if (!vtrId) return alert('Selecione uma VTR.');
-      const vtr = state.vtrs.find(v => v.id === vtrId);
-      const { data: checklist, error: errChecklist } = await sb.from('checklists').select(`*, militar:militar_id (nome)`).eq('vtr_id', vtrId).eq('data_checklist', data).order('created_at', { ascending:false }).limit(1).maybeSingle();
-      if (errChecklist || !checklist) return $('relatorioArea').innerHTML = `<div class="card"><span class="status-text gray">⏺ Nenhum checklist encontrado para a data informada.</span></div>`;
-      const { data: itensRel, error: errItens } = await sb.from('checklist_itens').select(`*, item:item_id (nome)`).eq('checklist_id', checklist.id);
-      if (errItens) { console.error(errItens); return $('relatorioArea').innerHTML = `<div class="card"><span class="status-text red">🔴 Erro ao gerar relatório.</span></div>`; }
 
-      $('relatorioArea').innerHTML = `<div class="card">
-        <h3 style="margin-top:0">Relatório diário</h3>
-        <div class="small muted">VTR: <b>${escapeHtml(vtr?.codigo || '-')}</b></div>
-        <div class="small muted">Data: <b>${escapeHtml(data)}</b></div>
-        <div class="small muted">Conferente: <b>${escapeHtml(checklist.militar?.nome || '-')}</b></div>
-        <div class="small muted">Turno: <b>${escapeHtml(checklist.turno || 'Sem turno')}</b></div>
-        <div class="small muted" style="margin-top:8px">Observação geral: ${escapeHtml(checklist.observacao_geral || 'Sem observação')}</div>
-        <div style="margin-top:14px;display:grid;gap:10px">
-          ${(itensRel || []).map(row => `<div style="border:1px solid var(--line);border-radius:10px;padding:10px;background:#fafbfd"><div style="font-weight:900">${escapeHtml(row.item?.nome || 'Item')}</div><div class="small">Status: <b>${escapeHtml(row.status_item)}</b></div><div class="small">Qtd encontrada: <b>${escapeHtml(row.quantidade_encontrada ?? '')}</b></div><div class="small muted">Obs: ${escapeHtml(row.observacao || 'Sem observação')}</div></div>`).join('')}
+      const vtr = state.vtrs.find(v => v.id === vtrId);
+
+      const { data: checklist, error: errChecklist } = await sb
+        .from('checklists')
+        .select(`*, militar:militar_id (nome)`)
+        .eq('vtr_id', vtrId)
+        .eq('data_checklist', data)
+        .order('created_at', { ascending:false })
+        .limit(1)
+        .maybeSingle();
+
+      if (errChecklist || !checklist){
+        $('relatorioArea').innerHTML = `<div class="card"><span class="status-chip gray"><span class="status-dot"></span>Nenhum checklist encontrado para a data informada.</span></div>`;
+        return;
+      }
+
+      const { data: itensRel, error: errItens } = await sb
+        .from('checklist_itens')
+        .select(`*, item:item_id (nome)`)
+        .eq('checklist_id', checklist.id);
+
+      if (errItens){
+        console.error(errItens);
+        $('relatorioArea').innerHTML = `<div class="card"><span class="status-chip red"><span class="status-dot"></span>Erro ao gerar relatório.</span></div>`;
+        return;
+      }
+
+      $('relatorioArea').innerHTML = `
+        <div class="card">
+          <h3 style="margin-top:0">Relatório diário</h3>
+          <div class="small muted">VTR: <b>${escapeHtml(vtr?.codigo || '-')}</b></div>
+          <div class="small muted">Data: <b>${escapeHtml(data)}</b></div>
+          <div class="small muted">Conferente: <b>${escapeHtml(checklist.militar?.nome || '-')}</b></div>
+          <div class="small muted">Turno: <b>${escapeHtml(checklist.turno || 'Sem turno')}</b></div>
+          <div class="small muted" style="margin-top:8px">Observação geral: ${escapeHtml(checklist.observacao_geral || 'Sem observação')}</div>
+          <div style="margin-top:14px;display:grid;gap:10px">
+            ${(itensRel || []).map(row => `
+              <div style="border:1px solid var(--line);border-radius:6px;padding:10px;background:#fafbfd">
+                <div style="font-weight:900">${escapeHtml(row.item?.nome || 'Item')}</div>
+                <div class="small">Status: <b>${escapeHtml(row.status_item)}</b></div>
+                <div class="small">Qtd encontrada: <b>${escapeHtml(row.quantidade_encontrada ?? '')}</b></div>
+                <div class="small muted">Obs: ${escapeHtml(row.observacao || 'Sem observação')}</div>
+              </div>
+            `).join('')}
+          </div>
         </div>
-      </div>`;
+      `;
     }
 
     function imprimirRelatorio(){ window.print(); }
+
     function alternarTab(tabName){
       state.currentTab = tabName;
       document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
       document.querySelectorAll('.tabbtn').forEach(btn => btn.classList.remove('active'));
-      const sec = document.getElementById(`tab${tabName}`); if (sec) sec.classList.remove('hidden');
-      const activeBtn = document.querySelector(`.tabbtn[data-tab="${tabName}"]`); if (activeBtn) activeBtn.classList.add('active');
+
+      const sec = document.getElementById(`tab${tabName}`);
+      if (sec) sec.classList.remove('hidden');
+
+      const activeBtn = document.querySelector(`.tabbtn[data-tab="${tabName}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+
       if (tabName === 'Faltantes') carregarFaltantesHoje();
       if (tabName === 'Relatorios') $('relData').value = hojeISO();
     }
 
-    document.querySelectorAll('.tabbtn').forEach(btn => btn.addEventListener('click', () => alternarTab(btn.dataset.tab)));
-    $('btnLogin').addEventListener('click', login); $('btnCarregarChecklist').addEventListener('click', carregarItensChecklist); $('btnSalvarChecklist').addEventListener('click', salvarChecklist); $('btnSalvarTopo').addEventListener('click', salvarChecklist); $('btnTopo').addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' })); $('btnAtualizarFaltantes').addEventListener('click', carregarFaltantesHoje); $('btnRelatorioDia').addEventListener('click', gerarRelatorioDia); $('btnImprimir').addEventListener('click', imprimirRelatorio); $('btnAddCompartimento').addEventListener('click', adicionarCompartimento); $('btnAddItem').addEventListener('click', adicionarItem); $('adminItemVtr').addEventListener('change', carregarCompartimentosAdmin); $('btnMarcarTodosCompartimentos').addEventListener('click', marcarTodosOsCompartimentos); $('btnExpandirTodos').addEventListener('click', expandirOuRecolherTodos);
+    document.querySelectorAll('.tabbtn').forEach(btn => {
+      btn.addEventListener('click', () => alternarTab(btn.dataset.tab));
+    });
 
-    $('relData').value = hojeISO(); setTopoData();
-    window.abrirChecklistDireto = abrirChecklistDireto; window.setItemStatus = setItemStatus; window.setItemQuantidade = setItemQuantidade; window.setItemObservacao = setItemObservacao; window.toggleItem = toggleItem; window.marcarTodosCompartimento = marcarTodosCompartimento; window.toggleComp = toggleComp;
+    $('btnLogin').addEventListener('click', login);
+    $('btnCarregarChecklist').addEventListener('click', carregarItensChecklist);
+    $('btnSalvarChecklist').addEventListener('click', salvarChecklist);
+    $('btnSalvarTopo').addEventListener('click', salvarChecklist);
+    $('btnSalvarBarraFixa').addEventListener('click', salvarChecklist);
+    $('btnTopo').addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
+    $('btnAtualizarFaltantes').addEventListener('click', carregarFaltantesHoje);
+    $('btnRelatorioDia').addEventListener('click', gerarRelatorioDia);
+    $('btnImprimir').addEventListener('click', imprimirRelatorio);
+    $('btnAddCompartimento').addEventListener('click', adicionarCompartimento);
+    $('btnAddItem').addEventListener('click', adicionarItem);
+    $('adminItemVtr').addEventListener('change', carregarCompartimentosAdmin);
+    $('btnMarcarTodosCompartimentos').addEventListener('click', marcarTodosOsCompartimentos);
+    $('btnExpandirTodos').addEventListener('click', expandirOuRecolherTodos);
+
+    $('relData').value = hojeISO();
+    setTopoData();
+
+    window.abrirChecklistDireto = abrirChecklistDireto;
+    window.setItemStatus = setItemStatus;
+    window.setItemQuantidade = setItemQuantidade;
+    window.setItemObservacao = setItemObservacao;
+    window.toggleItem = toggleItem;
+    window.marcarTodosCompartimento = marcarTodosCompartimento;
+    window.toggleComp = toggleComp;
+
     restaurarLogin();
   </script>
 </body>
