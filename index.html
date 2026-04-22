@@ -141,7 +141,7 @@
       <div class="topbar">
         <div class="hero">
           <div class="hero-head">
-            <div class="hero-left">
+            <div style="display:flex;gap:12px;align-items:flex-start">
               <div class="hero-icon">📋</div>
               <div>
                 <h1 class="hero-title">CHECKLIST DE CONFERÊNCIA</h1>
@@ -451,20 +451,22 @@
       if (error) return console.error(error);
       state.vtrs = data || [];
       if ($('statVtrs')) $('statVtrs').textContent = state.vtrs.length;
-      $('vtrList').innerHTML = state.vtrs.map(vtr => {
-        const ult = vtr.ultimo_checklist_em ? `Conferido em ${isoToBR(vtr.ultimo_checklist_em.slice(0,10))} CG ${escapeHtml(vtr.ultimo_checklist_por_nome || '-')} ${vtr.ultimo_checklist_hora ? 'às ' + vtr.ultimo_checklist_hora : ''}` : 'Ainda não conferido hoje';
-        return `
-          <div class="vtr-card">
-            <div>
-              <div style="font-size:17px;font-weight:900">${escapeHtml(vtr.codigo)}</div>
-              <div class="muted small">${escapeHtml(vtr.nome)} • ${escapeHtml(vtr.tipo || 'vtr')}</div>
-              <div class="small" style="margin-top:6px;color:${vtr.ultimo_checklist_em ? 'var(--green)' : 'var(--muted)'};font-weight:900">${ult}</div>
-            </div>
-            <div class="row">
-              <button class="btn btn-primary" onclick="abrirChecklistDireto('${vtr.id}')">Abrir checklist</button>
-            </div>
-          </div>`;
-      }).join('');
+      if ($('vtrList')) {
+        $('vtrList').innerHTML = state.vtrs.map(vtr => {
+          const ult = vtr.ultimo_checklist_em ? `Conferido em ${isoToBR(vtr.ultimo_checklist_em.slice(0,10))} CG ${escapeHtml(vtr.ultimo_checklist_por_nome || '-')} ${vtr.ultimo_checklist_hora ? 'às ' + vtr.ultimo_checklist_hora : ''}` : 'Ainda não conferido hoje';
+          return `
+            <div class="vtr-card">
+              <div>
+                <div style="font-size:17px;font-weight:900">${escapeHtml(vtr.codigo)}</div>
+                <div class="muted small">${escapeHtml(vtr.nome)} • ${escapeHtml(vtr.tipo || 'vtr')}</div>
+                <div class="small" style="margin-top:6px;color:${vtr.ultimo_checklist_em ? 'var(--green)' : 'var(--muted)'};font-weight:900">${ult}</div>
+              </div>
+              <div class="row">
+                <button class="btn btn-primary" onclick="abrirChecklistDireto('${vtr.id}')">Abrir checklist</button>
+              </div>
+            </div>`;
+        }).join('');
+      }
 
       preencherSelect($('checkVtrSelect'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
       preencherSelect($('relVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
@@ -497,20 +499,21 @@
         return;
       }
       const vtrMap = Object.fromEntries(state.vtrs.map(v => [v.id, v.codigo]));
-      $('faltasList').innerHTML = data.map(row => `
-        <div class="card">
-          <div class="row" style="justify-content:space-between">
-            <div>
-              <div style="font-weight:900">${escapeHtml(row.item?.nome || 'Item')}</div>
-              <div class="muted small">${escapeHtml(vtrMap[row.checklist?.vtr_id] || '-')} • ${escapeHtml(row.checklist?.data_checklist || '')}</div>
+      if ($('faltasList')) {
+        $('faltasList').innerHTML = data.map(row => `
+          <div class="card">
+            <div class="row" style="justify-content:space-between">
+              <div>
+                <div style="font-weight:900">${escapeHtml(row.item?.nome || 'Item')}</div>
+                <div class="muted small">${escapeHtml(vtrMap[row.checklist?.vtr_id] || '-')} • ${escapeHtml(row.checklist?.data_checklist || '')}</div>
+              </div>
+              <span class="status-chip red"><span class="dot"></span>${escapeHtml(row.status_item)}</span>
             </div>
-            <span class="status-chip red"><span class="dot"></span>${escapeHtml(row.status_item)}</span>
+            <div class="small muted" style="margin-top:8px">${escapeHtml(row.observacao || 'Sem observação')}</div>
           </div>
-          <div class="small muted" style="margin-top:8px">${escapeHtml(row.observacao || 'Sem observação')}</div>
-        </div>
-      `).join('');
+        `).join('');
+      }
     }
-
 
     async function abrirChecklistDireto(vtrId){
       alternarTab('Checklist');
@@ -530,9 +533,7 @@
       if (error) { console.error(error); return null; }
 
       let rows = data || [];
-      if (turno) {
-        rows = rows.filter(r => (r.turno || '') === turno);
-      }
+      if (turno) rows = rows.filter(r => (r.turno || '') === turno);
       return rows[0] || null;
     }
 
@@ -568,8 +569,7 @@
       ids.forEach(id => {
         const el = $(id);
         if (!el) return;
-        if (id.startsWith('btn')) el.disabled = !enabled;
-        else el.disabled = !enabled;
+        el.disabled = !enabled;
       });
     }
 
@@ -600,9 +600,9 @@
       }
 
       if (state.currentChecklist){
-        $('checkObsGeral').value = state.currentChecklist.observacao_geral || '';
-        $('servicoDia').value = state.currentChecklist.servico_dia || '';
-        $('cgDiaSelect').value = state.currentChecklist.cg_dia_id || '';
+        if ($('checkObsGeral')) $('checkObsGeral').value = state.currentChecklist.observacao_geral || '';
+        if ($('servicoDia')) $('servicoDia').value = state.currentChecklist.servico_dia || '';
+        if ($('cgDiaSelect')) $('cgDiaSelect').value = state.currentChecklist.cg_dia_id || '';
 
         const rows = await carregarChecklistExistenteItens(state.currentChecklist.id);
         rows.forEach(r => {
@@ -617,19 +617,19 @@
 
         if (state.user?.perfil === 'admin'){
           state.checklistLocked = true;
-          setChecklistLock(`Checklist já salvo por ${state.currentChecklist.salvo_por_nome || '-'} às ${state.currentChecklist.salvo_em ? horaBR(state.currentChecklist.salvo_em) : '--:--'}. Somente admin pode reabrir.`, False);
+          setChecklistLock(`Checklist já salvo por ${state.currentChecklist.salvo_por_nome || '-'} às ${state.currentChecklist.salvo_em ? horaBR(state.currentChecklist.salvo_em) : '--:--'}. Somente admin pode reabrir.`, false);
           $('btnReabrirChecklist')?.classList.remove('hidden');
           toggleChecklistEditing(false);
         } else {
           state.checklistLocked = true;
-          setChecklistLock(`Checklist já salvo por ${state.currentChecklist.salvo_por_nome || '-'} às ${state.currentChecklist.salvo_em ? horaBR(state.currentChecklist.salvo_em) : '--:--'}. Usuário comum só pode visualizar.`, False);
+          setChecklistLock(`Checklist já salvo por ${state.currentChecklist.salvo_por_nome || '-'} às ${state.currentChecklist.salvo_em ? horaBR(state.currentChecklist.salvo_em) : '--:--'}. Usuário comum só pode visualizar.`, false);
           $('btnReabrirChecklist')?.classList.add('hidden');
           toggleChecklistEditing(false);
         }
       } else {
-        $('checkObsGeral').value = '';
-        $('servicoDia').value = `${hojeBR()} - 09:00HS A 09:00HS`;
-        $('cgDiaSelect').value = '';
+        if ($('checkObsGeral')) $('checkObsGeral').value = '';
+        if ($('servicoDia')) $('servicoDia').value = `${hojeBR()} - 09:00HS A 09:00HS`;
+        if ($('cgDiaSelect')) $('cgDiaSelect').value = '';
         state.checklistLocked = false;
         state.currentChecklist = null;
         setChecklistLock('', true);
@@ -837,7 +837,7 @@
       renderChecklist();
     }
     function toggleComp(compId){
-      state.collapsed[compId] = !state.collapsed[compId];
+      state.collapsed[compId] = !state.collapsed[compid];
       renderChecklist();
     }
     function expandirOuRecolherTodos(){
@@ -861,7 +861,7 @@
       const observacaoGeral = $('checkObsGeral')?.value.trim() || '';
       const servicoDia = $('servicoDia')?.value.trim() || '';
       const cgDiaId = $('cgDiaSelect')?.value || null;
-      const cgDiaNome = state.militares.find(m => m.id === cgDiaId)?.nome || null;
+      const cgDiaNome = state.militares.find(m => String(m.id) === String(cgDiaId))?.nome || null;
 
       if (!vtrId) return alert('Selecione uma VTR.');
       if (!state.user?.id) return alert('Usuário não identificado.');
@@ -888,10 +888,7 @@
           .select()
           .single();
 
-        if (insertErr){
-          console.error(insertErr);
-          return alert('Erro ao criar checklist.');
-        }
+        if (insertErr){ console.error(insertErr); return alert('Erro ao criar checklist.'); }
         checklistId = inserted.id;
         state.currentChecklist = inserted;
       } else {
@@ -910,10 +907,7 @@
           })
           .eq('id', checklistId);
 
-        if (updErr){
-          console.error(updErr);
-          return alert('Erro ao atualizar checklist.');
-        }
+        if (updErr){ console.error(updErr); return alert('Erro ao atualizar checklist.'); }
       }
 
       const itensPayload = state.itens.map(item => ({
@@ -927,12 +921,8 @@
       }));
 
       for (const row of itensPayload){
-        const { data: existing } = await sb
-          .from('checklist_itens')
-          .select('id')
-          .eq('checklist_id', checklistId)
-          .eq('item_id', row.item_id)
-          .limit(1);
+        const { data: existing, error: selErr } = await sb.from('checklist_itens').select('id').eq('checklist_id', checklistId).eq('item_id', row.item_id).limit(1);
+        if (selErr){ console.error(selErr); return alert('Erro ao localizar item do checklist.'); }
 
         if (existing && existing[0]){
           const { error } = await sb.from('checklist_itens').update(row).eq('id', existing[0].id);
@@ -974,18 +964,13 @@
       if (tabName === 'Admin') renderAdminWizard();
     }
 
-    // Admin Wizard
     function adminLabelTitle(){
       return `${state.adminAction ? state.adminAction.toUpperCase() : ''} ${state.adminType ? state.adminType.toUpperCase() : ''}`.trim();
     }
 
     function setAdminChoiceStyles(){
-      document.querySelectorAll('#adminActionButtons .wizard-choice').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.action === state.adminAction);
-      });
-      document.querySelectorAll('#adminTypeButtons .wizard-choice').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.type === state.adminType);
-      });
+      document.querySelectorAll('#adminActionButtons .wizard-choice').forEach(btn => btn.classList.toggle('active', btn.dataset.action === state.adminAction));
+      document.querySelectorAll('#adminTypeButtons .wizard-choice').forEach(btn => btn.classList.toggle('active', btn.dataset.type === state.adminType));
     }
 
     async function loadAdminCaches(){
@@ -1081,7 +1066,7 @@
 
     function preencherWizardVtr(){
       const id = $('wizVtrSelect')?.value;
-      const vtr = state.adminCache.vtrs.find(v => v.id === id);
+      const vtr = state.adminCache.vtrs.find(v => String(v.id) === String(id));
       if (!vtr) return limparWizardCampos();
       $('wizVtrCodigo').value = vtr.codigo || '';
       $('wizVtrNome').value = vtr.nome || '';
@@ -1091,14 +1076,14 @@
 
     function preencherWizardCompartimentosPorVtr(){
       const vtrId = $('wizCompVtr')?.value;
-      const list = state.adminCache.compartimentos.filter(c => c.vtr_id === vtrId);
+      const list = state.adminCache.compartimentos.filter(c => String(c.vtr_id) === String(vtrId));
       preencherSelect($('wizCompSelect'), list, 'id', 'nome', 'Selecione o compartimento');
       limparWizardCampos(['wizCompNome','wizCompOrdem']);
     }
 
     function preencherWizardCompartimento(){
       const id = $('wizCompSelect')?.value;
-      const comp = state.adminCache.compartimentos.find(c => c.id === id);
+      const comp = state.adminCache.compartimentos.find(c => String(c.id) === String(id));
       if (!comp) return;
       $('wizCompNome').value = comp.nome || '';
       $('wizCompOrdem').value = comp.ordem ?? '';
@@ -1107,7 +1092,7 @@
 
     function preencherWizardItemCompartimentos(){
       const vtrId = $('wizItemVtr')?.value;
-      const comps = state.adminCache.compartimentos.filter(c => c.vtr_id === vtrId);
+      const comps = state.adminCache.compartimentos.filter(c => String(c.vtr_id) === String(vtrId));
       preencherSelect($('wizItemComp'), comps, 'id', 'nome', 'Selecione o compartimento');
       if ($('wizItemSelect')) $('wizItemSelect').innerHTML = `<option value="">Selecione o item</option>`;
       limparWizardCampos(['wizItemNome','wizItemQtd','wizItemOrdem','wizItemObs']);
@@ -1116,14 +1101,14 @@
     function preencherWizardItensPorCompartimento(){
       if (state.adminAction === 'adicionar') return;
       const compId = $('wizItemComp')?.value;
-      const items = state.adminCache.itens.filter(i => i.compartimento_id === compId);
+      const items = state.adminCache.itens.filter(i => String(i.compartimento_id) === String(compId));
       preencherSelect($('wizItemSelect'), items, 'id', 'nome', 'Selecione o item');
       limparWizardCampos(['wizItemNome','wizItemQtd','wizItemOrdem','wizItemObs']);
     }
 
     function preencherWizardItem(){
       const id = $('wizItemSelect')?.value;
-      const item = state.adminCache.itens.find(i => i.id === id);
+      const item = state.adminCache.itens.find(i => String(i.id) === String(id));
       if (!item) return;
       $('wizItemNome').value = item.nome || '';
       $('wizItemQtd').value = item.quantidade_padrao ?? '';
@@ -1152,7 +1137,7 @@
           alert('VTR adicionada com sucesso.');
         }
         if (state.adminAction === 'editar'){
-          const id = $('wizVtrSelect').value;
+          const id = $('wizVtrSelect')?.value;
           if (!id) return alert('Selecione a VTR.');
           const { error } = await sb.from('vtrs').update({
             codigo: $('wizVtrCodigo').value.trim(),
@@ -1164,7 +1149,7 @@
           alert('VTR editada com sucesso.');
         }
         if (state.adminAction === 'excluir'){
-          const id = $('wizVtrSelect').value;
+          const id = $('wizVtrSelect')?.value;
           if (!id) return alert('Selecione a VTR.');
           if (!confirm('Excluir VTR definitivamente do banco?')) return;
           const { error } = await sb.from('vtrs').delete().eq('id', id);
@@ -1185,7 +1170,7 @@
           alert('Compartimento adicionado com sucesso.');
         }
         if (state.adminAction === 'editar'){
-          const id = $('wizCompSelect').value;
+          const id = $('wizCompSelect')?.value;
           if (!id) return alert('Selecione o compartimento.');
           const { error } = await sb.from('compartimentos').update({
             nome: $('wizCompNome').value.trim(),
@@ -1196,7 +1181,7 @@
           alert('Compartimento editado com sucesso.');
         }
         if (state.adminAction === 'excluir'){
-          const id = $('wizCompSelect').value;
+          const id = $('wizCompSelect')?.value;
           if (!id) return alert('Selecione o compartimento.');
           if (!confirm('Excluir compartimento definitivamente do banco?')) return;
           const { error } = await sb.from('compartimentos').delete().eq('id', id);
@@ -1224,7 +1209,7 @@
           alert('Item adicionado com sucesso.');
         }
         if (state.adminAction === 'editar'){
-          const id = $('wizItemSelect').value;
+          const id = $('wizItemSelect')?.value;
           if (!id) return alert('Selecione o item.');
           const { error } = await sb.from('itens').update({
             nome: $('wizItemNome').value.trim(),
@@ -1237,7 +1222,7 @@
           alert('Item editado com sucesso.');
         }
         if (state.adminAction === 'excluir'){
-          const id = $('wizItemSelect').value;
+          const id = $('wizItemSelect')?.value;
           if (!id) return alert('Selecione o item.');
           if (!confirm('Excluir item definitivamente do banco?')) return;
           const { error } = await sb.from('itens').delete().eq('id', id);
@@ -1268,7 +1253,7 @@
       const data = $('relData')?.value || hojeISO();
       if (!vtrId) return alert('Selecione uma VTR.');
 
-      const vtr = state.vtrs.find(v => v.id === vtrId);
+      const vtr = state.vtrs.find(v => String(v.id) === String(vtrId));
       const { data: checklist, error: errChecklist } = await sb
         .from('checklists')
         .select(`*`)
@@ -1279,7 +1264,7 @@
         .maybeSingle();
 
       if (errChecklist || !checklist){
-        $('relatorioArea').innerHTML = `<div class="card"><span class="status-chip gray"><span class="dot"></span>Nenhum checklist encontrado para a data informada.</span></div>`;
+        if ($('relatorioArea')) $('relatorioArea').innerHTML = `<div class="card"><span class="status-chip gray"><span class="dot"></span>Nenhum checklist encontrado para a data informada.</span></div>`;
         return;
       }
 
@@ -1290,37 +1275,38 @@
 
       if (errItens){
         console.error(errItens);
-        $('relatorioArea').innerHTML = `<div class="card"><span class="status-chip red"><span class="dot"></span>Erro ao gerar relatório.</span></div>`;
+        if ($('relatorioArea')) $('relatorioArea').innerHTML = `<div class="card"><span class="status-chip red"><span class="dot"></span>Erro ao gerar relatório.</span></div>`;
         return;
       }
 
-      $('relatorioArea').innerHTML = `
-        <div class="card">
-          <h3 style="margin-top:0">Relatório diário</h3>
-          <div class="small muted">VTR: <b>${escapeHtml(vtr?.codigo || '-')}</b></div>
-          <div class="small muted">Data: <b>${escapeHtml(data)}</b></div>
-          <div class="small muted">Serviço do dia: <b>${escapeHtml(checklist.servico_dia || '-')}</b></div>
-          <div class="small muted">CG do dia: <b>${escapeHtml(checklist.cg_dia_nome || '-')}</b></div>
-          <div class="small muted">Salvo por: <b>${escapeHtml(checklist.salvo_por_nome || '-')}</b></div>
-          <div class="small muted">Hora do salvamento: <b>${checklist.salvo_em ? horaBR(checklist.salvo_em) : '--:--'}</b></div>
-          <div class="small muted">Turno: <b>${escapeHtml(checklist.turno || 'Sem turno')}</b></div>
-          <div class="small muted" style="margin-top:8px">Observação geral: ${escapeHtml(checklist.observacao_geral || 'Sem observação')}</div>
-          <div style="margin-top:14px;display:grid;gap:10px">
-            ${(itensRel || []).map(row => `
-              <div style="border:1px solid var(--line);border-radius:6px;padding:10px;background:#fafbfd">
-                <div style="font-weight:900">${escapeHtml(row.item?.nome || 'Item')}</div>
-                <div class="small">Status: <b>${escapeHtml(row.status_item)}</b></div>
-                <div class="small">Qtd encontrada: <b>${escapeHtml(row.quantidade_encontrada ?? '')}</b></div>
-                <div class="small muted">Obs: ${escapeHtml(row.observacao || 'Sem observação')}</div>
-              </div>
-            `).join('')}
-          </div>
-        </div>`;
+      if ($('relatorioArea')) {
+        $('relatorioArea').innerHTML = `
+          <div class="card">
+            <h3 style="margin-top:0">Relatório diário</h3>
+            <div class="small muted">VTR: <b>${escapeHtml(vtr?.codigo || '-')}</b></div>
+            <div class="small muted">Data: <b>${escapeHtml(data)}</b></div>
+            <div class="small muted">Serviço do dia: <b>${escapeHtml(checklist.servico_dia || '-')}</b></div>
+            <div class="small muted">CG do dia: <b>${escapeHtml(checklist.cg_dia_nome || '-')}</b></div>
+            <div class="small muted">Salvo por: <b>${escapeHtml(checklist.salvo_por_nome || '-')}</b></div>
+            <div class="small muted">Hora do salvamento: <b>${checklist.salvo_em ? horaBR(checklist.salvo_em) : '--:--'}</b></div>
+            <div class="small muted">Turno: <b>${escapeHtml(checklist.turno || 'Sem turno')}</b></div>
+            <div class="small muted" style="margin-top:8px">Observação geral: ${escapeHtml(checklist.observacao_geral || 'Sem observação')}</div>
+            <div style="margin-top:14px;display:grid;gap:10px">
+              ${(itensRel || []).map(row => `
+                <div style="border:1px solid var(--line);border-radius:6px;padding:10px;background:#fafbfd">
+                  <div style="font-weight:900">${escapeHtml(row.item?.nome || 'Item')}</div>
+                  <div class="small">Status: <b>${escapeHtml(row.status_item)}</b></div>
+                  <div class="small">Qtd encontrada: <b>${escapeHtml(row.quantidade_encontrada ?? '')}</b></div>
+                  <div class="small muted">Obs: ${escapeHtml(row.observacao || 'Sem observação')}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>`;
+      }
     }
 
     function imprimirRelatorio(){ window.print(); }
 
-    // global event binds
     document.querySelectorAll('.tabbtn').forEach(btn => btn.addEventListener('click', () => alternarTab(btn.dataset.tab)));
     bind('btnLogin', 'click', login);
     bind('btnCarregarChecklist', 'click', carregarItensChecklist);
