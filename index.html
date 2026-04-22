@@ -13,557 +13,112 @@
   <link rel="icon" href="icon-192.png" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
     :root{
-      --bg:#e7ecf1;
-      --card:#f7f9fb;
-      --white:#ffffff;
-      --header:#444b54;
-      --header-2:#5a616b;
-      --text:#1f2937;
-      --muted:#6b7280;
-      --line:#d1d7e0;
-      --line-2:#c4ccd7;
-      --blue:#2258da;
-      --blue-soft:#eef3ff;
-      --green:#43a047;
-      --green-soft:#edf7ee;
-      --orange:#f57c00;
-      --orange-soft:#fff4e8;
-      --red:#c62828;
-      --red-soft:#fdeeee;
-      --gray:#8b9098;
-      --gray-soft:#f3f5f7;
-      --shadow:0 8px 22px rgba(25,35,52,.08);
-      --radius:6px;
+      --bg:#e7ecf1; --card:#fff; --soft:#f5f7fa; --line:#d1d7e0; --line2:#c4ccd7;
+      --text:#1f2937; --muted:#6b7280; --header:#444b54; --header2:#5a616b;
+      --blue:#2258da; --green:#2f9e44; --red:#c62828; --orange:#f57c00; --gray:#8b9098;
+      --radius:8px; --shadow:0 8px 22px rgba(25,35,52,.08);
     }
-
     *{box-sizing:border-box}
-    html,body{
-      margin:0;padding:0;
-      font-family:Arial,Helvetica,sans-serif;
-      background:var(--bg);color:var(--text)
-    }
-    body{padding-bottom:118px}
+    html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+    body{padding-bottom:110px}
     button,input,select,textarea{font:inherit}
-
-    .app{
-      width:min(1080px,100%);
-      margin:0 auto;
-      padding:0 12px 145px;
-    }
-
-    .topbar{
-      position:sticky;
-      top:0;
-      z-index:50;
-      margin:0 -12px;
-      padding:0 12px 10px;
-      background:rgba(231,236,241,.96);
-      backdrop-filter:blur(10px);
-    }
-
-    .hero{
-      background:linear-gradient(180deg,var(--header),var(--header-2));
-      color:#fff;
-      padding:18px 16px 16px;
-      box-shadow:var(--shadow);
-      border-radius:0 0 8px 8px;
-    }
-
-    .hero-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
-    .hero-left{display:flex;gap:12px;align-items:flex-start;min-width:0;flex:1}
-    .hero-icon{font-size:40px;line-height:1;margin-top:2px}
-    .hero-title{margin:0;font-size:21px;line-height:1.15;font-weight:900}
-    .hero-sub{margin:6px 0 0;font-size:13px;font-weight:700;opacity:.98}
-    .date-now{
-      text-align:center;
-      margin:14px 0 0;
-      font-size:14px;
-      font-weight:900;
-      letter-spacing:.3px;
-      color:#edf2ff;
-    }
-
-    .top-actions{
-      display:grid;
-      grid-template-columns:1fr 1fr 1fr;
-      gap:10px;
-      margin-top:14px;
-    }
-
-    .btn{
-      min-height:52px;
-      border-radius:var(--radius);
-      padding:12px 14px;
-      font-weight:900;
-      border:none;
-      cursor:pointer;
-      transition:transform .12s ease, filter .12s ease, background .12s ease, border-color .12s ease;
-    }
-    .btn:hover{filter:brightness(.99)}
-    .btn:active{transform:scale(.97)}
-
-    .btn-primary{background:var(--blue);color:#fff;border:1px solid rgba(255,255,255,.12)}
-    .btn-secondary{background:#737b86;color:#fff;border:1px solid rgba(255,255,255,.12)}
-    .btn-ghost{background:#fff;color:var(--blue);border:2px solid var(--blue)}
-    .btn-card{background:#fff;color:var(--blue);border:2px solid var(--blue)}
-    .btn-card.active-green{background:var(--green-soft);color:var(--green);border-color:var(--green)}
-    .btn-save{background:#1f8b4c;color:#fff;border:1px solid #17703d}
-    .btn-inline{
-      min-height:auto;
-      padding:8px 12px;
-      font-size:12px;
-      border-radius:var(--radius);
-    }
-
-    .tab-section{margin-top:14px}
     .hidden{display:none!important}
-
-    .section-title{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:8px;
-      margin:8px 0 10px;
-    }
-
-    .card{
-      background:var(--white);
-      border:1px solid var(--line);
-      border-radius:8px;
-      box-shadow:var(--shadow);
-      padding:14px;
-    }
-    .card.soft{background:var(--card)}
-
+    .app{width:min(1080px,100%);margin:0 auto;padding:0 12px 140px}
+    .topbar{position:sticky;top:0;z-index:40;margin:0 -12px;padding:0 12px 10px;background:rgba(231,236,241,.96);backdrop-filter:blur(10px)}
+    .hero{background:linear-gradient(180deg,var(--header),var(--header2));color:#fff;padding:18px 16px 16px;border-radius:0 0 8px 8px;box-shadow:var(--shadow)}
+    .hero-head{display:flex;gap:12px;align-items:flex-start}
+    .hero-icon{font-size:40px;line-height:1}
+    .hero-title{margin:0;font-size:21px;font-weight:900;line-height:1.15}
+    .hero-sub{margin:6px 0 0;font-size:13px;font-weight:700}
+    .hero-date{text-align:center;margin:14px 0 0;font-size:14px;font-weight:900;color:#edf2ff}
+    .hero-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+    .btn{min-height:50px;padding:12px 14px;border-radius:8px;border:none;font-weight:900;cursor:pointer;transition:.12s}
+    .btn:active{transform:scale(.97)}
+    .btn-primary{background:var(--blue);color:#fff}
+    .btn-secondary{background:#737b86;color:#fff}
+    .btn-green{background:#1f8b4c;color:#fff}
+    .btn-outline{background:#fff;border:2px solid var(--blue);color:var(--blue)}
+    .btn-outline-green{background:#eef8f0;border:2px solid var(--green);color:var(--green)}
+    .btn-danger{background:#fff0f0;border:2px solid var(--red);color:var(--red)}
+    .btn-small{min-height:auto;padding:8px 12px;font-size:12px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);padding:14px}
+    .soft{background:var(--soft)}
+    .section-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:10px 0}
     .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .col{display:flex;flex-direction:column;gap:8px}
-
-    label{
-      font-size:13px;
-      font-weight:800;
-      color:#46515f;
-    }
-
-    input,select,textarea{
-      width:100%;
-      border:1px solid var(--line-2);
-      border-radius:var(--radius);
-      padding:12px 12px;
-      background:#fff;
-      color:var(--text);
-      outline:none;
-    }
-    textarea{min-height:86px;resize:vertical}
-
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      border-radius:999px;
-      padding:5px 10px;
-      font-size:12px;
-      font-weight:900;
-      background:#eef2ff;
-      color:#1d4ed8;
-      border:1px solid #d5def9;
-      white-space:nowrap;
-    }
-
-    .status-chip{
-      display:inline-flex;
-      align-items:center;
-      justify-content:flex-start;
-      gap:8px;
-      min-width:190px;
-      max-width:190px;
-      font-size:13px;
-      font-weight:900;
-      white-space:nowrap;
-    }
-    .status-dot{
-      width:12px;height:12px;border-radius:999px;display:inline-block;flex:0 0 12px
-    }
-    .status-chip.green{color:var(--green)}
-    .status-chip.green .status-dot{background:var(--green)}
-    .status-chip.orange{color:var(--orange)}
-    .status-chip.orange .status-dot{background:var(--orange)}
-    .status-chip.red{color:var(--red)}
-    .status-chip.red .status-dot{background:var(--red)}
-    .status-chip.gray{color:var(--gray)}
-    .status-chip.gray .status-dot{
-      background:transparent;
-      border:2px solid var(--gray);
-      width:12px;height:12px
-    }
-
-    .toolbar-card{
-      display:grid;
-      grid-template-columns:1.5fr 1fr;
-      gap:12px;
-      margin-top:12px;
-    }
-    .toolbar-left{display:flex;gap:12px;align-items:flex-start}
-    .toolbar-icon{font-size:28px;line-height:1;color:var(--blue);margin-top:4px}
-    .toolbar-title{
-      font-size:14px;
-      color:var(--blue);
-      font-weight:900;
-      line-height:1.3;
-      text-transform:uppercase;
-      margin-bottom:6px;
-    }
-    .toolbar-desc{font-size:14px;color:#374151;line-height:1.45}
-
-
-    .info-bar{
-      margin-top:10px;
-      display:grid;
-      gap:10px;
-    }
-    .info-box{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:8px;
-      padding:10px 12px;
-      font-size:13px;
-      font-weight:800;
-      color:#435061;
-    }
-    .info-box.ok{background:var(--green-soft);color:var(--green);border-color:#9ed3a4}
-    .readonly-mask{opacity:.72;pointer-events:none}
-    .admin-step{
-      margin-bottom:12px;
-    }
-    .admin-panel{display:none}
-    .admin-panel.show{display:block}
-
-    .list-head{
-      margin-top:14px;
-      background:#dde4eb;
-      color:#425063;
-      border:1px solid var(--line);
-      border-radius:8px 8px 0 0;
-      padding:12px 14px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:8px;
-      font-weight:900;
-      font-size:13px;
-      text-transform:uppercase;
-    }
-
-    .checklist-actionbar{
-      position:sticky;
-      top:146px;
-      z-index:35;
-      margin-top:12px;
-      background:rgba(231,236,241,.98);
-      backdrop-filter:blur(8px);
-      padding:8px 0;
-    }
-    .checklist-actionbar-inner{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
-
-    .comp-list{display:grid;gap:10px;margin-top:0}
-
-    .comp-card{
-      background:#f8f9fb;
-      border:1px solid var(--line);
-      border-radius:8px;
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      transition:border-color .12s ease, box-shadow .12s ease, background .12s ease;
-    }
-    .comp-card.expanded{
-      border-color:#a8bff7;
-      box-shadow:0 8px 22px rgba(34,88,218,.10);
-      background:#fbfdff;
-    }
-
-    .comp-head{
-      padding:14px;
-      display:grid;
-      grid-template-columns:auto 1fr auto;
-      gap:12px;
-      align-items:center;
-    }
-
-    .comp-number{
-      width:42px;height:42px;border-radius:var(--radius);
-      display:flex;align-items:center;justify-content:center;
-      font-size:17px;font-weight:900;
-      background:var(--gray);color:#fff;border:2px solid var(--gray);
-      flex-shrink:0;
-    }
-    .comp-card.expanded .comp-number{
-      background:#fff;color:var(--blue);border-color:var(--blue)
-    }
-
-    .comp-main{min-width:0}
-
-    .comp-name-row{
-      display:flex;
-      flex-wrap:wrap;
-      align-items:center;
-      gap:14px;
-      margin-bottom:8px;
-    }
-    .comp-name{
-      font-size:18px;
-      font-weight:900;
-      line-height:1.2;
-      word-break:break-word;
-    }
-    .comp-meta{
-      display:flex;
-      flex-wrap:wrap;
-      gap:12px;
-      align-items:center;
-    }
-    .progress-text{
-      font-size:12px;
-      font-weight:900;
-      color:#546173;
-      white-space:nowrap;
-    }
-
-    .arrow-btn{
-      width:48px;height:48px;border-radius:var(--radius);
-      border:1px solid var(--line);
-      background:#eef1f5;color:#4b5563;
-      font-size:28px;font-weight:900;
-      display:flex;align-items:center;justify-content:center;
-      cursor:pointer;
-      transition:transform .12s ease, background .12s ease, border-color .12s ease;
-    }
-    .arrow-btn:active{transform:scale(.96)}
-    .comp-card.expanded .arrow-btn{
-      background:#f3f7ff;border-color:#bdd0ff;color:var(--blue)
-    }
-
-    .comp-body{
-      border-top:1px solid #e6ebf2;
-      padding:12px 14px 14px;
-      background:#fbfcfd;
-    }
-    .comp-card.expanded .comp-body{background:#fdfefe}
-
-    .comp-body-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      margin-bottom:10px;
-      flex-wrap:wrap;
-    }
-
-    .body-caption{
-      font-size:13px;
-      font-weight:900;
-      color:#4b5563;
-      text-transform:uppercase;
-    }
-
-    .item-list{
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      overflow:hidden;
-      background:#fff;
-    }
-
-    .item-row{
-      display:grid;
-      grid-template-columns:58px 1.3fr 200px 34px;
-      gap:10px;
-      align-items:center;
-      min-height:50px;
-      padding:0 10px;
-      border-top:1px solid #edf1f5;
-      transition:background .12s ease;
-    }
-    .item-row:first-child{border-top:none}
-    .item-block:nth-child(odd) .item-row{background:#ffffff}
-    .item-block:nth-child(odd) .item-detail{background:#fafbfd}
+    label{font-size:13px;font-weight:800;color:#46515f}
+    input,select,textarea{width:100%;border:1px solid var(--line2);border-radius:8px;padding:12px;background:#fff}
+    textarea{min-height:84px;resize:vertical}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:900;background:#eef2ff;color:#1d4ed8;border:1px solid #d5def9}
+    .status-chip{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:900}
+    .dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+    .green{color:var(--green)} .green .dot{background:var(--green)}
+    .gray{color:var(--gray)} .gray .dot{border:2px solid var(--gray);background:transparent}
+    .red{color:var(--red)} .red .dot{background:var(--red)}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+    .stat{background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);padding:14px}
+    .stat .n{font-size:24px;font-weight:900;margin-top:6px}
+    .vtr-list,.faltas-list,.comp-list{display:grid;gap:10px}
+    .vtr-card{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;box-shadow:var(--shadow)}
+    .check-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .head-row{margin-top:14px;background:#dde4eb;border:1px solid var(--line);border-radius:8px 8px 0 0;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:900;color:#425063}
+    .comp-card{background:#f8f9fb;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);overflow:hidden}
+    .comp-card.expanded{border-color:#a8bff7;background:#fbfdff}
+    .comp-head{padding:14px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+    .comp-num{width:42px;height:42px;border-radius:8px;background:#8b9098;color:#fff;border:2px solid #8b9098;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900}
+    .comp-card.expanded .comp-num{background:#fff;color:var(--blue);border-color:var(--blue)}
+    .comp-name{font-size:18px;font-weight:900;line-height:1.2}
+    .comp-meta{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:8px}
+    .arrow{width:48px;height:48px;border-radius:8px;border:1px solid var(--line);background:#eef1f5;color:#4b5563;font-size:28px;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .comp-card.expanded .arrow{background:#f3f7ff;border-color:#bdd0ff;color:var(--blue)}
+    .comp-body{border-top:1px solid #e6ebf2;padding:12px 14px 14px;background:#fbfcfd}
+    .item-list{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+    .item-block:nth-child(odd) .item-row{background:#fff}
     .item-block:nth-child(even) .item-row{background:#f5f7fa}
+    .item-block:nth-child(odd) .item-detail{background:#fafbfd}
     .item-block:nth-child(even) .item-detail{background:#f1f4f8}
-    .item-row:active{background:#eaf2ff}
-
-    .item-code{
-      font-weight:400;
-      color:#374151;
-      font-size:14px;
-    }
-    .item-name{
-      font-size:14px;
-      color:#2d3748;
-      line-height:1.25;
-    }
-    .item-chevron{
-      color:#8a919d;
-      font-size:28px;
-      text-align:right;
-      user-select:none;
-      cursor:pointer;
-    }
-
-    .item-detail{
-      padding:12px;
-      border-top:1px solid #eef2f6;
-      background:#fafbfd;
-      display:none;
-    }
+    .item-row{display:grid;grid-template-columns:58px 1.3fr 180px 30px;gap:10px;align-items:center;min-height:50px;padding:0 10px;border-top:1px solid #edf1f5}
+    .item-row:first-child{border-top:none}
+    .item-code{font-size:14px;color:#374151}
+    .item-name{font-size:14px;line-height:1.25}
+    .item-chevron{font-size:26px;color:#8a919d;text-align:right;cursor:pointer}
+    .item-detail{display:none;padding:12px;border-top:1px solid #eef2f6}
     .item-detail.open{display:block}
-
-    .item-detail-grid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:10px;
-    }
-
-    .status-actions{
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:8px;
-      margin-bottom:10px;
-    }
-
-    .status-btn{
-      border:1px solid var(--line);
-      background:#fff;
-      color:#475569;
-      border-radius:var(--radius);
-      min-height:46px;
-      font-size:12px;
-      font-weight:900;
-      cursor:pointer;
-      transition:transform .12s ease, background .12s ease, border-color .12s ease;
-    }
+    .detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .status-actions{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
+    .status-btn{min-height:44px;border:1px solid var(--line);background:#fff;color:#475569;border-radius:8px;font-size:12px;font-weight:900;cursor:pointer}
     .status-btn:active{transform:scale(.96)}
     .status-btn.active.pendente{background:#f3f4f6;border-color:#d1d5db;color:#6b7280}
     .status-btn.active.confere{background:#e8f5e9;border-color:#8bc34a;color:#2e7d32}
     .status-btn.active.faltando{background:#fff8e1;border-color:#ffd54f;color:#8d6e00}
     .status-btn.active.alterado{background:#fff3e0;border-color:#ffb74d;color:#ef6c00}
     .status-btn.active.avariado{background:#ffebee;border-color:#ef9a9a;color:#c62828}
-
-    .vtr-list,.faltas-list{display:grid;gap:10px}
-    .vtr-card{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:8px;
-      box-shadow:var(--shadow);
-      padding:14px;
-    }
-
-    .stats{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-      gap:10px;
-    }
-    .stat{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:8px;
-      box-shadow:var(--shadow);
-      padding:14px;
-    }
-    .stat .n{font-size:24px;font-weight:900;margin-top:6px}
-
-    .muted{color:var(--muted)}
-    .small{font-size:12px}
-    .msg{margin-top:10px;font-size:13px;font-weight:800}
-    .msg.ok{color:#2e7d32}
-    .msg.err{color:#c62828}
-
-    .login-wrap{
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      padding:16px;
-    }
-    .login-card{
-      width:min(460px,100%);
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:8px;
-      box-shadow:var(--shadow);
-      padding:20px;
-    }
-    .login-card h1{margin:0 0 8px;font-size:24px}
-
-    .tabbar{
-      position:fixed;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:10px;
-      z-index:50;
-      width:min(980px,calc(100% - 14px));
-      background:rgba(255,255,255,.98);
-      border:1px solid var(--line);
-      border-radius:12px;
-      box-shadow:0 10px 24px rgba(0,0,0,.14);
-      padding:8px;
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:8px;
-      backdrop-filter:blur(12px);
-    }
-    .tabbar button{
-      background:transparent;
-      color:#5b6470;
-      padding:12px 8px;
-      min-height:68px;
-      border-radius:8px;
-      border:none;
-      font-size:12px;
-      font-weight:900;
-      cursor:pointer;
-      transition:transform .12s ease, background .12s ease;
-    }
-    .tabbar button:active{transform:scale(.97)}
+    .wizard-step{border:1px dashed var(--line2);border-radius:8px;padding:12px;background:#f8fafc}
+    .wizard-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .wizard-grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .wizard-choice{min-height:56px}
+    .wizard-choice.active{background:#eef2ff;border:2px solid var(--blue);color:var(--blue)}
+    .wizard-panel{margin-top:12px}
+    .muted{color:var(--muted)} .small{font-size:12px}
+    .login-wrap{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
+    .login-card{width:min(460px,100%);background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);padding:20px}
+    .msg{margin-top:10px;font-size:13px;font-weight:800}.msg.ok{color:#2e7d32}.msg.err{color:#c62828}
+    .tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;z-index:50;width:min(980px,calc(100% - 14px));background:rgba(255,255,255,.98);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 24px rgba(0,0,0,.14);padding:8px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+    .tabbar button{background:transparent;color:#5b6470;padding:12px 8px;min-height:68px;border-radius:8px;border:none;font-size:12px;font-weight:900;cursor:pointer}
     .tabbar button.active{background:#eef2ff;color:var(--blue)}
-
-    @media (max-width:980px){
-      .item-row{grid-template-columns:52px 1.2fr 180px 28px}
-      .status-chip{min-width:180px;max-width:180px}
-    }
     @media (max-width:860px){
-      .toolbar-card{grid-template-columns:1fr}
-      .item-detail-grid{grid-template-columns:1fr}
+      .detail-grid{grid-template-columns:1fr}
       .status-actions{grid-template-columns:repeat(2,1fr)}
-      .checklist-actionbar-inner{grid-template-columns:1fr}
-      .checklist-actionbar{top:146px}
+      .wizard-grid{grid-template-columns:1fr}
+      .wizard-grid-2{grid-template-columns:1fr}
     }
     @media (max-width:700px){
       .hero-title{font-size:18px}
-      .top-actions{grid-template-columns:1fr 1fr}
+      .hero-actions,.check-toolbar{grid-template-columns:1fr 1fr}
+      .item-row{grid-template-columns:46px 1fr 138px 24px;gap:8px;padding:0 8px}
       .comp-name{font-size:16px}
-      .list-head{font-size:12px;padding:10px 12px}
-      .item-row{
-        grid-template-columns:46px 1fr 140px 24px;
-        gap:8px;
-        padding:0 8px;
-      }
-      .item-name,.item-code{font-size:13px}
-      .item-chevron{font-size:24px}
-      .status-chip{
-        min-width:140px;
-        max-width:140px;
-        font-size:12px;
-      }
-      .progress-text{width:100%}
     }
   </style>
 </head>
@@ -594,11 +149,10 @@
               </div>
             </div>
           </div>
-          <div class="date-now" id="dataAtualTopo">--/--/----</div>
-          <div class="top-actions">
-            <button class="btn btn-primary" id="btnSalvarTopo">💾&nbsp; SALVAR CHECKLIST</button>
-            <button class="btn btn-secondary" id="btnTopo">↑&nbsp; VOLTAR AO TOPO</button>
-            <button class="btn btn-ghost" id="btnLogout">⎋&nbsp; SAIR</button>
+          <div class="hero-date" id="dataAtualTopo">--/--/----</div>
+          <div class="hero-actions">
+            <button class="btn btn-primary" id="btnSalvarTopo">💾 SALVAR CHECKLIST</button>
+            <button class="btn btn-secondary" id="btnSairTopo">⦸ SAIR</button>
           </div>
         </div>
       </div>
@@ -623,43 +177,55 @@
             <div style="flex:1;min-width:220px"><label for="checkVtrSelect">VTR / Embarcação</label><select id="checkVtrSelect"></select></div>
             <div style="width:160px"><label for="checkTurno">Turno</label><select id="checkTurno"><option value="">Sem turno</option><option value="Manhã">Manhã</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option></select></div>
           </div>
-          <div style="margin-top:10px"><label for="checkObsGeral">Observação geral</label><textarea id="checkObsGeral" placeholder="Observações gerais do checklist"></textarea></div>
-          <div class="row" style="margin-top:12px">
-            <button class="btn btn-primary" id="btnCarregarChecklist">Carregar itens</button>
-            <button class="btn btn-save" id="btnSalvarChecklist">Salvar checklist</button>
-          </div>
-        </div>
 
-        <div class="card soft toolbar-card">
-          <div class="toolbar-left">
-            <div class="toolbar-icon">☑️</div>
-            <div>
-              <div class="toolbar-title">Marcar todos os compartimentos como confere</div>
-              <div class="toolbar-desc">Marca todos os itens de todos os compartimentos como <b>CONFERE</b>.</div>
+          <div class="row" style="margin-top:10px">
+            <div style="flex:1;min-width:220px">
+              <label for="servicoDia">SERVIÇO DO DIA</label>
+              <input id="servicoDia" type="text" placeholder="Ex.: 22/04/2026 - 09:00HS A 09:00HS" />
+            </div>
+            <div style="flex:1;min-width:220px">
+              <label for="cgDiaSelect">CG DO DIA</label>
+              <select id="cgDiaSelect"></select>
             </div>
           </div>
-          <div class="col" style="justify-content:center">
-            <button class="btn btn-card" id="btnMarcarTodosCompartimentos">☑️&nbsp; MARCAR TODOS</button>
-            <button class="btn btn-ghost" id="btnDesmarcarTodosCompartimentos">↺&nbsp; DESMARCAR TODOS</button>
+
+          <div style="margin-top:10px"><label for="checkObsGeral">Observação geral</label><textarea id="checkObsGeral" placeholder="Observações gerais do checklist"></textarea></div>
+          <div id="checklistLockMsg" class="msg hidden"></div>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn btn-primary" id="btnCarregarChecklist">Carregar itens</button>
+            <button class="btn btn-green" id="btnSalvarChecklist">Salvar checklist</button>
+            <button class="btn btn-outline hidden" id="btnReabrirChecklist">Reabrir / Editar</button>
           </div>
         </div>
 
-        <div class="checklist-actionbar">
-          <div class="checklist-actionbar-inner">
-            <button class="btn btn-save" id="btnSalvarBarraFixa">💾 SALVAR</button>
-            <button class="btn btn-ghost" id="btnExpandirTodos">EXPANDIR / RECOLHER TODOS</button>
+        <div class="card soft">
+          <div class="row" style="justify-content:space-between;align-items:flex-start">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <div style="font-size:28px;line-height:1;color:var(--blue)">☑️</div>
+              <div>
+                <div style="font-size:14px;color:var(--blue);font-weight:900;line-height:1.3;text-transform:uppercase;margin-bottom:6px">Marcar todos os compartimentos como confere</div>
+                <div style="font-size:14px;color:#374151;line-height:1.45">Marca todos os itens de todos os compartimentos como <b>CONFERE</b>.</div>
+              </div>
+            </div>
+            <div class="col" style="min-width:220px">
+              <button class="btn btn-outline" id="btnMarcarTodosCompartimentos">☑️ MARCAR TODOS</button>
+              <button class="btn btn-outline" id="btnDesmarcarTodosCompartimentos">↺ DESMARCAR TODOS</button>
+            </div>
           </div>
         </div>
 
-        <div class="list-head">
-          <span>COMPARTIMENTO / ITENS</span>
-          <span>STATUS / PROGRESSO</span>
+        <div class="check-toolbar">
+          <button class="btn btn-green" id="btnSalvarBarraFixa">💾 SALVAR</button>
+          <button class="btn btn-outline" id="btnExpandirTodos">EXPANDIR / RECOLHER TODOS</button>
         </div>
+
+        <div class="head-row"><span>COMPARTIMENTO / ITENS</span><span>STATUS / PROGRESSO</span></div>
         <div id="compartimentosWrap" class="comp-list"></div>
       </section>
 
       <section id="tabFaltantes" class="tab-section hidden">
-        <div class="section-title"><h2>Itens com problema</h2><button class="btn btn-ghost btn-inline" id="btnAtualizarFaltantes">Atualizar</button></div>
+        <div class="section-title"><h2>Itens com problema</h2><button class="btn btn-outline btn-small" id="btnAtualizarFaltantes">Atualizar</button></div>
         <div id="faltasList" class="faltas-list"></div>
       </section>
 
@@ -672,7 +238,7 @@
           </div>
           <div class="row" style="margin-top:12px">
             <button class="btn btn-primary" id="btnRelatorioDia">Gerar relatório diário</button>
-            <button class="btn btn-ghost" id="btnImprimir">Imprimir</button>
+            <button class="btn btn-outline" id="btnImprimir">Imprimir</button>
           </div>
           <div id="relatorioArea" style="margin-top:14px"></div>
         </div>
@@ -680,66 +246,42 @@
 
       <section id="tabAdmin" class="tab-section hidden">
         <div class="section-title"><h2>Administração</h2><span class="pill" id="adminBadge">Somente admin</span></div>
+
         <div id="adminArea" class="hidden">
-          <div class="card admin-panel show" id="panel-vtr" style="margin-bottom:12px">
-            <h3>Passo 1 • VTR</h3>
-            <div class="col">
-              <div><label for="adminVtrSelect">VTR existente</label><select id="adminVtrSelect"></select></div>
-              <div><label for="adminVtrCodigo">Código da VTR</label><input id="adminVtrCodigo" type="text" placeholder="Ex.: ABT 0535" /></div>
-              <div><label for="adminVtrNome">Nome da VTR</label><input id="adminVtrNome" type="text" placeholder="Nome da VTR" /></div>
-              <div class="row">
-                <div style="flex:1;min-width:140px"><label for="adminVtrTipo">Tipo</label><input id="adminVtrTipo" type="text" placeholder="Ex.: Auto Bomba Tanque" /></div>
-                <div style="flex:1;min-width:140px"><label for="adminVtrAtivo">Ativa</label><select id="adminVtrAtivo"><option value="true">Sim</option><option value="false">Não</option></select></div>
-              </div>
-              <div class="row">
-                <button class="btn btn-primary" id="btnAddVtr">Adicionar VTR</button>
-                <button class="btn btn-save" id="btnSalvarVtr">Salvar edição da VTR</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="card admin-panel" id="panel-comp" style="margin-bottom:12px">
-            <h3>Passo 2 • Compartimentos</h3>
-            <div class="col">
-              <div><label for="adminCompEditVtr">VTR</label><select id="adminCompEditVtr"></select></div>
-              <div><label for="adminCompSelect">Compartimento existente</label><select id="adminCompSelect"></select></div>
-              <div><label for="adminCompNomeEdit">Nome do compartimento</label><input id="adminCompNomeEdit" type="text" placeholder="Nome do compartimento" /></div>
-              <div class="row">
-                <div style="flex:1;min-width:120px"><label for="adminCompOrdemEdit">Ordem</label><input id="adminCompOrdemEdit" type="number" /></div>
-                <div style="flex:1;min-width:120px"><label for="adminCompAtivoEdit">Ativo</label><select id="adminCompAtivoEdit"><option value="true">Sim</option><option value="false">Não</option></select></div>
-              </div>
-              <div class="row">
-                <button class="btn btn-primary" id="btnAddCompartimentoRapido">Adicionar compartimento</button>
-                <button class="btn btn-save" id="btnSalvarCompartimentoEdit">Salvar edição do compartimento</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="card hidden" style="margin-bottom:12px">
-            <h3>Adicionar compartimento rápido</h3>
-            <div class="col">
-              <div><label for="adminCompVtr">VTR</label><select id="adminCompVtr"></select></div>
-              <div><label for="adminCompNome">Nome do compartimento</label><input id="adminCompNome" type="text" placeholder="Ex.: Gaveta 01" /></div>
-              <div><label for="adminCompOrdem">Ordem</label><input id="adminCompOrdem" type="number" placeholder="Ex.: 1" /></div>
-              <button class="btn btn-primary" id="btnAddCompartimento">Salvar compartimento</button>
-            </div>
-          </div>
-
           <div class="card">
-            <h3>Adicionar item</h3>
-            <div class="col">
-              <div><label for="adminItemVtr">VTR</label><select id="adminItemVtr"></select></div>
-              <div><label for="adminItemCompartimento">Compartimento</label><select id="adminItemCompartimento"></select></div>
-              <div><label for="adminItemNome">Nome do item</label><input id="adminItemNome" type="text" placeholder="Nome do item" /></div>
-              <div class="row">
-                <div style="flex:1;min-width:120px"><label for="adminItemQtd">Qtd padrão</label><input id="adminItemQtd" type="number" step="0.01" value="1" /></div>
-                <div style="flex:1;min-width:120px"><label for="adminItemOrdem">Ordem</label><input id="adminItemOrdem" type="number" value="1" /></div>
+            <h3 style="margin-top:0">Admin passo a passo</h3>
+
+            <div class="wizard-step" style="margin-bottom:12px">
+              <div style="font-weight:900;margin-bottom:10px">1º Escolher o que deseja</div>
+              <div class="wizard-grid" id="adminActionButtons">
+                <button class="btn btn-outline wizard-choice" data-action="adicionar">Adicionar</button>
+                <button class="btn btn-outline wizard-choice" data-action="editar">Editar</button>
+                <button class="btn btn-danger wizard-choice" data-action="excluir">Excluir</button>
               </div>
-              <div><label for="adminItemObs">Observação padrão</label><textarea id="adminItemObs" placeholder="Opcional"></textarea></div>
-              <button class="btn btn-primary" id="btnAddItem">Salvar item</button>
+            </div>
+
+            <div class="wizard-step" style="margin-bottom:12px">
+              <div style="font-weight:900;margin-bottom:10px">2º Escolher o tipo</div>
+              <div class="wizard-grid" id="adminTypeButtons">
+                <button class="btn btn-outline wizard-choice" data-type="vtr">VTR</button>
+                <button class="btn btn-outline wizard-choice" data-type="compartimento">COMPARTIMENTO</button>
+                <button class="btn btn-outline wizard-choice" data-type="item">ITEM</button>
+              </div>
+            </div>
+
+            <div id="adminWizardPanel" class="wizard-panel hidden"></div>
+
+            <div class="wizard-grid-2" style="margin-top:12px">
+              <button class="btn btn-green" id="btnAdminSalvar">Salvar</button>
+              <button class="btn btn-outline" id="btnAdminVoltar">Voltar</button>
+            </div>
+            <div class="wizard-grid-2" style="margin-top:10px">
+              <button class="btn btn-outline" id="btnAdminLimpar">Limpar campos</button>
+              <button class="btn btn-secondary" id="btnAdminSair">Sair</button>
             </div>
           </div>
         </div>
+
         <div id="adminNoAccess" class="card"><p class="muted">Esta área é exibida somente para usuários com perfil <b>admin</b>.</p></div>
       </section>
     </div>
@@ -755,9 +297,7 @@
 
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(console.error);
-      });
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(console.error));
     }
 
     const SUPABASE_URL = 'https://nypebmbqcbrvbutamzrh.supabase.co';
@@ -765,79 +305,81 @@
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const $ = (id) => document.getElementById(id);
 
-    const STATUS_LABEL = {
-      pendente: 'Pendente',
-      confere: 'Confere',
-      faltando: 'Faltando',
-      alterado: 'Alterado',
-      avariado: 'Avariado'
-    };
-
     const state = {
       user:null,
       vtrs:[],
+      militares:[],
       compartimentos:[],
       itens:[],
       checklistItemsState:{},
-      currentTab:'Inicio',
+      currentChecklist:null,
+      checklistLocked:false,
       collapsed:{},
       itemOpen:{},
       compMarkedAll:{},
       expandAllState:false,
-      editItens:[],
       globalMarkedAll:false,
-      editCompartimentos:[],
-      militares:[],
-      currentChecklist:null,
-      checklistLocked:false,
-      checklistLoaded:false
+      adminAction:'',
+      adminType:'',
+      adminCache:{ vtrs:[], compartimentos:[], itens:[] }
     };
 
     function hojeISO(){
       const d = new Date();
       return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     }
-
+    function agoraISO(){ return new Date().toISOString(); }
     function hojeBR(){
       const d = new Date();
       return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
     }
-
+    function horaBR(dt){
+      const d = new Date(dt);
+      return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+    function isoToBR(iso){
+      if (!iso) return '';
+      const [y,m,d] = iso.split('-');
+      return `${d}/${m}/${y}`;
+    }
     function escapeHtml(str=''){
-      return String(str)
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'","&#039;");
+      return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;");
     }
-
     function setLoginMsg(msg, ok=false){
-      $('loginMsg').textContent = msg || '';
-      $('loginMsg').className = 'msg ' + (ok ? 'ok' : 'err');
+      const el = $('loginMsg'); if (!el) return;
+      el.textContent = msg || '';
+      el.className = 'msg ' + (ok ? 'ok' : 'err');
+    }
+    function setTopoData(){ const el = $('dataAtualTopo'); if (el) el.textContent = hojeBR(); }
+
+    function bind(id, event, fn){
+      const el = $(id);
+      if (el) el.addEventListener(event, fn);
     }
 
-    function setTopoData(){
-      $('dataAtualTopo').textContent = hojeBR();
+    function logout(){
+      localStorage.removeItem('checklist_user');
+      state.user = null;
+      window.location.reload();
     }
 
     function setUserUI(){
       const nome = state.user?.nome || '-';
-      $('userBadge').textContent = state.user ? `${nome} • ${state.user.perfil}` : 'Não logado';
-      $('statUsuario').textContent = nome;
-      $('brandInfo').textContent = state.user
+      if ($('userBadge')) $('userBadge').textContent = state.user ? `${nome} • ${state.user.perfil}` : 'Não logado';
+      if ($('statUsuario')) $('statUsuario').textContent = nome;
+      if ($('brandInfo')) $('brandInfo').textContent = state.user
         ? `CBSLS • ${state.user.nome} • ${state.user.perfil}`
         : 'CBSLS • Sistema online de materiais e faltantes';
 
       const isAdmin = state.user?.perfil === 'admin';
-      $('adminArea').classList.toggle('hidden', !isAdmin);
-      $('adminNoAccess').classList.toggle('hidden', isAdmin);
-      $('adminBadge').textContent = isAdmin ? 'Acesso admin liberado' : 'Somente admin';
+      if ($('adminArea')) $('adminArea').classList.toggle('hidden', !isAdmin);
+      if ($('adminNoAccess')) $('adminNoAccess').classList.toggle('hidden', isAdmin);
+      if ($('adminBadge')) $('adminBadge').textContent = isAdmin ? 'Acesso admin liberado' : 'Somente admin';
     }
 
     async function login(){
-      const idFunc = $('loginIdFunc').value.trim();
-      const senha = $('loginSenha').value.trim();
+      const idFunc = $('loginIdFunc')?.value.trim();
+      const senha = $('loginSenha')?.value.trim();
       if (!idFunc || !senha) return setLoginMsg('Informe Id Func e senha.');
       setLoginMsg('Entrando...', true);
 
@@ -853,8 +395,9 @@
 
       state.user = data;
       localStorage.setItem('checklist_user', JSON.stringify(data));
-      $('loginScreen').classList.add('hidden');
-      $('appScreen').classList.remove('hidden');
+      $('loginScreen')?.classList.add('hidden');
+      $('appScreen')?.classList.remove('hidden');
+
       setUserUI();
       await carregarBase();
       setLoginMsg('', true);
@@ -866,8 +409,8 @@
         if (!saved) return false;
         state.user = JSON.parse(saved);
         if (!state.user?.id) return false;
-        $('loginScreen').classList.add('hidden');
-        $('appScreen').classList.remove('hidden');
+        $('loginScreen')?.classList.add('hidden');
+        $('appScreen')?.classList.remove('hidden');
         setUserUI();
         carregarBase();
         return true;
@@ -877,133 +420,74 @@
     }
 
     function preencherSelect(selectEl, items, valueKey='id', textKey='nome', placeholder='Selecione'){
+      if (!selectEl) return;
       selectEl.innerHTML = `<option value="">${placeholder}</option>` + items.map(item =>
-        `<option value="${item[valueKey]}">${escapeHtml(item[textKey])}</option>`
+        `<option value="${item[valueKey]}">${escapeHtml(item[textKey] ?? '')}</option>`
       ).join('');
     }
 
-
-    async function carregarMilitares(){
-      const { data, error } = await sb.from('militares').select('id,nome').eq('ativo', true).order('nome', { ascending:true });
-      if (error){
-        console.error(error);
-        return;
-      }
-      state.militares = data || [];
-      preencherSelect($('cgDiaSelect'), state.militares, 'nome', 'nome', 'Selecione o CG do dia');
-    }
-
-    function setServicoDiaTexto(){
-      const d = hojeBR();
-      const txt = `SERVIÇO DO DIA ${d} - 09:00HS A 09:00HS`;
-      const el = $('servicoDiaTexto');
-      if (el) el.value = txt;
-    }
-
-    function buildObservacaoPayload(){
-      return JSON.stringify({
-        cg_dia: $('cgDiaSelect')?.value || '',
-        servico_dia: $('servicoDiaTexto')?.value || '',
-        observacao: $('checkObsGeral')?.value?.trim() || ''
-      });
-    }
-
-    function parseObservacaoPayload(raw){
-      try{
-        const obj = JSON.parse(raw || '{}');
-        if (obj && typeof obj === 'object') return obj;
-      }catch(e){}
-      return { cg_dia:'', servico_dia:'', observacao: raw || '' };
-    }
-
-
     async function carregarBase(){
       await Promise.all([carregarMilitares(), carregarVtrs(), carregarFaltantesHoje(), carregarStatsHoje()]);
+      renderAdminWizard();
+    }
+
+    async function carregarMilitares(){
+      const { data, error } = await sb.from('militares').select('*').eq('ativo', true).order('nome', { ascending:true });
+      if (error) return console.error(error);
+      state.militares = data || [];
+      preencherSelect($('cgDiaSelect'), state.militares, 'id', 'nome', 'Selecione o CG do dia');
     }
 
     async function carregarVtrs(){
       const { data, error } = await sb.from('vtrs').select('*').eq('ativo', true).order('codigo', { ascending:true });
       if (error) return console.error(error);
-
       state.vtrs = data || [];
-      $('statVtrs').textContent = state.vtrs.length;
-
-      const { data: ultimos } = await sb
-        .from('checklists')
-        .select('id,vtr_id,data_checklist,observacao_geral,created_at')
-        .order('created_at', { ascending:false });
-
-      const mapaUlt = {};
-      (ultimos || []).forEach(ch => {
-        if (!mapaUlt[ch.vtr_id]) mapaUlt[ch.vtr_id] = ch;
-      });
-      state.vtrs = state.vtrs.map(v => ({ ...v, __ultimoChecklist: mapaUlt[v.id] || null }));
-
+      if ($('statVtrs')) $('statVtrs').textContent = state.vtrs.length;
       $('vtrList').innerHTML = state.vtrs.map(vtr => {
-        const ultimo = vtr.__ultimoChecklist;
-        let infoExtra = '';
-        if (ultimo){
-          const parsed = parseObservacaoPayload(ultimo.observacao_geral);
-          const dataBr = ultimo.data_checklist ? ultimo.data_checklist.split('-').reverse().join('/') : '';
-          infoExtra = `<div class="small" style="margin-top:6px;color:var(--green);font-weight:900">Conferido em ${escapeHtml(dataBr)} CG ${escapeHtml(parsed.cg_dia || '-')}</div>`;
-        }
+        const ult = vtr.ultimo_checklist_em ? `Conferido em ${isoToBR(vtr.ultimo_checklist_em.slice(0,10))} CG ${escapeHtml(vtr.ultimo_checklist_por_nome || '-')} ${vtr.ultimo_checklist_hora ? 'às ' + vtr.ultimo_checklist_hora : ''}` : 'Ainda não conferido hoje';
         return `
-        <div class="vtr-card">
-          <div>
-            <div style="font-size:17px;font-weight:900">${escapeHtml(vtr.codigo)}</div>
-            <div class="muted small">${escapeHtml(vtr.nome)} • ${escapeHtml(vtr.tipo || 'vtr')}</div>
-            ${infoExtra}
-          </div>
-          <div class="row">
-            <button class="btn btn-primary" onclick="abrirChecklistDireto('${vtr.id}')">Abrir checklist</button>
-          </div>
-        </div>
-      `;
+          <div class="vtr-card">
+            <div>
+              <div style="font-size:17px;font-weight:900">${escapeHtml(vtr.codigo)}</div>
+              <div class="muted small">${escapeHtml(vtr.nome)} • ${escapeHtml(vtr.tipo || 'vtr')}</div>
+              <div class="small" style="margin-top:6px;color:${vtr.ultimo_checklist_em ? 'var(--green)' : 'var(--muted)'};font-weight:900">${ult}</div>
+            </div>
+            <div class="row">
+              <button class="btn btn-primary" onclick="abrirChecklistDireto('${vtr.id}')">Abrir checklist</button>
+            </div>
+          </div>`;
       }).join('');
 
       preencherSelect($('checkVtrSelect'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
       preencherSelect($('relVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
-      preencherSelect($('adminCompVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
-      preencherSelect($('adminItemVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
-      preencherSelect($('editItemVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
-      preencherSelect($('adminVtrSelect'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
-      preencherSelect($('adminCompEditVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
     }
 
     async function carregarStatsHoje(){
       const { data, error } = await sb.from('checklists').select('id').eq('data_checklist', hojeISO());
-      if (!error) $('statHoje').textContent = (data || []).length;
+      if (!error && $('statHoje')) $('statHoje').textContent = (data || []).length;
     }
 
     async function carregarFaltantesHoje(){
-      const { data: checklistsHoje } = await sb
-        .from('checklists')
-        .select('id, vtr_id, data_checklist')
-        .eq('data_checklist', hojeISO());
-
+      const { data: checklistsHoje } = await sb.from('checklists').select('id, vtr_id, data_checklist').eq('data_checklist', hojeISO());
       const checklistIds = (checklistsHoje || []).map(c => c.id);
-
       if (!checklistIds.length){
-        $('faltasList').innerHTML = `<div class="card"><span class="status-chip gray"><span class="status-dot"></span>Nenhum item com problema hoje</span></div>`;
-        $('statFaltasHoje').textContent = '0';
+        if ($('faltasList')) $('faltasList').innerHTML = `<div class="card"><span class="status-chip gray"><span class="dot"></span>Nenhum item com problema hoje</span></div>`;
+        if ($('statFaltasHoje')) $('statFaltasHoje').textContent = '0';
         return;
       }
-
       const { data, error } = await sb
         .from('checklist_itens')
-        .select(`id, status_item, observacao, quantidade_encontrada, item:item_id (id, nome), checklist:checklist_id (id, data_checklist, vtr_id)`)
+        .select(`id, status_item, observacao, item:item_id (nome), checklist:checklist_id (vtr_id, data_checklist)`)
         .in('checklist_id', checklistIds)
         .in('status_item', ['faltando','alterado','avariado']);
 
       if (error) return console.error(error);
-
-      $('statFaltasHoje').textContent = (data || []).length;
+      if ($('statFaltasHoje')) $('statFaltasHoje').textContent = (data || []).length;
 
       if (!data || !data.length){
-        $('faltasList').innerHTML = `<div class="card"><span class="status-chip gray"><span class="status-dot"></span>Nenhum item com problema hoje</span></div>`;
+        if ($('faltasList')) $('faltasList').innerHTML = `<div class="card"><span class="status-chip gray"><span class="dot"></span>Nenhum item com problema hoje</span></div>`;
         return;
       }
-
       const vtrMap = Object.fromEntries(state.vtrs.map(v => [v.id, v.codigo]));
       $('faltasList').innerHTML = data.map(row => `
         <div class="card">
@@ -1012,18 +496,27 @@
               <div style="font-weight:900">${escapeHtml(row.item?.nome || 'Item')}</div>
               <div class="muted small">${escapeHtml(vtrMap[row.checklist?.vtr_id] || '-')} • ${escapeHtml(row.checklist?.data_checklist || '')}</div>
             </div>
-            <span class="status-chip red"><span class="status-dot"></span>${escapeHtml(row.status_item)}</span>
+            <span class="status-chip red"><span class="dot"></span>${escapeHtml(row.status_item)}</span>
           </div>
           <div class="small muted" style="margin-top:8px">${escapeHtml(row.observacao || 'Sem observação')}</div>
         </div>
       `).join('');
     }
 
-    async function abrirChecklistDireto(vtrId){
-      alternarTab('Checklist');
-      $('checkVtrSelect').value = vtrId;
-      await carregarItensChecklist();
-      window.scrollTo({ top:0, behavior:'smooth' });
+    async function buscarChecklistExistente(vtrId, turno){
+      const q = sb.from('checklists')
+        .select('*')
+        .eq('vtr_id', vtrId)
+        .eq('data_checklist', hojeISO());
+
+      const { data, error } = await q.order('created_at', { ascending:false }).limit(1);
+      if (error) { console.error(error); return null; }
+
+      let rows = data || [];
+      if (turno) {
+        rows = rows.filter(r => (r.turno || '') === turno);
+      }
+      return rows[0] || null;
     }
 
     async function carregarCompartimentosDaVtr(vtrId){
@@ -1038,32 +531,38 @@
       return data || [];
     }
 
-
-    function atualizarModoChecklistInfo(msg, ok=false){
-      const el = $('checklistModeInfo');
-      if (!el) return;
-      el.textContent = msg;
-      el.className = 'info-box' + (ok ? ' ok' : '');
+    async function carregarChecklistExistenteItens(checklistId){
+      const { data, error } = await sb.from('checklist_itens').select('*').eq('checklist_id', checklistId);
+      if (error) { console.error(error); return []; }
+      return data || [];
     }
 
-    function setChecklistLocked(locked){
-      state.checklistLocked = locked;
-      const ids = ['checkObsGeral','cgDiaSelect','btnSalvarChecklist','btnSalvarTopo','btnSalvarBarraFixa','btnMarcarTodosCompartimentos','btnDesmarcarTodosCompartimentos'];
+    function setChecklistLock(msg, ok=false){
+      const el = $('checklistLockMsg');
+      if (!el) return;
+      el.textContent = msg || '';
+      el.className = 'msg ' + (ok ? 'ok' : 'err') + (msg ? '' : ' hidden');
+      if (!msg) el.classList.add('hidden');
+      else el.classList.remove('hidden');
+    }
+
+    function toggleChecklistEditing(enabled){
+      const ids = ['checkObsGeral','servicoDia','cgDiaSelect','btnSalvarChecklist','btnSalvarTopo','btnSalvarBarraFixa','btnMarcarTodosCompartimentos','btnDesmarcarTodosCompartimentos'];
       ids.forEach(id => {
         const el = $(id);
         if (!el) return;
-        if (id.startsWith('btn')) el.disabled = locked;
-        else el.disabled = locked;
+        if (id.startsWith('btn')) el.disabled = !enabled;
+        else el.disabled = !enabled;
       });
     }
 
-
     async function carregarItensChecklist(){
-      const vtrId = $('checkVtrSelect').value;
+      const vtrId = $('checkVtrSelect')?.value;
+      const turno = $('checkTurno')?.value || '';
       if (!vtrId) return alert('Selecione uma VTR.');
 
       const vtr = state.vtrs.find(v => v.id === vtrId);
-      $('checklistInfo').textContent = vtr ? `${vtr.codigo} • ${hojeBR()}` : 'Checklist';
+      if ($('checklistInfo')) $('checklistInfo').textContent = vtr ? `${vtr.codigo} • ${hojeBR()}` : 'Checklist';
 
       state.compartimentos = await carregarCompartimentosDaVtr(vtrId);
       state.itens = await carregarItensDaVtr(vtrId);
@@ -1072,71 +571,57 @@
       state.compMarkedAll = {};
       state.expandAllState = false;
       state.globalMarkedAll = false;
-      state.checklistLoaded = true;
+      state.currentChecklist = await buscarChecklistExistente(vtrId, turno);
+      state.checklistLocked = false;
 
       state.compartimentos.forEach(comp => {
         if (typeof state.collapsed[comp.id] === 'undefined') state.collapsed[comp.id] = true;
       });
-      if (state.compartimentos[0]) state.collapsed[state.compartimentos[0].id] = false;
 
       for (const item of state.itens){
-        state.checklistItemsState[item.id] = {
-          status:'pendente',
-          quantidade_encontrada:item.quantidade_padrao,
-          observacao:''
-        };
+        state.checklistItemsState[item.id] = { status:'pendente', quantidade_encontrada:item.quantidade_padrao, observacao:'' };
       }
 
-      const { data: existing, error: existingError } = await sb
-        .from('checklists')
-        .select('*')
-        .eq('vtr_id', vtrId)
-        .eq('data_checklist', hojeISO())
-        .order('created_at', { ascending:false })
-        .limit(1)
-        .maybeSingle();
+      if (state.currentChecklist){
+        $('checkObsGeral').value = state.currentChecklist.observacao_geral || '';
+        $('servicoDia').value = state.currentChecklist.servico_dia || '';
+        $('cgDiaSelect').value = state.currentChecklist.cg_dia_id || '';
 
-      if (existingError) console.error(existingError);
-      state.currentChecklist = existing || null;
-
-      if (existing){
-        const parsed = parseObservacaoPayload(existing.observacao_geral);
-        $('cgDiaSelect').value = parsed.cg_dia || '';
-        $('servicoDiaTexto').value = parsed.servico_dia || $('servicoDiaTexto').value;
-        $('checkObsGeral').value = parsed.observacao || '';
-
-        const { data: itensSalvos, error: errItens } = await sb
-          .from('checklist_itens')
-          .select('*')
-          .eq('checklist_id', existing.id);
-        if (errItens) console.error(errItens);
-
-        (itensSalvos || []).forEach(row => {
-          if (state.checklistItemsState[row.item_id]){
-            state.checklistItemsState[row.item_id].status = row.status_item || 'pendente';
-            state.checklistItemsState[row.item_id].quantidade_encontrada = row.quantidade_encontrada;
-            state.checklistItemsState[row.item_id].observacao = row.observacao || '';
+        const rows = await carregarChecklistExistenteItens(state.currentChecklist.id);
+        rows.forEach(r => {
+          if (state.checklistItemsState[r.item_id]) {
+            state.checklistItemsState[r.item_id] = {
+              status: r.status_item || 'pendente',
+              quantidade_encontrada: r.quantidade_encontrada,
+              observacao: r.observacao || ''
+            };
           }
         });
 
         if (state.user?.perfil === 'admin'){
-          setChecklistLocked(false);
-          atualizarModoChecklistInfo(`Checklist já salvo hoje por ${existing.militar_id ? 'outro usuário ou pelo sistema' : 'usuário'}. Admin pode reabrir/editar.`, true);
+          state.checklistLocked = true;
+          setChecklistLock(`Checklist já salvo por ${state.currentChecklist.salvo_por_nome || '-'} às ${state.currentChecklist.salvo_em ? horaBR(state.currentChecklist.salvo_em) : '--:--'}. Somente admin pode reabrir.`, False);
+          $('btnReabrirChecklist')?.classList.remove('hidden');
+          toggleChecklistEditing(false);
         } else {
-          setChecklistLocked(true);
-          atualizarModoChecklistInfo('Checklist do dia já salvo. Somente admin pode reabrir ou editar.', false);
+          state.checklistLocked = true;
+          setChecklistLock(`Checklist já salvo por ${state.currentChecklist.salvo_por_nome || '-'} às ${state.currentChecklist.salvo_em ? horaBR(state.currentChecklist.salvo_em) : '--:--'}. Usuário comum só pode visualizar.`, False);
+          $('btnReabrirChecklist')?.classList.add('hidden');
+          toggleChecklistEditing(false);
         }
       } else {
-        state.currentChecklist = null;
         $('checkObsGeral').value = '';
-        setChecklistLocked(false);
-        atualizarModoChecklistInfo('Checklist novo do dia.', false);
+        $('servicoDia').value = `${hojeBR()} - 09:00HS A 09:00HS`;
+        $('cgDiaSelect').value = '';
+        state.checklistLocked = false;
+        state.currentChecklist = null;
+        setChecklistLock('', true);
+        $('btnReabrirChecklist')?.classList.add('hidden');
+        toggleChecklistEditing(true);
       }
 
+      if (state.compartimentos[0]) state.collapsed[state.compartimentos[0].id] = false;
       renderChecklist();
-      await carregarCompartimentosAdmin();
-      await carregarCompartimentosAdminEdit();
-      await carregarCompartimentosEdicao();
     }
 
     function getItensCompartimento(compId){
@@ -1157,54 +642,36 @@
     function getCompStatus(compId){
       const itens = getItensCompartimento(compId);
       if (!itens.length) return { kind:'gray', text:'Pendente' };
-
       const states = itens.map(i => state.checklistItemsState[i.id]?.status || 'pendente');
       const hasProblem = states.some(s => ['faltando','alterado','avariado'].includes(s));
       const allConfere = states.every(s => s === 'confere');
-
       if (hasProblem) return { kind:'red', text:'Com divergência' };
       if (allConfere || state.compMarkedAll[compId]) return { kind:'green', text:'CONFERIDO ✅️' };
       return { kind:'gray', text:'Pendente' };
     }
-
 
     function atualizarEstadoBotaoGlobal(){
       const btn = $('btnMarcarTodosCompartimentos');
       const allItems = state.itens || [];
       const allConf = allItems.length > 0 && allItems.every(item => (state.checklistItemsState[item.id]?.status || 'pendente') === 'confere');
       state.globalMarkedAll = allConf;
-
-      if (btn){
-        if (allConf){
-          btn.className = 'btn btn-card active-green';
-          btn.innerHTML = '✅&nbsp; CONFERIDO ✅️';
-        } else {
-          btn.className = 'btn btn-card';
-          btn.innerHTML = '☑️&nbsp; MARCAR TODOS';
-        }
+      if (!btn) return;
+      if (allConf){
+        btn.className = 'btn btn-outline-green';
+        btn.innerHTML = '✅ CONFERIDO ✅️';
+      } else {
+        btn.className = 'btn btn-outline';
+        btn.innerHTML = '☑️ MARCAR TODOS';
       }
-    }
-
-    function desmarcarTodosOsCompartimentos(){
-      if (state.checklistLocked) return;
-      state.compartimentos.forEach(comp => {
-        getItensCompartimento(comp.id).forEach(item => {
-          if (!state.checklistItemsState[item.id]) return;
-          state.checklistItemsState[item.id].status = 'pendente';
-          state.checklistItemsState[item.id].observacao = '';
-        });
-        state.compMarkedAll[comp.id] = false;
-      });
-      atualizarEstadoBotaoGlobal();
-      renderChecklist();
     }
 
     function renderChecklist(){
       const wrap = $('compartimentosWrap');
-
       atualizarEstadoBotaoGlobal();
+
+      if (!wrap) return;
       if (!state.compartimentos.length){
-        wrap.innerHTML = `<div class="card"><span class="status-chip gray"><span class="status-dot"></span>Nenhum compartimento cadastrado para esta VTR.</span></div>`;
+        wrap.innerHTML = `<div class="card"><span class="status-chip gray"><span class="dot"></span>Nenhum compartimento cadastrado para esta VTR.</span></div>`;
         return;
       }
 
@@ -1213,31 +680,29 @@
         const collapsed = !!state.collapsed[comp.id];
         const compStatus = getCompStatus(comp.id);
         const prog = getCompProgress(comp.id);
+        const btnMarked = !!state.compMarkedAll[comp.id];
 
         return `
           <div class="comp-card ${collapsed ? '' : 'expanded'}">
             <div class="comp-head">
-              <div class="comp-number">${idx + 1}</div>
-
-              <div class="comp-main">
-                <div class="comp-name-row">
+              <div class="comp-num">${idx + 1}</div>
+              <div>
+                <div class="row" style="gap:14px;align-items:center">
                   <div class="comp-name">${escapeHtml(comp.nome)}</div>
-                  <span class="status-chip ${compStatus.kind}"><span class="status-dot"></span>${escapeHtml(compStatus.text)}</span>
+                  <span class="status-chip ${compStatus.kind}"><span class="dot"></span>${escapeHtml(compStatus.text)}</span>
                 </div>
-
                 <div class="comp-meta">
                   <span class="pill">${itens.length} item(ns)</span>
-                  <span class="progress-text">Progresso: ${prog.feitos}/${prog.total}</span>
+                  <span class="small" style="font-weight:900;color:#546173">Progresso: ${prog.feitos}/${prog.total}</span>
                 </div>
               </div>
-
-              <button class="arrow-btn" onclick="toggleComp('${comp.id}')">${collapsed ? '⌄' : '⌃'}</button>
+              <button class="arrow" onclick="toggleComp('${comp.id}')">${collapsed ? '⌄' : '⌃'}</button>
             </div>
 
             <div class="comp-body ${collapsed ? 'hidden' : ''}">
-              <div class="comp-body-head">
-                <div class="body-caption">Itens do compartimento</div>
-                <button class="btn ${state.compMarkedAll[comp.id] ? 'btn-card active-green' : 'btn-ghost'} btn-inline" onclick="marcarTodosCompartimento('${comp.id}')">${state.compMarkedAll[comp.id] ? '✅ MARCAR TODOS COMO CONFERE' : '☑️ MARCAR TODOS COMO CONFERE'}</button>
+              <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px">
+                <div style="font-size:13px;font-weight:900;color:#4b5563;text-transform:uppercase">Itens do compartimento</div>
+                <button class="btn ${btnMarked ? 'btn-outline-green' : 'btn-outline'} btn-small" onclick="marcarTodosCompartimento('${comp.id}')">${btnMarked ? 'CONFERIDO ✅️' : '☑️ MARCAR TODOS COMO CONFERE'}</button>
               </div>
 
               ${itens.length ? `
@@ -1253,7 +718,7 @@
                         <div class="item-row">
                           <div class="item-code">${idx + 1}.${itemIdx + 1}</div>
                           <div class="item-name">${escapeHtml(item.nome)}</div>
-                          <div class="status-chip ${stClass}"><span class="status-dot"></span>${escapeHtml(STATUS_LABEL[st.status] || 'Pendente')}</div>
+                          <div class="status-chip ${stClass}"><span class="dot"></span>${escapeHtml(STATUS_LABEL[st.status] || 'Pendente')}</div>
                           <div class="item-chevron" onclick="toggleItem('${item.id}')">${detailOpen ? '⌃' : '›'}</div>
                         </div>
 
@@ -1266,10 +731,10 @@
                             <button class="status-btn ${st.status === 'avariado' ? 'active avariado' : ''}" onclick="setItemStatus('${item.id}','avariado')">🛠️ Avariado</button>
                           </div>
 
-                          <div class="item-detail-grid">
+                          <div class="detail-grid">
                             <div>
                               <label>Qtd encontrada</label>
-                              <input type="number" step="0.01" value="${st.quantidade_encontrada ?? ''}" onchange="setItemQuantidade('${item.id}', this.value)" />
+                              <input type="number" step="0.01" value="${st.quantidade_encontrada ?? ''}" onchange="setItemQuantidade('${item.id}', this.value)" ${state.checklistLocked ? 'disabled' : ''} />
                             </div>
                             <div>
                               <label>Qtd padrão</label>
@@ -1280,13 +745,11 @@
                           ${showObs ? `
                             <div style="margin-top:10px">
                               <label>Observação</label>
-                              <input type="text" value="${escapeHtml(st.observacao || '')}" onchange="setItemObservacao('${item.id}', this.value)" placeholder="Descreva o problema encontrado" />
+                              <input type="text" value="${escapeHtml(st.observacao || '')}" onchange="setItemObservacao('${item.id}', this.value)" placeholder="Descreva o problema encontrado" ${state.checklistLocked ? 'disabled' : ''} />
                             </div>
                           ` : ''}
 
-                          ${item.observacao_padrao ? `
-                            <div style="margin-top:10px" class="small muted"><b>Obs padrão:</b> ${escapeHtml(item.observacao_padrao)}</div>
-                          ` : ''}
+                          ${item.observacao_padrao ? `<div style="margin-top:10px" class="small muted"><b>Obs padrão:</b> ${escapeHtml(item.observacao_padrao)}</div>` : ''}
                         </div>
                       </div>
                     `;
@@ -1294,8 +757,7 @@
                 </div>
               ` : `<div class="small muted">Sem itens neste compartimento.</div>`}
             </div>
-          </div>
-        `;
+          </div>`;
       }).join('');
     }
 
@@ -1303,35 +765,25 @@
       if (state.checklistLocked) return;
       if (!state.checklistItemsState[itemId]) return;
       state.checklistItemsState[itemId].status = status;
-
       const item = state.itens.find(i => i.id === itemId);
       if (item) state.compMarkedAll[item.compartimento_id] = false;
-
-      if (!['faltando','alterado','avariado'].includes(status)){
-        state.checklistItemsState[itemId].observacao = '';
-      }
-
-      atualizarEstadoBotaoGlobal();
+      if (!['faltando','alterado','avariado'].includes(status)) state.checklistItemsState[itemId].observacao = '';
       renderChecklist();
     }
-
     function setItemQuantidade(itemId, valor){
       if (state.checklistLocked) return;
       if (!state.checklistItemsState[itemId]) return;
       state.checklistItemsState[itemId].quantidade_encontrada = valor === '' ? null : Number(valor);
     }
-
     function setItemObservacao(itemId, valor){
       if (state.checklistLocked) return;
       if (!state.checklistItemsState[itemId]) return;
       state.checklistItemsState[itemId].observacao = valor || '';
     }
-
     function toggleItem(itemId){
       state.itemOpen[itemId] = !state.itemOpen[itemId];
       renderChecklist();
     }
-
     function marcarTodosCompartimento(compId){
       if (state.checklistLocked) return;
       const itens = getItensCompartimento(compId);
@@ -1341,10 +793,8 @@
         state.checklistItemsState[item.id].observacao = '';
       });
       state.compMarkedAll[compId] = true;
-      atualizarEstadoBotaoGlobal();
       renderChecklist();
     }
-
     function marcarTodosOsCompartimentos(){
       if (state.checklistLocked) return;
       state.compartimentos.forEach(comp => {
@@ -1355,56 +805,55 @@
         });
         state.compMarkedAll[comp.id] = true;
       });
-      atualizarEstadoBotaoGlobal();
       renderChecklist();
     }
-
+    function desmarcarTodosOsCompartimentos(){
+      if (state.checklistLocked) return;
+      state.compartimentos.forEach(comp => {
+        getItensCompartimento(comp.id).forEach(item => {
+          if (!state.checklistItemsState[item.id]) return;
+          state.checklistItemsState[item.id].status = 'pendente';
+          state.checklistItemsState[item.id].observacao = '';
+        });
+        state.compMarkedAll[comp.id] = false;
+      });
+      renderChecklist();
+    }
     function toggleComp(compId){
       state.collapsed[compId] = !state.collapsed[compId];
       renderChecklist();
     }
-
     function expandirOuRecolherTodos(){
       state.expandAllState = !state.expandAllState;
-      state.compartimentos.forEach(comp => {
-        state.collapsed[comp.id] = !state.expandAllState;
-      });
+      state.compartimentos.forEach(comp => state.collapsed[comp.id] = !state.expandAllState);
+      renderChecklist();
+    }
+
+    async function reabrirChecklist(){
+      if (state.user?.perfil !== 'admin') return;
+      state.checklistLocked = false;
+      setChecklistLock('Checklist reaberto para edição por admin.', true);
+      $('btnReabrirChecklist')?.classList.add('hidden');
+      toggleChecklistEditing(true);
       renderChecklist();
     }
 
     async function salvarChecklist(){
-      const vtrId = $('checkVtrSelect').value;
-      const turno = $('checkTurno').value || null;
-      const observacaoGeral = buildObservacaoPayload();
-      const cgDia = $('cgDiaSelect').value;
+      const vtrId = $('checkVtrSelect')?.value;
+      const turno = $('checkTurno')?.value || null;
+      const observacaoGeral = $('checkObsGeral')?.value.trim() || '';
+      const servicoDia = $('servicoDia')?.value.trim() || '';
+      const cgDiaId = $('cgDiaSelect')?.value || null;
+      const cgDiaNome = state.militares.find(m => m.id === cgDiaId)?.nome || null;
 
       if (!vtrId) return alert('Selecione uma VTR.');
       if (!state.user?.id) return alert('Usuário não identificado.');
-      if (!cgDia) return alert('Selecione o CG do dia.');
-      if (state.checklistLocked && state.user?.perfil !== 'admin') return alert('Somente admin pode editar checklist já salvo.');
+      if (state.checklistLocked) return alert('Checklist bloqueado.');
 
-      let checklistData = state.currentChecklist;
-      if (checklistData && state.user?.perfil === 'admin'){
-        const { data, error } = await sb
-          .from('checklists')
-          .update({
-            militar_id: state.user.id,
-            data_checklist: hojeISO(),
-            turno,
-            observacao_geral: observacaoGeral,
-            status:'finalizado'
-          })
-          .eq('id', checklistData.id)
-          .select()
-          .single();
+      let checklistId = state.currentChecklist?.id || null;
 
-        if (error || !data){
-          console.error(error);
-          return alert('Erro ao atualizar checklist.');
-        }
-        checklistData = data;
-      } else if (!checklistData) {
-        const { data, error } = await sb
+      if (!checklistId){
+        const { data: inserted, error: insertErr } = await sb
           .from('checklists')
           .insert({
             vtr_id:vtrId,
@@ -1412,20 +861,46 @@
             data_checklist:hojeISO(),
             turno,
             observacao_geral:observacaoGeral,
-            status:'finalizado'
+            status:'finalizado',
+            servico_dia:servicoDia,
+            cg_dia_id:cgDiaId,
+            cg_dia_nome:cgDiaNome,
+            salvo_por_nome: state.user.nome || null,
+            salvo_em: agoraISO()
           })
           .select()
           .single();
 
-        if (error || !data){
-          console.error(error);
-          return alert('Erro ao salvar checklist.');
+        if (insertErr){
+          console.error(insertErr);
+          return alert('Erro ao criar checklist.');
         }
-        checklistData = data;
+        checklistId = inserted.id;
+        state.currentChecklist = inserted;
+      } else {
+        const { error: updErr } = await sb
+          .from('checklists')
+          .update({
+            observacao_geral:observacaoGeral,
+            turno,
+            status:'finalizado',
+            servico_dia:servicoDia,
+            cg_dia_id:cgDiaId,
+            cg_dia_nome:cgDiaNome,
+            salvo_por_nome: state.user.nome || null,
+            salvo_em: agoraISO(),
+            militar_id: state.user.id
+          })
+          .eq('id', checklistId);
+
+        if (updErr){
+          console.error(updErr);
+          return alert('Erro ao atualizar checklist.');
+        }
       }
 
       const itensPayload = state.itens.map(item => ({
-        checklist_id: checklistData.id,
+        checklist_id: checklistId,
         item_id: item.id,
         status_item: state.checklistItemsState[item.id]?.status || 'pendente',
         quantidade_encontrada: state.checklistItemsState[item.id]?.quantidade_encontrada,
@@ -1434,312 +909,352 @@
           : null
       }));
 
-      const { error: itensError } = await sb
-        .from('checklist_itens')
-        .upsert(itensPayload, { onConflict:'checklist_id,item_id' });
+      for (const row of itensPayload){
+        const { data: existing } = await sb
+          .from('checklist_itens')
+          .select('id')
+          .eq('checklist_id', checklistId)
+          .eq('item_id', row.item_id)
+          .limit(1);
 
-      if (itensError){
-        console.error(itensError);
-        return alert('Checklist salvo, mas houve erro em alguns itens.');
+        if (existing && existing[0]){
+          const { error } = await sb.from('checklist_itens').update(row).eq('id', existing[0].id);
+          if (error){ console.error(error); return alert('Erro ao atualizar itens do checklist.'); }
+        } else {
+          const { error } = await sb.from('checklist_itens').insert(row);
+          if (error){ console.error(error); return alert('Erro ao inserir itens do checklist.'); }
+        }
       }
 
-      state.currentChecklist = checklistData;
-      if (state.user?.perfil !== 'admin') setChecklistLocked(true);
-      atualizarModoChecklistInfo(state.user?.perfil === 'admin' ? 'Checklist salvo. Admin pode reabrir/editar.' : 'Checklist salvo e bloqueado para usuário comum.', true);
+      const hora = horaBR(new Date().toISOString());
+      await sb.from('vtrs').update({
+        ultimo_checklist_em: hojeISO(),
+        ultimo_checklist_por_nome: cgDiaNome || state.user.nome || null,
+        ultimo_checklist_hora: hora
+      }).eq('id', vtrId);
 
       alert('Checklist salvo com sucesso.');
+      state.checklistLocked = true;
+      if (state.user?.perfil === 'admin'){
+        setChecklistLock(`Checklist salvo às ${hora}. Somente admin pode reabrir.`, true);
+        $('btnReabrirChecklist')?.classList.remove('hidden');
+      } else {
+        setChecklistLock(`Checklist salvo às ${hora}.`, true);
+      }
+      toggleChecklistEditing(false);
+      await carregarVtrs();
       await carregarFaltantesHoje();
       await carregarStatsHoje();
-      await carregarVtrs();
-      renderChecklist();
     }
 
-    async function carregarCompartimentosAdmin(){
-      const vtrId = $('adminItemVtr').value || $('checkVtrSelect').value;
-      if (!vtrId){
-        $('adminItemCompartimento').innerHTML = `<option value="">Selecione a VTR</option>`;
-        return;
-      }
-      const comps = await carregarCompartimentosDaVtr(vtrId);
-      preencherSelect($('adminItemCompartimento'), comps, 'id', 'nome', 'Selecione o compartimento');
+    function alternarTab(tabName){
+      document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+      document.querySelectorAll('.tabbtn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab${tabName}`)?.classList.remove('hidden');
+      document.querySelector(`.tabbtn[data-tab="${tabName}"]`)?.classList.add('active');
+      if (tabName === 'Faltantes') carregarFaltantesHoje();
+      if (tabName === 'Relatorios' && $('relData')) $('relData').value = hojeISO();
+      if (tabName === 'Admin') renderAdminWizard();
     }
 
-
-
-    function preencherCamposVtr(){
-      const vtrId = $('adminVtrSelect').value;
-      const vtr = state.vtrs.find(v => v.id === vtrId);
-      if (!vtr){
-        $('adminVtrCodigo').value = '';
-        $('adminVtrNome').value = '';
-        $('adminVtrTipo').value = '';
-        $('adminVtrAtivo').value = 'true';
-        return;
-      }
-      $('adminVtrCodigo').value = vtr.codigo || '';
-      $('adminVtrNome').value = vtr.nome || '';
-      $('adminVtrTipo').value = vtr.tipo || '';
-      $('adminVtrAtivo').value = String(vtr.ativo ?? true);
+    // Admin Wizard
+    function adminLabelTitle(){
+      return `${state.adminAction ? state.adminAction.toUpperCase() : ''} ${state.adminType ? state.adminType.toUpperCase() : ''}`.trim();
     }
 
-    async function adicionarVtr(){
-      const codigo = $('adminVtrCodigo').value.trim();
-      const nome = $('adminVtrNome').value.trim();
-      const tipo = $('adminVtrTipo').value.trim();
-      const ativo = $('adminVtrAtivo').value === 'true';
-      if (!codigo || !nome) return alert('Informe código e nome da VTR.');
-
-      const { error } = await sb.from('vtrs').insert({ codigo, nome, tipo: tipo || null, ativo });
-      if (error){
-        console.error(error);
-        return alert('Erro ao adicionar VTR.');
-      }
-      alert('VTR adicionada com sucesso.');
-      $('adminVtrCodigo').value = '';
-      $('adminVtrNome').value = '';
-      $('adminVtrTipo').value = '';
-      $('adminVtrAtivo').value = 'true';
-      await carregarVtrs();
-    }
-
-    async function salvarVtr(){
-      const vtrId = $('adminVtrSelect').value;
-      if (!vtrId) return alert('Selecione uma VTR.');
-      const codigo = $('adminVtrCodigo').value.trim();
-      const nome = $('adminVtrNome').value.trim();
-      const tipo = $('adminVtrTipo').value.trim();
-      const ativo = $('adminVtrAtivo').value === 'true';
-      if (!codigo || !nome) return alert('Informe código e nome da VTR.');
-
-      const { error } = await sb.from('vtrs').update({ codigo, nome, tipo: tipo || null, ativo }).eq('id', vtrId);
-      if (error){
-        console.error(error);
-        return alert('Erro ao salvar edição da VTR.');
-      }
-      alert('VTR atualizada com sucesso.');
-      await carregarVtrs();
-      $('adminVtrSelect').value = vtrId;
-      preencherCamposVtr();
-    }
-
-    async function carregarCompartimentosAdminEdit(){
-      const vtrId = $('adminCompEditVtr').value;
-      if (!vtrId){
-        $('adminCompSelect').innerHTML = `<option value="">Selecione o compartimento</option>`;
-        return;
-      }
-      const comps = await carregarCompartimentosDaVtr(vtrId);
-      state.editCompartimentos = comps || [];
-      preencherSelect($('adminCompSelect'), state.editCompartimentos, 'id', 'nome', 'Selecione o compartimento');
-    }
-
-    function preencherCamposCompartimentoEdit(){
-      const compId = $('adminCompSelect').value;
-      const comp = (state.editCompartimentos || []).find(c => c.id === compId);
-      if (!comp){
-        $('adminCompNomeEdit').value = '';
-        $('adminCompOrdemEdit').value = '';
-        $('adminCompAtivoEdit').value = 'true';
-        return;
-      }
-      $('adminCompNomeEdit').value = comp.nome || '';
-      $('adminCompOrdemEdit').value = comp.ordem ?? '';
-      $('adminCompAtivoEdit').value = String(comp.ativo ?? true);
-    }
-
-    async function adicionarCompartimentoAdminEdit(){
-      const vtrId = $('adminCompEditVtr').value;
-      const nome = $('adminCompNomeEdit').value.trim();
-      const ordem = $('adminCompOrdemEdit').value === '' ? 0 : Number($('adminCompOrdemEdit').value);
-      const ativo = $('adminCompAtivoEdit').value === 'true';
-      if (!vtrId || !nome) return alert('Informe VTR e nome do compartimento.');
-
-      const { error } = await sb.from('compartimentos').insert({ vtr_id:vtrId, nome, ordem, ativo });
-      if (error){
-        console.error(error);
-        return alert('Erro ao adicionar compartimento.');
-      }
-      alert('Compartimento adicionado com sucesso.');
-      await carregarCompartimentosAdminEdit();
-      await carregarCompartimentosAdmin();
-      await carregarCompartimentosEdicao();
-    }
-
-    async function salvarCompartimentoEdit(){
-      const compId = $('adminCompSelect').value;
-      if (!compId) return alert('Selecione um compartimento.');
-      const nome = $('adminCompNomeEdit').value.trim();
-      const ordem = $('adminCompOrdemEdit').value === '' ? null : Number($('adminCompOrdemEdit').value);
-      const ativo = $('adminCompAtivoEdit').value === 'true';
-      if (!nome) return alert('Informe o nome do compartimento.');
-
-      const { error } = await sb.from('compartimentos').update({ nome, ordem, ativo }).eq('id', compId);
-      if (error){
-        console.error(error);
-        return alert('Erro ao salvar edição do compartimento.');
-      }
-      alert('Compartimento atualizado com sucesso.');
-      await carregarCompartimentosAdminEdit();
-      await carregarCompartimentosAdmin();
-      await carregarCompartimentosEdicao();
-      $('adminCompSelect').value = compId;
-      preencherCamposCompartimentoEdit();
-    }
-
-    async function carregarCompartimentosEdicao(){
-      const vtrId = $('editItemVtr').value;
-      if (!vtrId){
-        $('editItemCompartimento').innerHTML = `<option value="">Selecione a VTR</option>`;
-        $('editItemSelect').innerHTML = `<option value="">Selecione o item</option>`;
-        return;
-      }
-      const comps = await carregarCompartimentosDaVtr(vtrId);
-      preencherSelect($('editItemCompartimento'), comps, 'id', 'nome', 'Selecione o compartimento');
-      $('editItemSelect').innerHTML = `<option value="">Selecione o item</option>`;
-      $('editItemNome').value = '';
-      $('editItemQtd').value = '';
-      $('editItemOrdem').value = '';
-      $('editItemObs').value = '';
-    }
-
-    async function carregarItensEdicao(){
-      const vtrId = $('editItemVtr').value;
-      const compartimentoId = $('editItemCompartimento').value;
-      if (!vtrId || !compartimentoId){
-        $('editItemSelect').innerHTML = `<option value="">Selecione o item</option>`;
-        return;
-      }
-      const { data, error } = await sb
-        .from('itens')
-        .select('*')
-        .eq('vtr_id', vtrId)
-        .eq('compartimento_id', compartimentoId)
-        .eq('ativo', true)
-        .order('ordem', { ascending:true });
-
-      if (error){
-        console.error(error);
-        return;
-      }
-
-      state.editItens = data || [];
-      preencherSelect($('editItemSelect'), state.editItens, 'id', 'nome', 'Selecione o item');
-    }
-
-    function preencherCamposEdicaoItem(){
-      const itemId = $('editItemSelect').value;
-      const item = state.editItens.find(i => i.id === itemId);
-      if (!item){
-        $('editItemNome').value = '';
-        $('editItemQtd').value = '';
-        $('editItemOrdem').value = '';
-        $('editItemObs').value = '';
-        return;
-      }
-      $('editItemNome').value = item.nome || '';
-      $('editItemQtd').value = item.quantidade_padrao ?? '';
-      $('editItemOrdem').value = item.ordem ?? '';
-      $('editItemObs').value = item.observacao_padrao || '';
-    }
-
-    async function salvarEdicaoItem(){
-      const itemId = $('editItemSelect').value;
-      if (!itemId) return alert('Selecione um item para editar.');
-
-      const nome = $('editItemNome').value.trim();
-      const quantidade = $('editItemQtd').value === '' ? null : Number($('editItemQtd').value);
-      const ordem = $('editItemOrdem').value === '' ? null : Number($('editItemOrdem').value);
-      const observacao = $('editItemObs').value.trim();
-
-      if (!nome) return alert('Informe o nome do item.');
-
-      const { error } = await sb
-        .from('itens')
-        .update({
-          nome,
-          quantidade_padrao: quantidade,
-          ordem,
-          observacao_padrao: observacao || null
-        })
-        .eq('id', itemId);
-
-      if (error){
-        console.error(error);
-        return alert('Erro ao salvar edição do item.');
-      }
-
-      alert('Item atualizado com sucesso.');
-      await carregarItensEdicao();
-      $('editItemSelect').value = itemId;
-      preencherCamposEdicaoItem();
-    }
-
-    async function adicionarCompartimento(){
-      const vtrId = $('adminCompVtr').value;
-      const nome = $('adminCompNome').value.trim();
-      const ordem = Number($('adminCompOrdem').value || 0);
-
-      if (!vtrId || !nome) return alert('Informe VTR e nome do compartimento.');
-
-      const { error } = await sb.from('compartimentos').insert({ vtr_id:vtrId, nome, ordem, ativo:true });
-      if (error){
-        console.error(error);
-        return alert('Erro ao salvar compartimento.');
-      }
-
-      $('adminCompNome').value = '';
-      $('adminCompOrdem').value = '';
-      alert('Compartimento salvo com sucesso.');
-      await carregarCompartimentosAdmin();
-      await carregarCompartimentosEdicao();
-    }
-
-    async function adicionarItem(){
-      const vtrId = $('adminItemVtr').value;
-      const compartimentoId = $('adminItemCompartimento').value;
-      const nome = $('adminItemNome').value.trim();
-      const quantidade = Number($('adminItemQtd').value || 1);
-      const ordem = Number($('adminItemOrdem').value || 0);
-      const observacao = $('adminItemObs').value.trim();
-
-      if (!vtrId || !compartimentoId || !nome) return alert('Preencha VTR, compartimento e nome do item.');
-
-      const { error } = await sb.from('itens').insert({
-        vtr_id:vtrId,
-        compartimento_id:compartimentoId,
-        nome,
-        quantidade_padrao:quantidade,
-        ordem,
-        observacao_padrao:observacao || null,
-        ativo:true
+    function setAdminChoiceStyles(){
+      document.querySelectorAll('#adminActionButtons .wizard-choice').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.action === state.adminAction);
       });
+      document.querySelectorAll('#adminTypeButtons .wizard-choice').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === state.adminType);
+      });
+    }
 
-      if (error){
-        console.error(error);
-        return alert('Erro ao salvar item.');
+    async function loadAdminCaches(){
+      const [vtrsRes, compRes, itemRes] = await Promise.all([
+        sb.from('vtrs').select('*').order('codigo', { ascending:true }),
+        sb.from('compartimentos').select('*').order('nome', { ascending:true }),
+        sb.from('itens').select('*').order('nome', { ascending:true })
+      ]);
+      state.adminCache.vtrs = vtrsRes.data || [];
+      state.adminCache.compartimentos = compRes.data || [];
+      state.adminCache.itens = itemRes.data || [];
+    }
+
+    function renderAdminWizard(){
+      setAdminChoiceStyles();
+      const panel = $('adminWizardPanel');
+      if (!panel) return;
+
+      if (!state.adminAction || !state.adminType){
+        panel.classList.add('hidden');
+        panel.innerHTML = '';
+        return;
       }
 
-      $('adminItemNome').value = '';
-      $('adminItemQtd').value = '1';
-      $('adminItemOrdem').value = '1';
-      $('adminItemObs').value = '';
-      alert('Item salvo com sucesso.');
+      panel.classList.remove('hidden');
 
-      if ($('editItemVtr').value === vtrId && $('editItemCompartimento').value === compartimentoId) {
-        await carregarItensEdicao();
+      if (state.adminType === 'vtr'){
+        panel.innerHTML = `
+          <div class="card soft">
+            <div style="font-weight:900;margin-bottom:10px">${adminLabelTitle()}</div>
+            <div class="col">
+              ${state.adminAction !== 'adicionar' ? `<div><label for="wizVtrSelect">Selecionar VTR</label><select id="wizVtrSelect"></select></div>` : ``}
+              <div><label for="wizVtrCodigo">Código da VTR</label><input id="wizVtrCodigo" type="text" placeholder="Ex.: ABT 0535" /></div>
+              <div><label for="wizVtrNome">Nome da VTR</label><input id="wizVtrNome" type="text" placeholder="Nome da VTR" /></div>
+              <div class="row">
+                <div style="flex:1;min-width:140px"><label for="wizVtrTipo">Tipo</label><input id="wizVtrTipo" type="text" placeholder="Tipo" /></div>
+                <div style="flex:1;min-width:140px"><label for="wizVtrAtivo">Ativa</label><select id="wizVtrAtivo"><option value="true">Sim</option><option value="false">Não</option></select></div>
+              </div>
+            </div>
+          </div>`;
+        if (state.adminAction !== 'adicionar'){
+          preencherSelect($('wizVtrSelect'), state.adminCache.vtrs, 'id', 'codigo', 'Selecione a VTR');
+          bind('wizVtrSelect', 'change', preencherWizardVtr);
+        }
       }
+
+      if (state.adminType === 'compartimento'){
+        panel.innerHTML = `
+          <div class="card soft">
+            <div style="font-weight:900;margin-bottom:10px">${adminLabelTitle()}</div>
+            <div class="col">
+              <div><label for="wizCompVtr">VTR</label><select id="wizCompVtr"></select></div>
+              ${state.adminAction !== 'adicionar' ? `<div><label for="wizCompSelect">Selecionar compartimento</label><select id="wizCompSelect"></select></div>` : ``}
+              <div><label for="wizCompNome">Nome do compartimento</label><input id="wizCompNome" type="text" placeholder="Nome do compartimento" /></div>
+              <div class="row">
+                <div style="flex:1;min-width:140px"><label for="wizCompOrdem">Ordem</label><input id="wizCompOrdem" type="number" /></div>
+                <div style="flex:1;min-width:140px"><label for="wizCompAtivo">Ativo</label><select id="wizCompAtivo"><option value="true">Sim</option><option value="false">Não</option></select></div>
+              </div>
+            </div>
+          </div>`;
+        preencherSelect($('wizCompVtr'), state.adminCache.vtrs, 'id', 'codigo', 'Selecione a VTR');
+        if (state.adminAction !== 'adicionar'){
+          bind('wizCompVtr', 'change', preencherWizardCompartimentosPorVtr);
+          bind('wizCompSelect', 'change', preencherWizardCompartimento);
+        }
+      }
+
+      if (state.adminType === 'item'){
+        panel.innerHTML = `
+          <div class="card soft">
+            <div style="font-weight:900;margin-bottom:10px">${adminLabelTitle()}</div>
+            <div class="col">
+              <div><label for="wizItemVtr">VTR</label><select id="wizItemVtr"></select></div>
+              <div><label for="wizItemComp">Compartimento</label><select id="wizItemComp"></select></div>
+              ${state.adminAction !== 'adicionar' ? `<div><label for="wizItemSelect">Selecionar item</label><select id="wizItemSelect"></select></div>` : ``}
+              <div><label for="wizItemNome">Nome do item</label><input id="wizItemNome" type="text" placeholder="Nome do item" /></div>
+              <div class="row">
+                <div style="flex:1;min-width:120px"><label for="wizItemQtd">Qtd padrão</label><input id="wizItemQtd" type="number" step="0.01" /></div>
+                <div style="flex:1;min-width:120px"><label for="wizItemOrdem">Ordem</label><input id="wizItemOrdem" type="number" /></div>
+              </div>
+              <div><label for="wizItemObs">Observação padrão</label><textarea id="wizItemObs" placeholder="Opcional"></textarea></div>
+              <div><label for="wizItemAtivo">Ativo</label><select id="wizItemAtivo"><option value="true">Sim</option><option value="false">Não</option></select></div>
+            </div>
+          </div>`;
+        preencherSelect($('wizItemVtr'), state.adminCache.vtrs, 'id', 'codigo', 'Selecione a VTR');
+        bind('wizItemVtr', 'change', preencherWizardItemCompartimentos);
+        bind('wizItemComp', 'change', preencherWizardItensPorCompartimento);
+        if (state.adminAction !== 'adicionar'){
+          bind('wizItemSelect', 'change', preencherWizardItem);
+        }
+      }
+    }
+
+    function preencherWizardVtr(){
+      const id = $('wizVtrSelect')?.value;
+      const vtr = state.adminCache.vtrs.find(v => v.id === id);
+      if (!vtr) return limparWizardCampos();
+      $('wizVtrCodigo').value = vtr.codigo || '';
+      $('wizVtrNome').value = vtr.nome || '';
+      $('wizVtrTipo').value = vtr.tipo || '';
+      $('wizVtrAtivo').value = String(vtr.ativo ?? true);
+    }
+
+    function preencherWizardCompartimentosPorVtr(){
+      const vtrId = $('wizCompVtr')?.value;
+      const list = state.adminCache.compartimentos.filter(c => c.vtr_id === vtrId);
+      preencherSelect($('wizCompSelect'), list, 'id', 'nome', 'Selecione o compartimento');
+      limparWizardCampos(['wizCompNome','wizCompOrdem']);
+    }
+
+    function preencherWizardCompartimento(){
+      const id = $('wizCompSelect')?.value;
+      const comp = state.adminCache.compartimentos.find(c => c.id === id);
+      if (!comp) return;
+      $('wizCompNome').value = comp.nome || '';
+      $('wizCompOrdem').value = comp.ordem ?? '';
+      $('wizCompAtivo').value = String(comp.ativo ?? true);
+    }
+
+    function preencherWizardItemCompartimentos(){
+      const vtrId = $('wizItemVtr')?.value;
+      const comps = state.adminCache.compartimentos.filter(c => c.vtr_id === vtrId);
+      preencherSelect($('wizItemComp'), comps, 'id', 'nome', 'Selecione o compartimento');
+      if ($('wizItemSelect')) $('wizItemSelect').innerHTML = `<option value="">Selecione o item</option>`;
+      limparWizardCampos(['wizItemNome','wizItemQtd','wizItemOrdem','wizItemObs']);
+    }
+
+    function preencherWizardItensPorCompartimento(){
+      if (state.adminAction === 'adicionar') return;
+      const compId = $('wizItemComp')?.value;
+      const items = state.adminCache.itens.filter(i => i.compartimento_id === compId);
+      preencherSelect($('wizItemSelect'), items, 'id', 'nome', 'Selecione o item');
+      limparWizardCampos(['wizItemNome','wizItemQtd','wizItemOrdem','wizItemObs']);
+    }
+
+    function preencherWizardItem(){
+      const id = $('wizItemSelect')?.value;
+      const item = state.adminCache.itens.find(i => i.id === id);
+      if (!item) return;
+      $('wizItemNome').value = item.nome || '';
+      $('wizItemQtd').value = item.quantidade_padrao ?? '';
+      $('wizItemOrdem').value = item.ordem ?? '';
+      $('wizItemObs').value = item.observacao_padrao || '';
+      $('wizItemAtivo').value = String(item.ativo ?? true);
+    }
+
+    function limparWizardCampos(ids=null){
+      const targets = ids || ['wizVtrCodigo','wizVtrNome','wizVtrTipo','wizCompNome','wizCompOrdem','wizItemNome','wizItemQtd','wizItemOrdem','wizItemObs'];
+      targets.forEach(id => { const el = $(id); if (el) el.value = ''; });
+    }
+
+    async function salvarAdminWizard(){
+      if (!state.adminAction || !state.adminType) return alert('Selecione ação e tipo.');
+
+      if (state.adminType === 'vtr'){
+        if (state.adminAction === 'adicionar'){
+          const codigo = $('wizVtrCodigo').value.trim();
+          const nome = $('wizVtrNome').value.trim();
+          const tipo = $('wizVtrTipo').value.trim();
+          const ativo = $('wizVtrAtivo').value === 'true';
+          if (!codigo || !nome) return alert('Informe código e nome da VTR.');
+          const { error } = await sb.from('vtrs').insert({ codigo, nome, tipo: tipo || null, ativo });
+          if (error) return console.error(error), alert('Erro ao adicionar VTR.');
+          alert('VTR adicionada com sucesso.');
+        }
+        if (state.adminAction === 'editar'){
+          const id = $('wizVtrSelect').value;
+          if (!id) return alert('Selecione a VTR.');
+          const { error } = await sb.from('vtrs').update({
+            codigo: $('wizVtrCodigo').value.trim(),
+            nome: $('wizVtrNome').value.trim(),
+            tipo: $('wizVtrTipo').value.trim() || null,
+            ativo: $('wizVtrAtivo').value === 'true'
+          }).eq('id', id);
+          if (error) return console.error(error), alert('Erro ao editar VTR.');
+          alert('VTR editada com sucesso.');
+        }
+        if (state.adminAction === 'excluir'){
+          const id = $('wizVtrSelect').value;
+          if (!id) return alert('Selecione a VTR.');
+          if (!confirm('Excluir VTR definitivamente do banco?')) return;
+          const { error } = await sb.from('vtrs').delete().eq('id', id);
+          if (error) return console.error(error), alert('Erro ao excluir VTR.');
+          alert('VTR excluída com sucesso.');
+        }
+      }
+
+      if (state.adminType === 'compartimento'){
+        if (state.adminAction === 'adicionar'){
+          const vtrId = $('wizCompVtr').value;
+          const nome = $('wizCompNome').value.trim();
+          const ordem = $('wizCompOrdem').value === '' ? 0 : Number($('wizCompOrdem').value);
+          const ativo = $('wizCompAtivo').value === 'true';
+          if (!vtrId || !nome) return alert('Informe VTR e nome do compartimento.');
+          const { error } = await sb.from('compartimentos').insert({ vtr_id:vtrId, nome, ordem, ativo });
+          if (error) return console.error(error), alert('Erro ao adicionar compartimento.');
+          alert('Compartimento adicionado com sucesso.');
+        }
+        if (state.adminAction === 'editar'){
+          const id = $('wizCompSelect').value;
+          if (!id) return alert('Selecione o compartimento.');
+          const { error } = await sb.from('compartimentos').update({
+            nome: $('wizCompNome').value.trim(),
+            ordem: $('wizCompOrdem').value === '' ? null : Number($('wizCompOrdem').value),
+            ativo: $('wizCompAtivo').value === 'true'
+          }).eq('id', id);
+          if (error) return console.error(error), alert('Erro ao editar compartimento.');
+          alert('Compartimento editado com sucesso.');
+        }
+        if (state.adminAction === 'excluir'){
+          const id = $('wizCompSelect').value;
+          if (!id) return alert('Selecione o compartimento.');
+          if (!confirm('Excluir compartimento definitivamente do banco?')) return;
+          const { error } = await sb.from('compartimentos').delete().eq('id', id);
+          if (error) return console.error(error), alert('Erro ao excluir compartimento.');
+          alert('Compartimento excluído com sucesso.');
+        }
+      }
+
+      if (state.adminType === 'item'){
+        if (state.adminAction === 'adicionar'){
+          const vtrId = $('wizItemVtr').value;
+          const compartimentoId = $('wizItemComp').value;
+          const nome = $('wizItemNome').value.trim();
+          if (!vtrId || !compartimentoId || !nome) return alert('Informe VTR, compartimento e nome do item.');
+          const { error } = await sb.from('itens').insert({
+            vtr_id:vtrId,
+            compartimento_id:compartimentoId,
+            nome,
+            quantidade_padrao: $('wizItemQtd').value === '' ? 1 : Number($('wizItemQtd').value),
+            ordem: $('wizItemOrdem').value === '' ? 0 : Number($('wizItemOrdem').value),
+            observacao_padrao: $('wizItemObs').value.trim() || null,
+            ativo: $('wizItemAtivo').value === 'true'
+          });
+          if (error) return console.error(error), alert('Erro ao adicionar item.');
+          alert('Item adicionado com sucesso.');
+        }
+        if (state.adminAction === 'editar'){
+          const id = $('wizItemSelect').value;
+          if (!id) return alert('Selecione o item.');
+          const { error } = await sb.from('itens').update({
+            nome: $('wizItemNome').value.trim(),
+            quantidade_padrao: $('wizItemQtd').value === '' ? null : Number($('wizItemQtd').value),
+            ordem: $('wizItemOrdem').value === '' ? null : Number($('wizItemOrdem').value),
+            observacao_padrao: $('wizItemObs').value.trim() || null,
+            ativo: $('wizItemAtivo').value === 'true'
+          }).eq('id', id);
+          if (error) return console.error(error), alert('Erro ao editar item.');
+          alert('Item editado com sucesso.');
+        }
+        if (state.adminAction === 'excluir'){
+          const id = $('wizItemSelect').value;
+          if (!id) return alert('Selecione o item.');
+          if (!confirm('Excluir item definitivamente do banco?')) return;
+          const { error } = await sb.from('itens').delete().eq('id', id);
+          if (error) return console.error(error), alert('Erro ao excluir item.');
+          alert('Item excluído com sucesso.');
+        }
+      }
+
+      await loadAdminCaches();
+      await carregarVtrs();
+      renderAdminWizard();
+    }
+
+    function limparAdminWizard(){
+      document.querySelectorAll('#adminWizardPanel input, #adminWizardPanel textarea').forEach(el => el.value = '');
+      document.querySelectorAll('#adminWizardPanel select').forEach((el, idx) => { if (idx > 0) el.value = ''; });
+    }
+
+    function voltarAdminWizard(){
+      state.adminAction = '';
+      state.adminType = '';
+      renderAdminWizard();
+      setAdminChoiceStyles();
     }
 
     async function gerarRelatorioDia(){
-      const vtrId = $('relVtr').value;
-      const data = $('relData').value || hojeISO();
+      const vtrId = $('relVtr')?.value;
+      const data = $('relData')?.value || hojeISO();
       if (!vtrId) return alert('Selecione uma VTR.');
 
       const vtr = state.vtrs.find(v => v.id === vtrId);
-
       const { data: checklist, error: errChecklist } = await sb
         .from('checklists')
-        .select(`*, militar:militar_id (nome)`)
+        .select(`*`)
         .eq('vtr_id', vtrId)
         .eq('data_checklist', data)
         .order('created_at', { ascending:false })
@@ -1747,7 +1262,7 @@
         .maybeSingle();
 
       if (errChecklist || !checklist){
-        $('relatorioArea').innerHTML = `<div class="card"><span class="status-chip gray"><span class="status-dot"></span>Nenhum checklist encontrado para a data informada.</span></div>`;
+        $('relatorioArea').innerHTML = `<div class="card"><span class="status-chip gray"><span class="dot"></span>Nenhum checklist encontrado para a data informada.</span></div>`;
         return;
       }
 
@@ -1758,7 +1273,7 @@
 
       if (errItens){
         console.error(errItens);
-        $('relatorioArea').innerHTML = `<div class="card"><span class="status-chip red"><span class="status-dot"></span>Erro ao gerar relatório.</span></div>`;
+        $('relatorioArea').innerHTML = `<div class="card"><span class="status-chip red"><span class="dot"></span>Erro ao gerar relatório.</span></div>`;
         return;
       }
 
@@ -1767,13 +1282,12 @@
           <h3 style="margin-top:0">Relatório diário</h3>
           <div class="small muted">VTR: <b>${escapeHtml(vtr?.codigo || '-')}</b></div>
           <div class="small muted">Data: <b>${escapeHtml(data)}</b></div>
-          ${(()=>{const parsed=parseObservacaoPayload(checklist.observacao_geral); const hora=(checklist.created_at||'').slice(11,16); return `
-          <div class="small muted">Conferente: <b>${escapeHtml(checklist.militar?.nome || '-')}</b></div>
+          <div class="small muted">Serviço do dia: <b>${escapeHtml(checklist.servico_dia || '-')}</b></div>
+          <div class="small muted">CG do dia: <b>${escapeHtml(checklist.cg_dia_nome || '-')}</b></div>
+          <div class="small muted">Salvo por: <b>${escapeHtml(checklist.salvo_por_nome || '-')}</b></div>
+          <div class="small muted">Hora do salvamento: <b>${checklist.salvo_em ? horaBR(checklist.salvo_em) : '--:--'}</b></div>
           <div class="small muted">Turno: <b>${escapeHtml(checklist.turno || 'Sem turno')}</b></div>
-          <div class="small muted">CG do dia: <b>${escapeHtml(parsed.cg_dia || '-')}</b></div>
-          <div class="small muted">Serviço: <b>${escapeHtml(parsed.servico_dia || '-')}</b></div>
-          <div class="small muted">Hora do salvamento: <b>${escapeHtml(hora || '-')}</b></div>
-          <div class="small muted" style="margin-top:8px">Observação geral: ${escapeHtml(parsed.observacao || 'Sem observação')}</div>`})()}
+          <div class="small muted" style="margin-top:8px">Observação geral: ${escapeHtml(checklist.observacao_geral || 'Sem observação')}</div>
           <div style="margin-top:14px;display:grid;gap:10px">
             ${(itensRel || []).map(row => `
               <div style="border:1px solid var(--line);border-radius:6px;padding:10px;background:#fafbfd">
@@ -1784,93 +1298,50 @@
               </div>
             `).join('')}
           </div>
-        </div>
-      `;
+        </div>`;
     }
 
     function imprimirRelatorio(){ window.print(); }
 
+    // global event binds
+    document.querySelectorAll('.tabbtn').forEach(btn => btn.addEventListener('click', () => alternarTab(btn.dataset.tab)));
+    bind('btnLogin', 'click', login);
+    bind('btnCarregarChecklist', 'click', carregarItensChecklist);
+    bind('btnSalvarChecklist', 'click', salvarChecklist);
+    bind('btnSalvarTopo', 'click', salvarChecklist);
+    bind('btnSalvarBarraFixa', 'click', salvarChecklist);
+    bind('btnSairTopo', 'click', logout);
+    bind('btnAtualizarFaltantes', 'click', carregarFaltantesHoje);
+    bind('btnRelatorioDia', 'click', gerarRelatorioDia);
+    bind('btnImprimir', 'click', imprimirRelatorio);
+    bind('btnMarcarTodosCompartimentos', 'click', marcarTodosOsCompartimentos);
+    bind('btnDesmarcarTodosCompartimentos', 'click', desmarcarTodosOsCompartimentos);
+    bind('btnExpandirTodos', 'click', expandirOuRecolherTodos);
+    bind('btnReabrirChecklist', 'click', reabrirChecklist);
+    bind('btnAdminSalvar', 'click', salvarAdminWizard);
+    bind('btnAdminVoltar', 'click', voltarAdminWizard);
+    bind('btnAdminLimpar', 'click', limparAdminWizard);
+    bind('btnAdminSair', 'click', logout);
 
-    function logout(){
-      localStorage.removeItem('checklist_user');
-      state.user = null;
-      window.location.reload();
-    }
-
-    function setAdminPanel(step){
-      ['vtr','comp','item_add','item_edit'].forEach(k => {
-        const el = document.getElementById('panel-' + k);
-        if (el) el.classList.toggle('show', k === step);
+    document.querySelectorAll('#adminActionButtons .wizard-choice').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        state.adminAction = btn.dataset.action;
+        await loadAdminCaches();
+        renderAdminWizard();
+        setAdminChoiceStyles();
       });
-    }
-
-    function limparAdminCampos(){
-      ['adminVtrSelect','adminCompEditVtr','adminCompSelect','adminCompVtr','adminItemVtr','adminItemCompartimento','editItemVtr','editItemCompartimento','editItemSelect'].forEach(id => {
-        const el = $(id); if (el) el.value = '';
+    });
+    document.querySelectorAll('#adminTypeButtons .wizard-choice').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        state.adminType = btn.dataset.type;
+        await loadAdminCaches();
+        renderAdminWizard();
+        setAdminChoiceStyles();
       });
-      ['adminVtrCodigo','adminVtrNome','adminVtrTipo','adminCompNomeEdit','adminCompOrdemEdit','adminCompNome','adminCompOrdem','adminItemNome','adminItemQtd','adminItemOrdem','editItemNome','editItemQtd','editItemOrdem'].forEach(id => {
-        const el = $(id); if (el) el.value = '';
-      });
-      ['adminItemObs','editItemObs'].forEach(id => { const el=$(id); if(el) el.value=''; });
-      const act = $('adminVtrAtivo'); if (act) act.value='true';
-      const act2 = $('adminCompAtivoEdit'); if (act2) act2.value='true';
-      setAdminPanel(($('adminStepSelect')?.value) || 'vtr');
-    }
-
-
-    function alternarTab(tabName){
-      state.currentTab = tabName;
-      document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
-      document.querySelectorAll('.tabbtn').forEach(btn => btn.classList.remove('active'));
-
-      const sec = document.getElementById(`tab${tabName}`);
-      if (sec) sec.classList.remove('hidden');
-
-      const activeBtn = document.querySelector(`.tabbtn[data-tab="${tabName}"]`);
-      if (activeBtn) activeBtn.classList.add('active');
-
-      if (tabName === 'Faltantes') carregarFaltantesHoje();
-      if (tabName === 'Relatorios') $('relData').value = hojeISO();
-    }
-
-    document.querySelectorAll('.tabbtn').forEach(btn => {
-      btn.addEventListener('click', () => alternarTab(btn.dataset.tab));
     });
 
-    $('btnLogin').addEventListener('click', login);
-    if ($('btnLogout')) $('btnLogout').addEventListener('click', logout);
-    if ($('adminStepSelect')) $('adminStepSelect').addEventListener('change', (e) => setAdminPanel(e.target.value));
-    if ($('btnLimparAdmin')) $('btnLimparAdmin').addEventListener('click', limparAdminCampos);
-    $('btnCarregarChecklist').addEventListener('click', carregarItensChecklist);
-    $('btnSalvarChecklist').addEventListener('click', salvarChecklist);
-    $('btnSalvarTopo').addEventListener('click', salvarChecklist);
-    $('btnSalvarBarraFixa').addEventListener('click', salvarChecklist);
-    $('btnTopo').addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
-    $('btnAtualizarFaltantes').addEventListener('click', carregarFaltantesHoje);
-    $('btnRelatorioDia').addEventListener('click', gerarRelatorioDia);
-    $('btnImprimir').addEventListener('click', imprimirRelatorio);
-    $('btnAddCompartimento').addEventListener('click', adicionarCompartimento);
-    $('btnAddItem').addEventListener('click', adicionarItem);
-    $('adminItemVtr').addEventListener('change', carregarCompartimentosAdmin);
-    $('btnMarcarTodosCompartimentos').addEventListener('click', marcarTodosOsCompartimentos);
-    $('btnExpandirTodos').addEventListener('click', expandirOuRecolherTodos);
-    $('editItemVtr').addEventListener('change', carregarCompartimentosEdicao);
-    $('editItemCompartimento').addEventListener('change', carregarItensEdicao);
-    $('editItemSelect').addEventListener('change', preencherCamposEdicaoItem);
-    $('btnSalvarEdicaoItem').addEventListener('click', salvarEdicaoItem);
-    $('adminVtrSelect').addEventListener('change', preencherCamposVtr);
-    $('btnAddVtr').addEventListener('click', adicionarVtr);
-    $('btnSalvarVtr').addEventListener('click', salvarVtr);
-    $('adminCompEditVtr').addEventListener('change', carregarCompartimentosAdminEdit);
-    $('adminCompSelect').addEventListener('change', preencherCamposCompartimentoEdit);
-    $('btnAddCompartimentoRapido').addEventListener('click', adicionarCompartimentoAdminEdit);
-    $('btnSalvarCompartimentoEdit').addEventListener('click', salvarCompartimentoEdit);
-    $('btnDesmarcarTodosCompartimentos').addEventListener('click', desmarcarTodosOsCompartimentos);
-
-    $('relData').value = hojeISO();
+    if ($('relData')) $('relData').value = hojeISO();
     setTopoData();
-    setServicoDiaTexto();
-    setAdminPanel('vtr');
 
     window.abrirChecklistDireto = abrirChecklistDireto;
     window.setItemStatus = setItemStatus;
