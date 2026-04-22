@@ -109,6 +109,7 @@
     .btn-secondary{background:#737b86;color:#fff;border:1px solid rgba(255,255,255,.12)}
     .btn-ghost{background:#fff;color:var(--blue);border:2px solid var(--blue)}
     .btn-card{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+    .btn-card.active-green{background:var(--green-soft);color:var(--green);border-color:var(--green)}
     .btn-save{background:#1f8b4c;color:#fff;border:1px solid #17703d}
     .btn-inline{
       min-height:auto;
@@ -365,7 +366,11 @@
       transition:background .12s ease;
     }
     .item-row:first-child{border-top:none}
-    .item-row:active{background:#f7fbff}
+    .item-block:nth-child(odd) .item-row{background:#ffffff}
+    .item-block:nth-child(odd) .item-detail{background:#fafbfd}
+    .item-block:nth-child(even) .item-row{background:#f5f7fa}
+    .item-block:nth-child(even) .item-detail{background:#f1f4f8}
+    .item-row:active{background:#eaf2ff}
 
     .item-code{
       font-weight:400;
@@ -717,7 +722,8 @@
       collapsed:{},
       itemOpen:{},
       compMarkedAll:{},
-      expandAllState:false
+      expandAllState:false,
+      editItens:[]
     };
 
     function hojeISO(){
@@ -836,6 +842,7 @@
       preencherSelect($('relVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
       preencherSelect($('adminCompVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
       preencherSelect($('adminItemVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
+      preencherSelect($('editItemVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
     }
 
     async function carregarStatsHoje(){
@@ -961,9 +968,8 @@
       const hasProblem = states.some(s => ['faltando','alterado','avariado'].includes(s));
       const allConfere = states.every(s => s === 'confere');
 
-      if (state.compMarkedAll[compId]) return { kind:'orange', text:'Marcado como confere' };
       if (hasProblem) return { kind:'red', text:'Com divergência' };
-      if (allConfere) return { kind:'green', text:'Conferido' };
+      if (allConfere || state.compMarkedAll[compId]) return { kind:'green', text:'CONFERIDO ✅️' };
       return { kind:'gray', text:'Pendente' };
     }
 
@@ -1004,7 +1010,7 @@
             <div class="comp-body ${collapsed ? 'hidden' : ''}">
               <div class="comp-body-head">
                 <div class="body-caption">Itens do compartimento</div>
-                <button class="btn btn-ghost btn-inline" onclick="marcarTodosCompartimento('${comp.id}')">☑️ MARCAR TODOS COMO CONFERE</button>
+                <button class="btn ${state.compMarkedAll[comp.id] ? 'btn-card active-green' : 'btn-ghost'} btn-inline" onclick="marcarTodosCompartimento('${comp.id}')">${state.compMarkedAll[comp.id] ? '✅ MARCAR TODOS COMO CONFERE' : '☑️ MARCAR TODOS COMO CONFERE'}</button>
               </div>
 
               ${itens.length ? `
@@ -1016,7 +1022,7 @@
                     const stClass = st.status === 'confere' ? 'green' : (['faltando','alterado','avariado'].includes(st.status) ? 'red' : 'gray');
 
                     return `
-                      <div>
+                      <div class="item-block">
                         <div class="item-row">
                           <div class="item-code">${idx + 1}.${itemIdx + 1}</div>
                           <div class="item-name">${escapeHtml(item.nome)}</div>
@@ -1193,6 +1199,95 @@
       preencherSelect($('adminItemCompartimento'), comps, 'id', 'nome', 'Selecione o compartimento');
     }
 
+
+    async function carregarCompartimentosEdicao(){
+      const vtrId = $('editItemVtr').value;
+      if (!vtrId){
+        $('editItemCompartimento').innerHTML = `<option value="">Selecione a VTR</option>`;
+        $('editItemSelect').innerHTML = `<option value="">Selecione o item</option>`;
+        return;
+      }
+      const comps = await carregarCompartimentosDaVtr(vtrId);
+      preencherSelect($('editItemCompartimento'), comps, 'id', 'nome', 'Selecione o compartimento');
+      $('editItemSelect').innerHTML = `<option value="">Selecione o item</option>`;
+      $('editItemNome').value = '';
+      $('editItemQtd').value = '';
+      $('editItemOrdem').value = '';
+      $('editItemObs').value = '';
+    }
+
+    async function carregarItensEdicao(){
+      const vtrId = $('editItemVtr').value;
+      const compartimentoId = $('editItemCompartimento').value;
+      if (!vtrId || !compartimentoId){
+        $('editItemSelect').innerHTML = `<option value="">Selecione o item</option>`;
+        return;
+      }
+      const { data, error } = await sb
+        .from('itens')
+        .select('*')
+        .eq('vtr_id', vtrId)
+        .eq('compartimento_id', compartimentoId)
+        .eq('ativo', true)
+        .order('ordem', { ascending:true });
+
+      if (error){
+        console.error(error);
+        return;
+      }
+
+      state.editItens = data || [];
+      preencherSelect($('editItemSelect'), state.editItens, 'id', 'nome', 'Selecione o item');
+    }
+
+    function preencherCamposEdicaoItem(){
+      const itemId = $('editItemSelect').value;
+      const item = state.editItens.find(i => i.id === itemId);
+      if (!item){
+        $('editItemNome').value = '';
+        $('editItemQtd').value = '';
+        $('editItemOrdem').value = '';
+        $('editItemObs').value = '';
+        return;
+      }
+      $('editItemNome').value = item.nome || '';
+      $('editItemQtd').value = item.quantidade_padrao ?? '';
+      $('editItemOrdem').value = item.ordem ?? '';
+      $('editItemObs').value = item.observacao_padrao || '';
+    }
+
+    async function salvarEdicaoItem(){
+      const itemId = $('editItemSelect').value;
+      if (!itemId) return alert('Selecione um item para editar.');
+
+      const nome = $('editItemNome').value.trim();
+      const quantidade = $('editItemQtd').value === '' ? null : Number($('editItemQtd').value);
+      const ordem = $('editItemOrdem').value === '' ? null : Number($('editItemOrdem').value);
+      const observacao = $('editItemObs').value.trim();
+
+      if (!nome) return alert('Informe o nome do item.');
+
+      const { error } = await sb
+        .from('itens')
+        .update({
+          nome,
+          quantidade_padrao: quantidade,
+          ordem,
+          observacao_padrao: observacao || null
+        })
+        .eq('id', itemId);
+
+      if (error){
+        console.error(error);
+        return alert('Erro ao salvar edição do item.');
+      }
+
+      alert('Item atualizado com sucesso.');
+      await carregarItensEdicao();
+      $('editItemSelect').value = itemId;
+      preencherCamposEdicaoItem();
+    }
+
     async function adicionarCompartimento(){
       const vtrId = $('adminCompVtr').value;
       const nome = $('adminCompNome').value.trim();
@@ -1210,6 +1305,7 @@
       $('adminCompOrdem').value = '';
       alert('Compartimento salvo com sucesso.');
       await carregarCompartimentosAdmin();
+      await carregarCompartimentosEdicao();
     }
 
     async function adicionarItem(){
@@ -1242,6 +1338,10 @@
       $('adminItemOrdem').value = '1';
       $('adminItemObs').value = '';
       alert('Item salvo com sucesso.');
+
+      if ($('editItemVtr').value === vtrId && $('editItemCompartimento').value === compartimentoId) {
+        await carregarItensEdicao();
+      }
     }
 
     async function gerarRelatorioDia(){
@@ -1333,6 +1433,10 @@
     $('adminItemVtr').addEventListener('change', carregarCompartimentosAdmin);
     $('btnMarcarTodosCompartimentos').addEventListener('click', marcarTodosOsCompartimentos);
     $('btnExpandirTodos').addEventListener('click', expandirOuRecolherTodos);
+    $('editItemVtr').addEventListener('change', carregarCompartimentosEdicao);
+    $('editItemCompartimento').addEventListener('change', carregarItensEdicao);
+    $('editItemSelect').addEventListener('change', preencherCamposEdicaoItem);
+    $('btnSalvarEdicaoItem').addEventListener('click', salvarEdicaoItem);
 
     $('relData').value = hojeISO();
     setTopoData();
