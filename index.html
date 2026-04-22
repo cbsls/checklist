@@ -305,6 +305,14 @@
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const $ = (id) => document.getElementById(id);
 
+    const STATUS_LABEL = {
+      pendente: 'Pendente',
+      confere: 'Conferido',
+      faltando: 'Faltando',
+      alterado: 'Alterado',
+      avariado: 'Avariado'
+    };
+
     const state = {
       user:null,
       vtrs:[],
