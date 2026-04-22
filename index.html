@@ -59,6 +59,12 @@
     .red{color:var(--red)} .red .dot{background:var(--red)}
     .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
     .stat{background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);padding:14px}
+    .stat.clickable{cursor:pointer;transition:.12s}
+    .stat.clickable:active{transform:scale(.98)}
+    .vtr-card{display:grid;grid-template-columns:minmax(0,1fr) 248px;align-items:center}
+    .vtr-status-open{color:var(--muted);font-weight:900}
+    .vtr-status-ok{color:var(--green);font-weight:900}
+    .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9999;padding:12px 16px;border-radius:10px;font-weight:900;color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.18);display:none}
     .stat .n{font-size:24px;font-weight:900;margin-top:6px}
     .vtr-list,.faltas-list,.comp-list{display:grid;gap:10px}
     .vtr-card{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;box-shadow:var(--shadow)}
@@ -119,10 +125,13 @@
       .hero-actions,.check-toolbar{grid-template-columns:1fr 1fr}
       .item-row{grid-template-columns:46px 1fr 138px 24px;gap:8px;padding:0 8px}
       .comp-name{font-size:16px}
+      .vtr-card{grid-template-columns:1fr}
+      .vtr-card .btn{width:100%}
     }
   </style>
 </head>
 <body>
+  <div id="appToast" class="toast"></div>
   <div id="loginScreen" class="login-wrap">
     <div class="login-card">
       <h1>✅ Checklist VTR</h1>
@@ -161,7 +170,7 @@
         <div class="section-title"><h2>Início</h2><span class="pill" id="userBadge">Não logado</span></div>
         <div class="stats">
           <div class="stat"><div class="muted small">VTRs ativas</div><div class="n" id="statVtrs">0</div></div>
-          <div class="stat"><div class="muted small">Itens com problema hoje</div><div class="n" id="statFaltasHoje">0</div></div>
+          <div class="stat clickable" id="cardIrFaltantes"><div class="muted small">Itens com problema hoje</div><div class="n" id="statFaltasHoje">0</div><div class="small muted" style="margin-top:6px">Toque para abrir pendências</div></div>
           <div class="stat"><div class="muted small">Checklist de hoje</div><div class="n" id="statHoje">0</div></div>
           <div class="stat"><div class="muted small">Usuário</div><div class="n" id="statUsuario" style="font-size:18px">-</div></div>
         </div>
@@ -313,6 +322,16 @@
       avariado: 'Avariado'
     };
 
+    function showToast(msg, ok=true){
+      const el = $('appToast');
+      if (!el) return;
+      el.style.background = ok ? '#1f8b4c' : '#c62828';
+      el.textContent = msg;
+      el.style.display = 'block';
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => { el.style.display = 'none'; }, 2600);
+    }
+
     const state = {
       user:null,
       vtrs:[],
@@ -453,16 +472,18 @@
       if ($('statVtrs')) $('statVtrs').textContent = state.vtrs.length;
       if ($('vtrList')) {
         $('vtrList').innerHTML = state.vtrs.map(vtr => {
-          const ult = vtr.ultimo_checklist_em ? `Conferido em ${isoToBR(vtr.ultimo_checklist_em.slice(0,10))} CG ${escapeHtml(vtr.ultimo_checklist_por_nome || '-')} ${vtr.ultimo_checklist_hora ? 'às ' + vtr.ultimo_checklist_hora : ''}` : 'Ainda não conferido hoje';
+          const ult = vtr.ultimo_checklist_em
+            ? `✅ Conferido em ${isoToBR(vtr.ultimo_checklist_em.slice(0,10))}${vtr.ultimo_checklist_hora ? ' às ' + vtr.ultimo_checklist_hora : ''} • CG ${escapeHtml(vtr.ultimo_checklist_por_nome || '-')}`
+            : 'Ainda não conferido hoje';
           return `
             <div class="vtr-card">
-              <div>
+              <div style="min-width:0">
                 <div style="font-size:17px;font-weight:900">${escapeHtml(vtr.codigo)}</div>
                 <div class="muted small">${escapeHtml(vtr.nome)} • ${escapeHtml(vtr.tipo || 'vtr')}</div>
-                <div class="small" style="margin-top:6px;color:${vtr.ultimo_checklist_em ? 'var(--green)' : 'var(--muted)'};font-weight:900">${ult}</div>
+                <div class="small ${vtr.ultimo_checklist_em ? 'vtr-status-ok' : 'vtr-status-open'}" style="margin-top:6px">${ult}</div>
               </div>
-              <div class="row">
-                <button class="btn btn-primary" onclick="abrirChecklistDireto('${vtr.id}')">Abrir checklist</button>
+              <div class="row" style="justify-content:flex-end">
+                <button class="btn btn-primary" style="width:100%;max-width:248px" onclick="abrirChecklistDireto('${vtr.id}')">Abrir checklist</button>
               </div>
             </div>`;
         }).join('');
@@ -477,41 +498,70 @@
       if (!error && $('statHoje')) $('statHoje').textContent = (data || []).length;
     }
 
+
     async function carregarFaltantesHoje(){
-      const { data: checklistsHoje } = await sb.from('checklists').select('id, vtr_id, data_checklist').eq('data_checklist', hojeISO());
-      const checklistIds = (checklistsHoje || []).map(c => c.id);
-      if (!checklistIds.length){
-        if ($('faltasList')) $('faltasList').innerHTML = `<div class="card"><span class="status-chip gray"><span class="dot"></span>Nenhum item com problema hoje</span></div>`;
-        if ($('statFaltasHoje')) $('statFaltasHoje').textContent = '0';
-        return;
+      if (!state.adminCache.compartimentos.length || !state.adminCache.itens.length) {
+        await loadAdminCaches();
       }
+
       const { data, error } = await sb
         .from('checklist_itens')
-        .select(`id, status_item, observacao, item:item_id (nome), checklist:checklist_id (vtr_id, data_checklist)`)
-        .in('checklist_id', checklistIds)
-        .in('status_item', ['faltando','alterado','avariado']);
+        .select(`id, item_id, status_item, observacao, created_at,
+          item:item_id (id, nome, compartimento_id, vtr_id),
+          checklist:checklist_id (id, vtr_id, data_checklist, salvo_por_nome, salvo_em)`)
+        .order('created_at', { ascending:false });
 
-      if (error) return console.error(error);
-      if ($('statFaltasHoje')) $('statFaltasHoje').textContent = (data || []).length;
-
-      if (!data || !data.length){
-        if ($('faltasList')) $('faltasList').innerHTML = `<div class="card"><span class="status-chip gray"><span class="dot"></span>Nenhum item com problema hoje</span></div>`;
+      if (error) {
+        console.error(error);
         return;
       }
-      const vtrMap = Object.fromEntries(state.vtrs.map(v => [v.id, v.codigo]));
+
+      const latestByItem = new Map();
+      for (const row of (data || [])) {
+        const itemId = row.item_id || row.item?.id;
+        if (!itemId || latestByItem.has(String(itemId))) continue;
+        latestByItem.set(String(itemId), row);
+      }
+
+      const pendencias = [];
+      for (const row of latestByItem.values()) {
+        if (!row?.status_item || row.status_item === 'pendente' || row.status_item === 'confere') continue;
+        pendencias.push(row);
+      }
+
+      if ($('statFaltasHoje')) $('statFaltasHoje').textContent = String(pendencias.length);
+
+      if (!pendencias.length) {
+        if ($('faltasList')) $('faltasList').innerHTML = `<div class="card"><span class="status-chip gray"><span class="dot"></span>Nenhuma pendência aberta</span></div>`;
+        return;
+      }
+
+      const compMap = Object.fromEntries((state.adminCache.compartimentos || []).map(c => [String(c.id), c]));
+      const vtrMap = Object.fromEntries((state.vtrs || []).map(v => [String(v.id), v]));
+
       if ($('faltasList')) {
-        $('faltasList').innerHTML = data.map(row => `
-          <div class="card">
-            <div class="row" style="justify-content:space-between">
-              <div>
-                <div style="font-weight:900">${escapeHtml(row.item?.nome || 'Item')}</div>
-                <div class="muted small">${escapeHtml(vtrMap[row.checklist?.vtr_id] || '-')} • ${escapeHtml(row.checklist?.data_checklist || '')}</div>
+        $('faltasList').innerHTML = pendencias.map(row => {
+          const item = row.item || {};
+          const checklist = row.checklist || {};
+          const comp = compMap[String(item.compartimento_id)] || null;
+          const vtr = vtrMap[String(checklist.vtr_id || item.vtr_id)] || null;
+          return `
+            <button class="card" style="text-align:left;cursor:pointer" onclick="abrirPendenciaNoAdmin('${String(checklist.vtr_id || item.vtr_id || '')}','${String(item.compartimento_id || '')}','${String(item.id || row.item_id || '')}')">
+              <div class="row" style="justify-content:space-between;align-items:flex-start">
+                <div style="min-width:0">
+                  <div style="font-weight:900">${escapeHtml(item.nome || 'Item')}</div>
+                  <div class="small muted" style="margin-top:4px">VTR: <b>${escapeHtml(vtr?.codigo || '-')}</b></div>
+                  <div class="small muted">Compartimento: <b>${escapeHtml(comp?.nome || '-')}</b></div>
+                  <div class="small muted">Status: <b>${escapeHtml(STATUS_LABEL[row.status_item] || row.status_item || '-')}</b></div>
+                  <div class="small muted">Obs: ${escapeHtml(row.observacao || 'Sem observação')}</div>
+                  <div class="small muted">Desde: <b>${escapeHtml(checklist.data_checklist || '-')}</b></div>
+                  <div class="small muted">Registrado por: <b>${escapeHtml(checklist.salvo_por_nome || '-')}</b></div>
+                </div>
+                <span class="status-chip red"><span class="dot"></span>Em aberto</span>
               </div>
-              <span class="status-chip red"><span class="dot"></span>${escapeHtml(row.status_item)}</span>
-            </div>
-            <div class="small muted" style="margin-top:8px">${escapeHtml(row.observacao || 'Sem observação')}</div>
-          </div>
-        `).join('');
+              <div class="small" style="margin-top:10px;color:var(--blue);font-weight:900">Toque para abrir no Admin → Editar Item</div>
+            </button>`;
+        }).join('');
       }
     }
 
@@ -837,7 +887,7 @@
       renderChecklist();
     }
     function toggleComp(compId){
-      state.collapsed[compId] = !state.collapsed[compid];
+      state.collapsed[compId] = !state.collapsed[compId];
       renderChecklist();
     }
     function expandirOuRecolherTodos(){
@@ -866,6 +916,11 @@
       if (!vtrId) return alert('Selecione uma VTR.');
       if (!state.user?.id) return alert('Usuário não identificado.');
       if (state.checklistLocked) return alert('Checklist bloqueado.');
+      const possuiPendentes = state.itens.some(item => (state.checklistItemsState[item.id]?.status || 'pendente') === 'pendente');
+      if (possuiPendentes){
+        showToast('Há itens pendentes. Marque todos os itens antes de salvar.', false);
+        return;
+      }
 
       let checklistId = state.currentChecklist?.id || null;
 
@@ -940,7 +995,7 @@
         ultimo_checklist_hora: hora
       }).eq('id', vtrId);
 
-      alert('Checklist salvo com sucesso.');
+      showToast('Checklist salvo com sucesso.', true);
       state.checklistLocked = true;
       if (state.user?.perfil === 'admin'){
         setChecklistLock(`Checklist salvo às ${hora}. Somente admin pode reabrir.`, true);
@@ -952,6 +1007,29 @@
       await carregarVtrs();
       await carregarFaltantesHoje();
       await carregarStatsHoje();
+    }
+
+
+    async function abrirPendenciaNoAdmin(vtrId, compartimentoId, itemId){
+      if (state.user?.perfil !== 'admin'){
+        showToast('Somente admin pode abrir a correção no Admin.', false);
+        return;
+      }
+      state.adminAction = 'editar';
+      state.adminType = 'item';
+      await loadAdminCaches();
+      alternarTab('Admin');
+      renderAdminWizard();
+      setAdminChoiceStyles();
+
+      requestAnimationFrame(() => {
+        if ($('wizItemVtr')) $('wizItemVtr').value = String(vtrId || '');
+        preencherWizardItemCompartimentos();
+        if ($('wizItemComp')) $('wizItemComp').value = String(compartimentoId || '');
+        preencherWizardItensPorCompartimento();
+        if ($('wizItemSelect')) $('wizItemSelect').value = String(itemId || '');
+        preencherWizardItem();
+      });
     }
 
     function alternarTab(tabName){
@@ -1325,6 +1403,7 @@
     bind('btnAdminVoltar', 'click', voltarAdminWizard);
     bind('btnAdminLimpar', 'click', limparAdminWizard);
     bind('btnAdminSair', 'click', logout);
+    bind('cardIrFaltantes', 'click', () => alternarTab('Faltantes'));
 
     document.querySelectorAll('#adminActionButtons .wizard-choice').forEach(btn => {
       btn.addEventListener('click', async () => {
@@ -1353,6 +1432,7 @@
     window.toggleItem = toggleItem;
     window.marcarTodosCompartimento = marcarTodosCompartimento;
     window.toggleComp = toggleComp;
+    window.abrirPendenciaNoAdmin = abrirPendenciaNoAdmin;
 
     restaurarLogin();
   </script>
