@@ -614,7 +614,10 @@
               <div class="toolbar-desc">Marca todos os itens de todos os compartimentos como <b>CONFERE</b>.</div>
             </div>
           </div>
-          <button class="btn btn-card" id="btnMarcarTodosCompartimentos">☑️&nbsp; MARCAR TODOS</button>
+          <div class="col" style="justify-content:center">
+            <button class="btn btn-card" id="btnMarcarTodosCompartimentos">☑️&nbsp; MARCAR TODOS</button>
+            <button class="btn btn-ghost" id="btnDesmarcarTodosCompartimentos">↺&nbsp; DESMARCAR TODOS</button>
+          </div>
         </div>
 
         <div class="checklist-actionbar">
@@ -655,7 +658,41 @@
         <div class="section-title"><h2>Administração</h2><span class="pill" id="adminBadge">Somente admin</span></div>
         <div id="adminArea" class="hidden">
           <div class="card" style="margin-bottom:12px">
-            <h3>Adicionar compartimento</h3>
+            <h3>Listar / Adicionar / Editar VTR</h3>
+            <div class="col">
+              <div><label for="adminVtrSelect">VTR existente</label><select id="adminVtrSelect"></select></div>
+              <div><label for="adminVtrCodigo">Código da VTR</label><input id="adminVtrCodigo" type="text" placeholder="Ex.: ABT 0535" /></div>
+              <div><label for="adminVtrNome">Nome da VTR</label><input id="adminVtrNome" type="text" placeholder="Nome da VTR" /></div>
+              <div class="row">
+                <div style="flex:1;min-width:140px"><label for="adminVtrTipo">Tipo</label><input id="adminVtrTipo" type="text" placeholder="Ex.: Auto Bomba Tanque" /></div>
+                <div style="flex:1;min-width:140px"><label for="adminVtrAtivo">Ativa</label><select id="adminVtrAtivo"><option value="true">Sim</option><option value="false">Não</option></select></div>
+              </div>
+              <div class="row">
+                <button class="btn btn-primary" id="btnAddVtr">Adicionar VTR</button>
+                <button class="btn btn-save" id="btnSalvarVtr">Salvar edição da VTR</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:12px">
+            <h3>Listar / Adicionar / Editar compartimento</h3>
+            <div class="col">
+              <div><label for="adminCompEditVtr">VTR</label><select id="adminCompEditVtr"></select></div>
+              <div><label for="adminCompSelect">Compartimento existente</label><select id="adminCompSelect"></select></div>
+              <div><label for="adminCompNomeEdit">Nome do compartimento</label><input id="adminCompNomeEdit" type="text" placeholder="Nome do compartimento" /></div>
+              <div class="row">
+                <div style="flex:1;min-width:120px"><label for="adminCompOrdemEdit">Ordem</label><input id="adminCompOrdemEdit" type="number" /></div>
+                <div style="flex:1;min-width:120px"><label for="adminCompAtivoEdit">Ativo</label><select id="adminCompAtivoEdit"><option value="true">Sim</option><option value="false">Não</option></select></div>
+              </div>
+              <div class="row">
+                <button class="btn btn-primary" id="btnAddCompartimentoRapido">Adicionar compartimento</button>
+                <button class="btn btn-save" id="btnSalvarCompartimentoEdit">Salvar edição do compartimento</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:12px">
+            <h3>Adicionar compartimento rápido</h3>
             <div class="col">
               <div><label for="adminCompVtr">VTR</label><select id="adminCompVtr"></select></div>
               <div><label for="adminCompNome">Nome do compartimento</label><input id="adminCompNome" type="text" placeholder="Ex.: Gaveta 01" /></div>
@@ -723,7 +760,9 @@
       itemOpen:{},
       compMarkedAll:{},
       expandAllState:false,
-      editItens:[]
+      editItens:[],
+      globalMarkedAll:false,
+      editCompartimentos:[]
     };
 
     function hojeISO(){
@@ -843,6 +882,8 @@
       preencherSelect($('adminCompVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
       preencherSelect($('adminItemVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
       preencherSelect($('editItemVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
+      preencherSelect($('adminVtrSelect'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
+      preencherSelect($('adminCompEditVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
     }
 
     async function carregarStatsHoje(){
@@ -926,6 +967,7 @@
       state.itemOpen = {};
       state.compMarkedAll = {};
       state.expandAllState = false;
+      state.globalMarkedAll = false;
 
       state.compartimentos.forEach(comp => {
         if (typeof state.collapsed[comp.id] === 'undefined') state.collapsed[comp.id] = true;
@@ -973,9 +1015,41 @@
       return { kind:'gray', text:'Pendente' };
     }
 
+
+    function atualizarEstadoBotaoGlobal(){
+      const btn = $('btnMarcarTodosCompartimentos');
+      const allItems = state.itens || [];
+      const allConf = allItems.length > 0 && allItems.every(item => (state.checklistItemsState[item.id]?.status || 'pendente') === 'confere');
+      state.globalMarkedAll = allConf;
+
+      if (btn){
+        if (allConf){
+          btn.className = 'btn btn-card active-green';
+          btn.innerHTML = '✅&nbsp; CONFERIDO ✅️';
+        } else {
+          btn.className = 'btn btn-card';
+          btn.innerHTML = '☑️&nbsp; MARCAR TODOS';
+        }
+      }
+    }
+
+    function desmarcarTodosOsCompartimentos(){
+      state.compartimentos.forEach(comp => {
+        getItensCompartimento(comp.id).forEach(item => {
+          if (!state.checklistItemsState[item.id]) return;
+          state.checklistItemsState[item.id].status = 'pendente';
+          state.checklistItemsState[item.id].observacao = '';
+        });
+        state.compMarkedAll[comp.id] = false;
+      });
+      atualizarEstadoBotaoGlobal();
+      renderChecklist();
+    }
+
     function renderChecklist(){
       const wrap = $('compartimentosWrap');
 
+      atualizarEstadoBotaoGlobal();
       if (!state.compartimentos.length){
         wrap.innerHTML = `<div class="card"><span class="status-chip gray"><span class="status-dot"></span>Nenhum compartimento cadastrado para esta VTR.</span></div>`;
         return;
@@ -1083,6 +1157,7 @@
         state.checklistItemsState[itemId].observacao = '';
       }
 
+      atualizarEstadoBotaoGlobal();
       renderChecklist();
     }
 
@@ -1109,6 +1184,7 @@
         state.checklistItemsState[item.id].observacao = '';
       });
       state.compMarkedAll[compId] = true;
+      atualizarEstadoBotaoGlobal();
       renderChecklist();
     }
 
@@ -1121,6 +1197,7 @@
         });
         state.compMarkedAll[comp.id] = true;
       });
+      atualizarEstadoBotaoGlobal();
       renderChecklist();
     }
 
@@ -1199,6 +1276,127 @@
       preencherSelect($('adminItemCompartimento'), comps, 'id', 'nome', 'Selecione o compartimento');
     }
 
+
+
+    function preencherCamposVtr(){
+      const vtrId = $('adminVtrSelect').value;
+      const vtr = state.vtrs.find(v => v.id === vtrId);
+      if (!vtr){
+        $('adminVtrCodigo').value = '';
+        $('adminVtrNome').value = '';
+        $('adminVtrTipo').value = '';
+        $('adminVtrAtivo').value = 'true';
+        return;
+      }
+      $('adminVtrCodigo').value = vtr.codigo || '';
+      $('adminVtrNome').value = vtr.nome || '';
+      $('adminVtrTipo').value = vtr.tipo || '';
+      $('adminVtrAtivo').value = String(vtr.ativo ?? true);
+    }
+
+    async function adicionarVtr(){
+      const codigo = $('adminVtrCodigo').value.trim();
+      const nome = $('adminVtrNome').value.trim();
+      const tipo = $('adminVtrTipo').value.trim();
+      const ativo = $('adminVtrAtivo').value === 'true';
+      if (!codigo || !nome) return alert('Informe código e nome da VTR.');
+
+      const { error } = await sb.from('vtrs').insert({ codigo, nome, tipo: tipo || null, ativo });
+      if (error){
+        console.error(error);
+        return alert('Erro ao adicionar VTR.');
+      }
+      alert('VTR adicionada com sucesso.');
+      $('adminVtrCodigo').value = '';
+      $('adminVtrNome').value = '';
+      $('adminVtrTipo').value = '';
+      $('adminVtrAtivo').value = 'true';
+      await carregarVtrs();
+    }
+
+    async function salvarVtr(){
+      const vtrId = $('adminVtrSelect').value;
+      if (!vtrId) return alert('Selecione uma VTR.');
+      const codigo = $('adminVtrCodigo').value.trim();
+      const nome = $('adminVtrNome').value.trim();
+      const tipo = $('adminVtrTipo').value.trim();
+      const ativo = $('adminVtrAtivo').value === 'true';
+      if (!codigo || !nome) return alert('Informe código e nome da VTR.');
+
+      const { error } = await sb.from('vtrs').update({ codigo, nome, tipo: tipo || null, ativo }).eq('id', vtrId);
+      if (error){
+        console.error(error);
+        return alert('Erro ao salvar edição da VTR.');
+      }
+      alert('VTR atualizada com sucesso.');
+      await carregarVtrs();
+      $('adminVtrSelect').value = vtrId;
+      preencherCamposVtr();
+    }
+
+    async function carregarCompartimentosAdminEdit(){
+      const vtrId = $('adminCompEditVtr').value;
+      if (!vtrId){
+        $('adminCompSelect').innerHTML = `<option value="">Selecione o compartimento</option>`;
+        return;
+      }
+      const comps = await carregarCompartimentosDaVtr(vtrId);
+      state.editCompartimentos = comps || [];
+      preencherSelect($('adminCompSelect'), state.editCompartimentos, 'id', 'nome', 'Selecione o compartimento');
+    }
+
+    function preencherCamposCompartimentoEdit(){
+      const compId = $('adminCompSelect').value;
+      const comp = (state.editCompartimentos || []).find(c => c.id === compId);
+      if (!comp){
+        $('adminCompNomeEdit').value = '';
+        $('adminCompOrdemEdit').value = '';
+        $('adminCompAtivoEdit').value = 'true';
+        return;
+      }
+      $('adminCompNomeEdit').value = comp.nome || '';
+      $('adminCompOrdemEdit').value = comp.ordem ?? '';
+      $('adminCompAtivoEdit').value = String(comp.ativo ?? true);
+    }
+
+    async function adicionarCompartimentoAdminEdit(){
+      const vtrId = $('adminCompEditVtr').value;
+      const nome = $('adminCompNomeEdit').value.trim();
+      const ordem = $('adminCompOrdemEdit').value === '' ? 0 : Number($('adminCompOrdemEdit').value);
+      const ativo = $('adminCompAtivoEdit').value === 'true';
+      if (!vtrId || !nome) return alert('Informe VTR e nome do compartimento.');
+
+      const { error } = await sb.from('compartimentos').insert({ vtr_id:vtrId, nome, ordem, ativo });
+      if (error){
+        console.error(error);
+        return alert('Erro ao adicionar compartimento.');
+      }
+      alert('Compartimento adicionado com sucesso.');
+      await carregarCompartimentosAdminEdit();
+      await carregarCompartimentosAdmin();
+      await carregarCompartimentosEdicao();
+    }
+
+    async function salvarCompartimentoEdit(){
+      const compId = $('adminCompSelect').value;
+      if (!compId) return alert('Selecione um compartimento.');
+      const nome = $('adminCompNomeEdit').value.trim();
+      const ordem = $('adminCompOrdemEdit').value === '' ? null : Number($('adminCompOrdemEdit').value);
+      const ativo = $('adminCompAtivoEdit').value === 'true';
+      if (!nome) return alert('Informe o nome do compartimento.');
+
+      const { error } = await sb.from('compartimentos').update({ nome, ordem, ativo }).eq('id', compId);
+      if (error){
+        console.error(error);
+        return alert('Erro ao salvar edição do compartimento.');
+      }
+      alert('Compartimento atualizado com sucesso.');
+      await carregarCompartimentosAdminEdit();
+      await carregarCompartimentosAdmin();
+      await carregarCompartimentosEdicao();
+      $('adminCompSelect').value = compId;
+      preencherCamposCompartimentoEdit();
+    }
 
     async function carregarCompartimentosEdicao(){
       const vtrId = $('editItemVtr').value;
@@ -1437,6 +1635,14 @@
     $('editItemCompartimento').addEventListener('change', carregarItensEdicao);
     $('editItemSelect').addEventListener('change', preencherCamposEdicaoItem);
     $('btnSalvarEdicaoItem').addEventListener('click', salvarEdicaoItem);
+    $('adminVtrSelect').addEventListener('change', preencherCamposVtr);
+    $('btnAddVtr').addEventListener('click', adicionarVtr);
+    $('btnSalvarVtr').addEventListener('click', salvarVtr);
+    $('adminCompEditVtr').addEventListener('change', carregarCompartimentosAdminEdit);
+    $('adminCompSelect').addEventListener('change', preencherCamposCompartimentoEdit);
+    $('btnAddCompartimentoRapido').addEventListener('click', adicionarCompartimentoAdminEdit);
+    $('btnSalvarCompartimentoEdit').addEventListener('click', salvarCompartimentoEdit);
+    $('btnDesmarcarTodosCompartimentos').addEventListener('click', desmarcarTodosOsCompartimentos);
 
     $('relData').value = hojeISO();
     setTopoData();
