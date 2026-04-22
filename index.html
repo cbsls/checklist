@@ -19,35 +19,37 @@
 
   <style>
     :root{
-      --bg:#f4f6f8;
+      --bg:#eef1f4;
       --card:#ffffff;
       --text:#1f2937;
       --muted:#6b7280;
-      --line:#e5e7eb;
+      --line:#d8dee6;
+      --line-2:#cfd6df;
       --primary:#b71c1c;
       --primary-dark:#8f1616;
       --green:#1f8b4c;
-      --yellow:#e6a700;
+      --yellow:#e0a100;
       --orange:#ef6c00;
       --danger:#c62828;
+      --pending:#94a3b8;
       --shadow:0 10px 30px rgba(0,0,0,.08);
       --radius:20px;
     }
 
     *{box-sizing:border-box}
     html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
-    body{padding-bottom:94px}
+    body{padding-bottom:118px}
 
     .app{
       width:min(1100px,100%);
       margin:0 auto;
-      padding:14px 14px 120px;
+      padding:14px 14px 150px;
     }
 
     .topbar{
-      position:sticky;top:0;z-index:20;
-      background:rgba(244,246,248,.96);
-      backdrop-filter:blur(10px);
+      position:sticky;top:0;z-index:30;
+      background:rgba(238,241,244,.97);
+      backdrop-filter:blur(12px);
       padding:10px 0 12px;
     }
 
@@ -68,7 +70,19 @@
     .brand p{
       margin:6px 0 0;
       font-size:13px;
-      opacity:.92;
+      opacity:.94;
+    }
+
+    .top-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .top-action-btn{
+      min-height:48px;
+      padding:12px 16px;
     }
 
     .grid{
@@ -121,7 +135,7 @@
 
     input, select, textarea{
       width:100%;
-      border:1px solid #d1d5db;
+      border:1px solid var(--line-2);
       border-radius:14px;
       padding:12px 14px;
       background:#fff;
@@ -149,9 +163,9 @@
     .btn-primary:active{transform:scale(.99)}
 
     .btn-secondary{
-      background:#eef2f7;
+      background:#edf1f5;
       color:#1f2937;
-      border:1px solid #d9dee7;
+      border:1px solid var(--line-2);
     }
 
     .btn-success{
@@ -215,7 +229,7 @@
       padding:6px 10px;
       font-size:12px;
       font-weight:700;
-      background:#eef2f7;
+      background:#edf1f5;
       color:#334155;
     }
 
@@ -223,6 +237,7 @@
     .pill.warn{background:#fff8e1;color:#8d6e00}
     .pill.bad{background:#ffebee;color:#b71c1c}
     .pill.info{background:#e3f2fd;color:#0d47a1}
+    .pill.pending{background:#edf2f7;color:#475569}
 
     .vtr-card{
       display:flex;
@@ -239,9 +254,25 @@
 
     .comp-card{
       border:1px solid var(--line);
-      border-radius:18px;
+      border-radius:20px;
       padding:14px;
       background:#fff;
+      box-shadow:var(--shadow);
+    }
+
+    .comp-header{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .comp-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
     }
 
     .item-row{
@@ -249,7 +280,7 @@
       border-radius:16px;
       padding:12px;
       margin-top:10px;
-      background:#fafafa;
+      background:#f7f9fb;
     }
 
     .item-head{
@@ -267,18 +298,25 @@
 
     .status-actions{
       display:grid;
-      grid-template-columns:repeat(4,1fr);
+      grid-template-columns:repeat(5,1fr);
       gap:8px;
       margin-top:10px;
     }
 
     .status-btn{
+      min-height:48px;
       padding:10px 8px;
       border-radius:12px;
       border:1px solid var(--line);
       background:#fff;
       font-size:12px;
       font-weight:800;
+    }
+
+    .status-btn.active.pendente{
+      background:#edf2f7;
+      border-color:#cbd5e1;
+      color:#475569;
     }
 
     .status-btn.active.confere{
@@ -305,6 +343,23 @@
       color:#b71c1c;
     }
 
+    .problem-wrap{
+      margin-top:10px;
+    }
+
+    .checklist-toolbar{
+      position:sticky;
+      top:118px;
+      z-index:18;
+      margin-top:12px;
+      background:rgba(238,241,244,.96);
+      backdrop-filter:blur(10px);
+      border-radius:18px;
+      padding:8px;
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+    }
+
     .tabbar{
       position:fixed;
       left:50%;
@@ -312,11 +367,11 @@
       bottom:10px;
       z-index:50;
       width:min(980px,calc(100% - 14px));
-      background:rgba(255,255,255,.97);
+      background:rgba(255,255,255,.98);
       border:1px solid var(--line);
-      border-radius:22px;
+      border-radius:24px;
       box-shadow:0 10px 24px rgba(0,0,0,.14);
-      padding:8px;
+      padding:9px;
       display:grid;
       grid-template-columns:repeat(5,1fr);
       gap:8px;
@@ -326,10 +381,11 @@
     .tabbar button{
       background:transparent;
       color:#4b5563;
-      padding:10px 6px;
-      border-radius:14px;
+      padding:14px 8px;
+      min-height:66px;
+      border-radius:16px;
       border:none;
-      font-size:12px;
+      font-size:13px;
       font-weight:800;
     }
 
@@ -377,10 +433,17 @@
 
     .footer-space{height:20px}
 
-    @media (max-width:700px){
+    @media (max-width:820px){
       .status-actions{grid-template-columns:repeat(2,1fr)}
+      .checklist-toolbar{top:142px}
+    }
+
+    @media (max-width:700px){
       .tabbar{grid-template-columns:repeat(5,1fr)}
       .brand h1{font-size:20px}
+      .top-action-btn{
+        flex:1 1 calc(50% - 10px);
+      }
     }
   </style>
 </head>
@@ -414,6 +477,11 @@
           <h1>🚒 Checklist de Conferência</h1>
           <p id="brandInfo">CBSLS • Sistema online de materiais e faltantes</p>
         </div>
+
+        <div class="top-actions">
+          <button class="btn-success top-action-btn" id="btnSalvarTopo">💾 Salvar checklist</button>
+          <button class="btn-secondary top-action-btn" id="btnTopo">⬆️ Voltar ao topo</button>
+        </div>
       </div>
 
       <section id="tabInicio" class="tab-section">
@@ -428,7 +496,7 @@
             <div class="n" id="statVtrs">0</div>
           </div>
           <div class="stat">
-            <div class="muted small">Itens faltando hoje</div>
+            <div class="muted small">Itens com problema hoje</div>
             <div class="n" id="statFaltasHoje">0</div>
           </div>
           <div class="stat">
@@ -476,9 +544,10 @@
             <textarea id="checkObsGeral" placeholder="Observações gerais do checklist"></textarea>
           </div>
 
-          <div class="row" style="margin-top:12px">
+          <div class="row checklist-toolbar">
             <button class="btn-primary" id="btnCarregarChecklist">Carregar itens</button>
             <button class="btn-success" id="btnSalvarChecklist">Salvar checklist</button>
+            <button class="btn-secondary" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})">⬆️ Topo</button>
           </div>
         </div>
 
@@ -610,13 +679,22 @@
 
     const $ = (id) => document.getElementById(id);
 
+    const STATUS_LABEL = {
+      pendente: '⏳ Pendente',
+      confere: '✅ Confere',
+      faltando: '⚠️ Faltando',
+      alterado: '🔧 Alterado',
+      avariado: '🛠️ Avariado'
+    };
+
     const state = {
       user: null,
       vtrs: [],
       compartimentos: [],
       itens: [],
       checklistItemsState: {},
-      currentTab: 'Inicio'
+      currentTab: 'Inicio',
+      collapsed: {}
     };
 
     function hojeISO() {
@@ -789,7 +867,7 @@
           checklist:checklist_id (id, data_checklist, vtr_id)
         `)
         .in('checklist_id', checklistIds)
-        .neq('status_item', 'confere');
+        .in('status_item', ['faltando','alterado','avariado']);
 
       if (error) {
         console.error(error);
@@ -823,6 +901,7 @@
       alternarTab('Checklist');
       $('checkVtrSelect').value = vtrId;
       await carregarItensChecklist();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     async function carregarCompartimentosDaVtr(vtrId) {
@@ -869,9 +948,15 @@
       state.itens = await carregarItensDaVtr(vtrId);
       state.checklistItemsState = {};
 
+      state.compartimentos.forEach(comp => {
+        if (typeof state.collapsed[comp.id] === 'undefined') {
+          state.collapsed[comp.id] = false;
+        }
+      });
+
       for (const item of state.itens) {
         state.checklistItemsState[item.id] = {
-          status: 'confere',
+          status: 'pendente',
           quantidade_encontrada: item.quantidade_padrao,
           observacao: ''
         };
@@ -891,46 +976,62 @@
 
       const html = state.compartimentos.map(comp => {
         const itens = state.itens.filter(i => i.compartimento_id === comp.id);
+        const collapsed = !!state.collapsed[comp.id];
 
         return `
           <div class="comp-card">
-            <div class="row" style="justify-content:space-between">
-              <h3 style="margin:0">${escapeHtml(comp.nome)}</h3>
-              <span class="pill info">${itens.length} item(ns)</span>
+            <div class="comp-header">
+              <div>
+                <h3 style="margin:0">${escapeHtml(comp.nome)}</h3>
+              </div>
+
+              <div class="comp-actions">
+                <span class="pill info">${itens.length} item(ns)</span>
+                <button class="btn-secondary" onclick="marcarTodosCompartimento('${comp.id}')">☑ Marcar todos</button>
+                <button class="btn-secondary" onclick="toggleComp('${comp.id}')">${collapsed ? '▶️ Expandir' : '🔽 Recolher'}</button>
+              </div>
             </div>
 
-            ${itens.length ? itens.map(item => {
-              const st = state.checklistItemsState[item.id] || {};
-              return `
-                <div class="item-row">
-                  <div class="item-head">
-                    <div>
-                      <div class="item-title">${escapeHtml(item.nome)}</div>
-                      <div class="muted small">Qtd padrão: ${escapeHtml(item.quantidade_padrao)}</div>
-                      ${item.observacao_padrao ? `<div class="muted small">Obs padrão: ${escapeHtml(item.observacao_padrao)}</div>` : ''}
+            <div class="${collapsed ? 'hidden' : ''}">
+              ${itens.length ? itens.map(item => {
+                const st = state.checklistItemsState[item.id] || {};
+                const showObs = ['faltando','alterado','avariado'].includes(st.status);
+                return `
+                  <div class="item-row">
+                    <div class="item-head">
+                      <div>
+                        <div class="item-title">${escapeHtml(item.nome)}</div>
+                        <div class="muted small">Qtd padrão: ${escapeHtml(item.quantidade_padrao)}</div>
+                        ${item.observacao_padrao ? `<div class="muted small">Obs padrão: ${escapeHtml(item.observacao_padrao)}</div>` : ''}
+                      </div>
+                      <span class="pill ${st.status === 'pendente' ? 'pending' : st.status === 'confere' ? 'ok' : st.status === 'faltando' ? 'warn' : 'bad'}">${escapeHtml(STATUS_LABEL[st.status] || '⏳ Pendente')}</span>
                     </div>
-                  </div>
 
-                  <div class="status-actions">
-                    <button class="status-btn ${st.status === 'confere' ? 'active confere' : ''}" onclick="setItemStatus('${item.id}','confere')">✅ Confere</button>
-                    <button class="status-btn ${st.status === 'faltando' ? 'active faltando' : ''}" onclick="setItemStatus('${item.id}','faltando')">⚠️ Faltando</button>
-                    <button class="status-btn ${st.status === 'alterado' ? 'active alterado' : ''}" onclick="setItemStatus('${item.id}','alterado')">🔧 Alterado</button>
-                    <button class="status-btn ${st.status === 'avariado' ? 'active avariado' : ''}" onclick="setItemStatus('${item.id}','avariado')">🛠️ Avariado</button>
-                  </div>
+                    <div class="status-actions">
+                      <button class="status-btn ${st.status === 'pendente' ? 'active pendente' : ''}" onclick="setItemStatus('${item.id}','pendente')">⏳ Pendente</button>
+                      <button class="status-btn ${st.status === 'confere' ? 'active confere' : ''}" onclick="setItemStatus('${item.id}','confere')">✅ Confere</button>
+                      <button class="status-btn ${st.status === 'faltando' ? 'active faltando' : ''}" onclick="setItemStatus('${item.id}','faltando')">⚠️ Faltando</button>
+                      <button class="status-btn ${st.status === 'alterado' ? 'active alterado' : ''}" onclick="setItemStatus('${item.id}','alterado')">🔧 Alterado</button>
+                      <button class="status-btn ${st.status === 'avariado' ? 'active avariado' : ''}" onclick="setItemStatus('${item.id}','avariado')">🛠️ Avariado</button>
+                    </div>
 
-                  <div class="row" style="margin-top:10px">
-                    <div style="width:140px">
-                      <label>Qtd encontrada</label>
-                      <input type="number" step="0.01" value="${st.quantidade_encontrada ?? ''}" onchange="setItemQuantidade('${item.id}', this.value)" />
+                    <div class="row" style="margin-top:10px">
+                      <div style="width:140px">
+                        <label>Qtd encontrada</label>
+                        <input type="number" step="0.01" value="${st.quantidade_encontrada ?? ''}" onchange="setItemQuantidade('${item.id}', this.value)" />
+                      </div>
                     </div>
-                    <div style="flex:1;min-width:200px">
-                      <label>Observação</label>
-                      <input type="text" value="${escapeHtml(st.observacao || '')}" onchange="setItemObservacao('${item.id}', this.value)" placeholder="Observação do item" />
-                    </div>
+
+                    ${showObs ? `
+                      <div class="problem-wrap">
+                        <label>Observação</label>
+                        <input type="text" value="${escapeHtml(st.observacao || '')}" onchange="setItemObservacao('${item.id}', this.value)" placeholder="Descreva o problema encontrado" />
+                      </div>
+                    ` : ``}
                   </div>
-                </div>
-              `;
-            }).join('') : `<div class="muted small" style="margin-top:8px">Sem itens neste compartimento.</div>`}
+                `;
+              }).join('') : `<div class="muted small" style="margin-top:8px">Sem itens neste compartimento.</div>`}
+            </div>
           </div>
         `;
       }).join('');
@@ -941,6 +1042,11 @@
     function setItemStatus(itemId, status) {
       if (!state.checklistItemsState[itemId]) return;
       state.checklistItemsState[itemId].status = status;
+
+      if (!['faltando','alterado','avariado'].includes(status)) {
+        state.checklistItemsState[itemId].observacao = '';
+      }
+
       renderChecklist();
     }
 
@@ -952,6 +1058,23 @@
     function setItemObservacao(itemId, valor) {
       if (!state.checklistItemsState[itemId]) return;
       state.checklistItemsState[itemId].observacao = valor || '';
+    }
+
+    function marcarTodosCompartimento(compId) {
+      const itens = state.itens.filter(i => i.compartimento_id === compId);
+
+      itens.forEach(item => {
+        if (!state.checklistItemsState[item.id]) return;
+        state.checklistItemsState[item.id].status = 'confere';
+        state.checklistItemsState[item.id].observacao = '';
+      });
+
+      renderChecklist();
+    }
+
+    function toggleComp(compId) {
+      state.collapsed[compId] = !state.collapsed[compId];
+      renderChecklist();
     }
 
     async function salvarChecklist() {
@@ -995,9 +1118,11 @@
       const itensPayload = state.itens.map(item => ({
         checklist_id: checklistData.id,
         item_id: item.id,
-        status_item: state.checklistItemsState[item.id]?.status || 'confere',
+        status_item: state.checklistItemsState[item.id]?.status || 'pendente',
         quantidade_encontrada: state.checklistItemsState[item.id]?.quantidade_encontrada,
-        observacao: state.checklistItemsState[item.id]?.observacao || null
+        observacao: ['faltando','alterado','avariado'].includes(state.checklistItemsState[item.id]?.status)
+          ? (state.checklistItemsState[item.id]?.observacao || null)
+          : null
       }));
 
       const { error: itensError } = await sb
@@ -1150,7 +1275,7 @@
 
           <div style="margin-top:14px;display:grid;gap:10px">
             ${(itensRel || []).map(row => `
-              <div style="border:1px solid var(--line);border-radius:14px;padding:10px;background:#fafafa">
+              <div style="border:1px solid var(--line);border-radius:14px;padding:10px;background:#f7f9fb">
                 <div style="font-weight:800">${escapeHtml(row.item?.nome || 'Item')}</div>
                 <div class="small">Status: <b>${escapeHtml(row.status_item)}</b></div>
                 <div class="small">Qtd encontrada: <b>${escapeHtml(row.quantidade_encontrada ?? '')}</b></div>
@@ -1188,6 +1313,8 @@
     $('btnLogin').addEventListener('click', login);
     $('btnCarregarChecklist').addEventListener('click', carregarItensChecklist);
     $('btnSalvarChecklist').addEventListener('click', salvarChecklist);
+    $('btnSalvarTopo').addEventListener('click', salvarChecklist);
+    $('btnTopo').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     $('btnAtualizarFaltantes').addEventListener('click', carregarFaltantesHoje);
     $('btnRelatorioDia').addEventListener('click', gerarRelatorioDia);
     $('btnImprimir').addEventListener('click', imprimirRelatorio);
@@ -1201,6 +1328,8 @@
     window.setItemStatus = setItemStatus;
     window.setItemQuantidade = setItemQuantidade;
     window.setItemObservacao = setItemObservacao;
+    window.marcarTodosCompartimento = marcarTodosCompartimento;
+    window.toggleComp = toggleComp;
 
     restaurarLogin();
   </script>
