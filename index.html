@@ -88,7 +88,7 @@
 
     .top-actions{
       display:grid;
-      grid-template-columns:1fr 1fr;
+      grid-template-columns:1fr 1fr 1fr;
       gap:10px;
       margin-top:14px;
     }
@@ -216,6 +216,29 @@
       margin-bottom:6px;
     }
     .toolbar-desc{font-size:14px;color:#374151;line-height:1.45}
+
+
+    .info-bar{
+      margin-top:10px;
+      display:grid;
+      gap:10px;
+    }
+    .info-box{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:8px;
+      padding:10px 12px;
+      font-size:13px;
+      font-weight:800;
+      color:#435061;
+    }
+    .info-box.ok{background:var(--green-soft);color:var(--green);border-color:#9ed3a4}
+    .readonly-mask{opacity:.72;pointer-events:none}
+    .admin-step{
+      margin-bottom:12px;
+    }
+    .admin-panel{display:none}
+    .admin-panel.show{display:block}
 
     .list-head{
       margin-top:14px;
@@ -575,6 +598,7 @@
           <div class="top-actions">
             <button class="btn btn-primary" id="btnSalvarTopo">💾&nbsp; SALVAR CHECKLIST</button>
             <button class="btn btn-secondary" id="btnTopo">↑&nbsp; VOLTAR AO TOPO</button>
+            <button class="btn btn-ghost" id="btnLogout">⎋&nbsp; SAIR</button>
           </div>
         </div>
       </div>
@@ -657,8 +681,8 @@
       <section id="tabAdmin" class="tab-section hidden">
         <div class="section-title"><h2>Administração</h2><span class="pill" id="adminBadge">Somente admin</span></div>
         <div id="adminArea" class="hidden">
-          <div class="card" style="margin-bottom:12px">
-            <h3>Listar / Adicionar / Editar VTR</h3>
+          <div class="card admin-panel show" id="panel-vtr" style="margin-bottom:12px">
+            <h3>Passo 1 • VTR</h3>
             <div class="col">
               <div><label for="adminVtrSelect">VTR existente</label><select id="adminVtrSelect"></select></div>
               <div><label for="adminVtrCodigo">Código da VTR</label><input id="adminVtrCodigo" type="text" placeholder="Ex.: ABT 0535" /></div>
@@ -674,8 +698,8 @@
             </div>
           </div>
 
-          <div class="card" style="margin-bottom:12px">
-            <h3>Listar / Adicionar / Editar compartimento</h3>
+          <div class="card admin-panel" id="panel-comp" style="margin-bottom:12px">
+            <h3>Passo 2 • Compartimentos</h3>
             <div class="col">
               <div><label for="adminCompEditVtr">VTR</label><select id="adminCompEditVtr"></select></div>
               <div><label for="adminCompSelect">Compartimento existente</label><select id="adminCompSelect"></select></div>
@@ -691,7 +715,7 @@
             </div>
           </div>
 
-          <div class="card" style="margin-bottom:12px">
+          <div class="card hidden" style="margin-bottom:12px">
             <h3>Adicionar compartimento rápido</h3>
             <div class="col">
               <div><label for="adminCompVtr">VTR</label><select id="adminCompVtr"></select></div>
@@ -716,23 +740,6 @@
             </div>
           </div>
         </div>
-
-          <div class="card" style="margin-bottom:12px">
-            <h3>Listar / Adicionar / Editar itens</h3>
-            <div class="col">
-              <div><label for="editItemVtr">VTR</label><select id="editItemVtr"></select></div>
-              <div><label for="editItemCompartimento">Compartimento</label><select id="editItemCompartimento"></select></div>
-              <div><label for="editItemSelect">Item existente</label><select id="editItemSelect"></select></div>
-              <div><label for="editItemNome">Nome do item</label><input id="editItemNome" type="text" placeholder="Nome do item" /></div>
-              <div class="row">
-                <div style="flex:1;min-width:120px"><label for="editItemQtd">Qtd padrão</label><input id="editItemQtd" type="number" step="0.01" /></div>
-                <div style="flex:1;min-width:120px"><label for="editItemOrdem">Ordem</label><input id="editItemOrdem" type="number" /></div>
-              </div>
-              <div><label for="editItemObs">Observação padrão</label><textarea id="editItemObs" placeholder="Opcional"></textarea></div>
-              <button class="btn btn-save" id="btnSalvarEdicaoItem">Salvar edição do item</button>
-            </div>
-          </div>
-
         <div id="adminNoAccess" class="card"><p class="muted">Esta área é exibida somente para usuários com perfil <b>admin</b>.</p></div>
       </section>
     </div>
@@ -757,7 +764,6 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_VXTVVV8BENUaKIMWjhrk2w_JRNQkEvg';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const $ = (id) => document.getElementById(id);
-    const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
 
     const STATUS_LABEL = {
       pendente: 'Pendente',
@@ -781,8 +787,10 @@
       editItens:[],
       globalMarkedAll:false,
       editCompartimentos:[],
-      globalMarkedAll:false,
-      editCompartimentos:[]
+      militares:[],
+      currentChecklist:null,
+      checklistLocked:false,
+      checklistLoaded:false
     };
 
     function hojeISO(){
@@ -869,14 +877,48 @@
     }
 
     function preencherSelect(selectEl, items, valueKey='id', textKey='nome', placeholder='Selecione'){
-      if (!selectEl) return;
       selectEl.innerHTML = `<option value="">${placeholder}</option>` + items.map(item =>
         `<option value="${item[valueKey]}">${escapeHtml(item[textKey])}</option>`
       ).join('');
     }
 
+
+    async function carregarMilitares(){
+      const { data, error } = await sb.from('militares').select('id,nome').eq('ativo', true).order('nome', { ascending:true });
+      if (error){
+        console.error(error);
+        return;
+      }
+      state.militares = data || [];
+      preencherSelect($('cgDiaSelect'), state.militares, 'nome', 'nome', 'Selecione o CG do dia');
+    }
+
+    function setServicoDiaTexto(){
+      const d = hojeBR();
+      const txt = `SERVIÇO DO DIA ${d} - 09:00HS A 09:00HS`;
+      const el = $('servicoDiaTexto');
+      if (el) el.value = txt;
+    }
+
+    function buildObservacaoPayload(){
+      return JSON.stringify({
+        cg_dia: $('cgDiaSelect')?.value || '',
+        servico_dia: $('servicoDiaTexto')?.value || '',
+        observacao: $('checkObsGeral')?.value?.trim() || ''
+      });
+    }
+
+    function parseObservacaoPayload(raw){
+      try{
+        const obj = JSON.parse(raw || '{}');
+        if (obj && typeof obj === 'object') return obj;
+      }catch(e){}
+      return { cg_dia:'', servico_dia:'', observacao: raw || '' };
+    }
+
+
     async function carregarBase(){
-      await Promise.all([carregarVtrs(), carregarFaltantesHoje(), carregarStatsHoje()]);
+      await Promise.all([carregarMilitares(), carregarVtrs(), carregarFaltantesHoje(), carregarStatsHoje()]);
     }
 
     async function carregarVtrs(){
@@ -886,17 +928,38 @@
       state.vtrs = data || [];
       $('statVtrs').textContent = state.vtrs.length;
 
-      $('vtrList').innerHTML = state.vtrs.map(vtr => `
+      const { data: ultimos } = await sb
+        .from('checklists')
+        .select('id,vtr_id,data_checklist,observacao_geral,created_at')
+        .order('created_at', { ascending:false });
+
+      const mapaUlt = {};
+      (ultimos || []).forEach(ch => {
+        if (!mapaUlt[ch.vtr_id]) mapaUlt[ch.vtr_id] = ch;
+      });
+      state.vtrs = state.vtrs.map(v => ({ ...v, __ultimoChecklist: mapaUlt[v.id] || null }));
+
+      $('vtrList').innerHTML = state.vtrs.map(vtr => {
+        const ultimo = vtr.__ultimoChecklist;
+        let infoExtra = '';
+        if (ultimo){
+          const parsed = parseObservacaoPayload(ultimo.observacao_geral);
+          const dataBr = ultimo.data_checklist ? ultimo.data_checklist.split('-').reverse().join('/') : '';
+          infoExtra = `<div class="small" style="margin-top:6px;color:var(--green);font-weight:900">Conferido em ${escapeHtml(dataBr)} CG ${escapeHtml(parsed.cg_dia || '-')}</div>`;
+        }
+        return `
         <div class="vtr-card">
           <div>
             <div style="font-size:17px;font-weight:900">${escapeHtml(vtr.codigo)}</div>
             <div class="muted small">${escapeHtml(vtr.nome)} • ${escapeHtml(vtr.tipo || 'vtr')}</div>
+            ${infoExtra}
           </div>
           <div class="row">
             <button class="btn btn-primary" onclick="abrirChecklistDireto('${vtr.id}')">Abrir checklist</button>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
 
       preencherSelect($('checkVtrSelect'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
       preencherSelect($('relVtr'), state.vtrs, 'id', 'codigo', 'Selecione a VTR');
@@ -975,6 +1038,26 @@
       return data || [];
     }
 
+
+    function atualizarModoChecklistInfo(msg, ok=false){
+      const el = $('checklistModeInfo');
+      if (!el) return;
+      el.textContent = msg;
+      el.className = 'info-box' + (ok ? ' ok' : '');
+    }
+
+    function setChecklistLocked(locked){
+      state.checklistLocked = locked;
+      const ids = ['checkObsGeral','cgDiaSelect','btnSalvarChecklist','btnSalvarTopo','btnSalvarBarraFixa','btnMarcarTodosCompartimentos','btnDesmarcarTodosCompartimentos'];
+      ids.forEach(id => {
+        const el = $(id);
+        if (!el) return;
+        if (id.startsWith('btn')) el.disabled = locked;
+        else el.disabled = locked;
+      });
+    }
+
+
     async function carregarItensChecklist(){
       const vtrId = $('checkVtrSelect').value;
       if (!vtrId) return alert('Selecione uma VTR.');
@@ -989,10 +1072,12 @@
       state.compMarkedAll = {};
       state.expandAllState = false;
       state.globalMarkedAll = false;
+      state.checklistLoaded = true;
 
       state.compartimentos.forEach(comp => {
         if (typeof state.collapsed[comp.id] === 'undefined') state.collapsed[comp.id] = true;
       });
+      if (state.compartimentos[0]) state.collapsed[state.compartimentos[0].id] = false;
 
       for (const item of state.itens){
         state.checklistItemsState[item.id] = {
@@ -1002,10 +1087,56 @@
         };
       }
 
-      if (state.compartimentos[0]) state.collapsed[state.compartimentos[0].id] = false;
+      const { data: existing, error: existingError } = await sb
+        .from('checklists')
+        .select('*')
+        .eq('vtr_id', vtrId)
+        .eq('data_checklist', hojeISO())
+        .order('created_at', { ascending:false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existingError) console.error(existingError);
+      state.currentChecklist = existing || null;
+
+      if (existing){
+        const parsed = parseObservacaoPayload(existing.observacao_geral);
+        $('cgDiaSelect').value = parsed.cg_dia || '';
+        $('servicoDiaTexto').value = parsed.servico_dia || $('servicoDiaTexto').value;
+        $('checkObsGeral').value = parsed.observacao || '';
+
+        const { data: itensSalvos, error: errItens } = await sb
+          .from('checklist_itens')
+          .select('*')
+          .eq('checklist_id', existing.id);
+        if (errItens) console.error(errItens);
+
+        (itensSalvos || []).forEach(row => {
+          if (state.checklistItemsState[row.item_id]){
+            state.checklistItemsState[row.item_id].status = row.status_item || 'pendente';
+            state.checklistItemsState[row.item_id].quantidade_encontrada = row.quantidade_encontrada;
+            state.checklistItemsState[row.item_id].observacao = row.observacao || '';
+          }
+        });
+
+        if (state.user?.perfil === 'admin'){
+          setChecklistLocked(false);
+          atualizarModoChecklistInfo(`Checklist já salvo hoje por ${existing.militar_id ? 'outro usuário ou pelo sistema' : 'usuário'}. Admin pode reabrir/editar.`, true);
+        } else {
+          setChecklistLocked(true);
+          atualizarModoChecklistInfo('Checklist do dia já salvo. Somente admin pode reabrir ou editar.', false);
+        }
+      } else {
+        state.currentChecklist = null;
+        $('checkObsGeral').value = '';
+        setChecklistLocked(false);
+        atualizarModoChecklistInfo('Checklist novo do dia.', false);
+      }
 
       renderChecklist();
       await carregarCompartimentosAdmin();
+      await carregarCompartimentosAdminEdit();
+      await carregarCompartimentosEdicao();
     }
 
     function getItensCompartimento(compId){
@@ -1046,7 +1177,7 @@
       if (btn){
         if (allConf){
           btn.className = 'btn btn-card active-green';
-          btn.innerHTML = 'CONFERIDO ✅️';
+          btn.innerHTML = '✅&nbsp; CONFERIDO ✅️';
         } else {
           btn.className = 'btn btn-card';
           btn.innerHTML = '☑️&nbsp; MARCAR TODOS';
@@ -1055,6 +1186,7 @@
     }
 
     function desmarcarTodosOsCompartimentos(){
+      if (state.checklistLocked) return;
       state.compartimentos.forEach(comp => {
         getItensCompartimento(comp.id).forEach(item => {
           if (!state.checklistItemsState[item.id]) return;
@@ -1105,7 +1237,7 @@
             <div class="comp-body ${collapsed ? 'hidden' : ''}">
               <div class="comp-body-head">
                 <div class="body-caption">Itens do compartimento</div>
-                <button class="btn ${state.compMarkedAll[comp.id] ? 'btn-card active-green' : 'btn-ghost'} btn-inline" onclick="marcarTodosCompartimento('${comp.id}')">${state.compMarkedAll[comp.id] ? 'CONFERIDO ✅️' : '☑️ MARCAR TODOS COMO CONFERE'}</button>
+                <button class="btn ${state.compMarkedAll[comp.id] ? 'btn-card active-green' : 'btn-ghost'} btn-inline" onclick="marcarTodosCompartimento('${comp.id}')">${state.compMarkedAll[comp.id] ? '✅ MARCAR TODOS COMO CONFERE' : '☑️ MARCAR TODOS COMO CONFERE'}</button>
               </div>
 
               ${itens.length ? `
@@ -1168,6 +1300,7 @@
     }
 
     function setItemStatus(itemId, status){
+      if (state.checklistLocked) return;
       if (!state.checklistItemsState[itemId]) return;
       state.checklistItemsState[itemId].status = status;
 
@@ -1183,11 +1316,13 @@
     }
 
     function setItemQuantidade(itemId, valor){
+      if (state.checklistLocked) return;
       if (!state.checklistItemsState[itemId]) return;
       state.checklistItemsState[itemId].quantidade_encontrada = valor === '' ? null : Number(valor);
     }
 
     function setItemObservacao(itemId, valor){
+      if (state.checklistLocked) return;
       if (!state.checklistItemsState[itemId]) return;
       state.checklistItemsState[itemId].observacao = valor || '';
     }
@@ -1198,6 +1333,7 @@
     }
 
     function marcarTodosCompartimento(compId){
+      if (state.checklistLocked) return;
       const itens = getItensCompartimento(compId);
       itens.forEach(item => {
         if (!state.checklistItemsState[item.id]) return;
@@ -1210,6 +1346,7 @@
     }
 
     function marcarTodosOsCompartimentos(){
+      if (state.checklistLocked) return;
       state.compartimentos.forEach(comp => {
         getItensCompartimento(comp.id).forEach(item => {
           if (!state.checklistItemsState[item.id]) return;
@@ -1238,29 +1375,53 @@
     async function salvarChecklist(){
       const vtrId = $('checkVtrSelect').value;
       const turno = $('checkTurno').value || null;
-      const observacaoGeral = $('checkObsGeral').value.trim();
+      const observacaoGeral = buildObservacaoPayload();
+      const cgDia = $('cgDiaSelect').value;
 
       if (!vtrId) return alert('Selecione uma VTR.');
       if (!state.user?.id) return alert('Usuário não identificado.');
+      if (!cgDia) return alert('Selecione o CG do dia.');
+      if (state.checklistLocked && state.user?.perfil !== 'admin') return alert('Somente admin pode editar checklist já salvo.');
 
-      const payloadChecklist = {
-        vtr_id:vtrId,
-        militar_id:state.user.id,
-        data_checklist:hojeISO(),
-        turno,
-        observacao_geral:observacaoGeral,
-        status:'finalizado'
-      };
+      let checklistData = state.currentChecklist;
+      if (checklistData && state.user?.perfil === 'admin'){
+        const { data, error } = await sb
+          .from('checklists')
+          .update({
+            militar_id: state.user.id,
+            data_checklist: hojeISO(),
+            turno,
+            observacao_geral: observacaoGeral,
+            status:'finalizado'
+          })
+          .eq('id', checklistData.id)
+          .select()
+          .single();
 
-      const { data: checklistData, error: checklistError } = await sb
-        .from('checklists')
-        .upsert(payloadChecklist, { onConflict:'vtr_id,data_checklist,turno' })
-        .select()
-        .single();
+        if (error || !data){
+          console.error(error);
+          return alert('Erro ao atualizar checklist.');
+        }
+        checklistData = data;
+      } else if (!checklistData) {
+        const { data, error } = await sb
+          .from('checklists')
+          .insert({
+            vtr_id:vtrId,
+            militar_id:state.user.id,
+            data_checklist:hojeISO(),
+            turno,
+            observacao_geral:observacaoGeral,
+            status:'finalizado'
+          })
+          .select()
+          .single();
 
-      if (checklistError || !checklistData){
-        console.error(checklistError);
-        return alert('Erro ao salvar checklist.');
+        if (error || !data){
+          console.error(error);
+          return alert('Erro ao salvar checklist.');
+        }
+        checklistData = data;
       }
 
       const itensPayload = state.itens.map(item => ({
@@ -1282,9 +1443,15 @@
         return alert('Checklist salvo, mas houve erro em alguns itens.');
       }
 
+      state.currentChecklist = checklistData;
+      if (state.user?.perfil !== 'admin') setChecklistLocked(true);
+      atualizarModoChecklistInfo(state.user?.perfil === 'admin' ? 'Checklist salvo. Admin pode reabrir/editar.' : 'Checklist salvo e bloqueado para usuário comum.', true);
+
       alert('Checklist salvo com sucesso.');
       await carregarFaltantesHoje();
       await carregarStatsHoje();
+      await carregarVtrs();
+      renderChecklist();
     }
 
     async function carregarCompartimentosAdmin(){
@@ -1600,9 +1767,13 @@
           <h3 style="margin-top:0">Relatório diário</h3>
           <div class="small muted">VTR: <b>${escapeHtml(vtr?.codigo || '-')}</b></div>
           <div class="small muted">Data: <b>${escapeHtml(data)}</b></div>
+          ${(()=>{const parsed=parseObservacaoPayload(checklist.observacao_geral); const hora=(checklist.created_at||'').slice(11,16); return `
           <div class="small muted">Conferente: <b>${escapeHtml(checklist.militar?.nome || '-')}</b></div>
           <div class="small muted">Turno: <b>${escapeHtml(checklist.turno || 'Sem turno')}</b></div>
-          <div class="small muted" style="margin-top:8px">Observação geral: ${escapeHtml(checklist.observacao_geral || 'Sem observação')}</div>
+          <div class="small muted">CG do dia: <b>${escapeHtml(parsed.cg_dia || '-')}</b></div>
+          <div class="small muted">Serviço: <b>${escapeHtml(parsed.servico_dia || '-')}</b></div>
+          <div class="small muted">Hora do salvamento: <b>${escapeHtml(hora || '-')}</b></div>
+          <div class="small muted" style="margin-top:8px">Observação geral: ${escapeHtml(parsed.observacao || 'Sem observação')}</div>`})()}
           <div style="margin-top:14px;display:grid;gap:10px">
             ${(itensRel || []).map(row => `
               <div style="border:1px solid var(--line);border-radius:6px;padding:10px;background:#fafbfd">
@@ -1618,6 +1789,34 @@
     }
 
     function imprimirRelatorio(){ window.print(); }
+
+
+    function logout(){
+      localStorage.removeItem('checklist_user');
+      state.user = null;
+      window.location.reload();
+    }
+
+    function setAdminPanel(step){
+      ['vtr','comp','item_add','item_edit'].forEach(k => {
+        const el = document.getElementById('panel-' + k);
+        if (el) el.classList.toggle('show', k === step);
+      });
+    }
+
+    function limparAdminCampos(){
+      ['adminVtrSelect','adminCompEditVtr','adminCompSelect','adminCompVtr','adminItemVtr','adminItemCompartimento','editItemVtr','editItemCompartimento','editItemSelect'].forEach(id => {
+        const el = $(id); if (el) el.value = '';
+      });
+      ['adminVtrCodigo','adminVtrNome','adminVtrTipo','adminCompNomeEdit','adminCompOrdemEdit','adminCompNome','adminCompOrdem','adminItemNome','adminItemQtd','adminItemOrdem','editItemNome','editItemQtd','editItemOrdem'].forEach(id => {
+        const el = $(id); if (el) el.value = '';
+      });
+      ['adminItemObs','editItemObs'].forEach(id => { const el=$(id); if(el) el.value=''; });
+      const act = $('adminVtrAtivo'); if (act) act.value='true';
+      const act2 = $('adminCompAtivoEdit'); if (act2) act2.value='true';
+      setAdminPanel(($('adminStepSelect')?.value) || 'vtr');
+    }
+
 
     function alternarTab(tabName){
       state.currentTab = tabName;
@@ -1638,35 +1837,40 @@
       btn.addEventListener('click', () => alternarTab(btn.dataset.tab));
     });
 
-    on('btnLogin', 'click', login);
-    on('btnCarregarChecklist', 'click', carregarItensChecklist);
-    on('btnSalvarChecklist', 'click', salvarChecklist);
-    on('btnSalvarTopo', 'click', salvarChecklist);
-    on('btnSalvarBarraFixa', 'click', salvarChecklist);
-    on('btnTopo', 'click', () => window.scrollTo({ top:0, behavior:'smooth' }));
-    on('btnAtualizarFaltantes', 'click', carregarFaltantesHoje);
-    on('btnRelatorioDia', 'click', gerarRelatorioDia);
-    on('btnImprimir', 'click', imprimirRelatorio);
-    on('btnAddCompartimento', 'click', adicionarCompartimento);
-    on('btnAddItem', 'click', adicionarItem);
-    on('adminItemVtr', 'change', carregarCompartimentosAdmin);
-    on('btnMarcarTodosCompartimentos', 'click', marcarTodosOsCompartimentos);
-    on('btnExpandirTodos', 'click', expandirOuRecolherTodos);
-    on('editItemVtr', 'change', carregarCompartimentosEdicao);
-    on('editItemCompartimento', 'change', carregarItensEdicao);
-    on('editItemSelect', 'change', preencherCamposEdicaoItem);
-    on('btnSalvarEdicaoItem', 'click', salvarEdicaoItem);
-    on('adminVtrSelect', 'change', preencherCamposVtr);
-    on('btnAddVtr', 'click', adicionarVtr);
-    on('btnSalvarVtr', 'click', salvarVtr);
-    on('adminCompEditVtr', 'change', carregarCompartimentosAdminEdit);
-    on('adminCompSelect', 'change', preencherCamposCompartimentoEdit);
-    on('btnAddCompartimentoRapido', 'click', adicionarCompartimentoAdminEdit);
-    on('btnSalvarCompartimentoEdit', 'click', salvarCompartimentoEdit);
-    on('btnDesmarcarTodosCompartimentos', 'click', desmarcarTodosOsCompartimentos);
+    $('btnLogin').addEventListener('click', login);
+    if ($('btnLogout')) $('btnLogout').addEventListener('click', logout);
+    if ($('adminStepSelect')) $('adminStepSelect').addEventListener('change', (e) => setAdminPanel(e.target.value));
+    if ($('btnLimparAdmin')) $('btnLimparAdmin').addEventListener('click', limparAdminCampos);
+    $('btnCarregarChecklist').addEventListener('click', carregarItensChecklist);
+    $('btnSalvarChecklist').addEventListener('click', salvarChecklist);
+    $('btnSalvarTopo').addEventListener('click', salvarChecklist);
+    $('btnSalvarBarraFixa').addEventListener('click', salvarChecklist);
+    $('btnTopo').addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
+    $('btnAtualizarFaltantes').addEventListener('click', carregarFaltantesHoje);
+    $('btnRelatorioDia').addEventListener('click', gerarRelatorioDia);
+    $('btnImprimir').addEventListener('click', imprimirRelatorio);
+    $('btnAddCompartimento').addEventListener('click', adicionarCompartimento);
+    $('btnAddItem').addEventListener('click', adicionarItem);
+    $('adminItemVtr').addEventListener('change', carregarCompartimentosAdmin);
+    $('btnMarcarTodosCompartimentos').addEventListener('click', marcarTodosOsCompartimentos);
+    $('btnExpandirTodos').addEventListener('click', expandirOuRecolherTodos);
+    $('editItemVtr').addEventListener('change', carregarCompartimentosEdicao);
+    $('editItemCompartimento').addEventListener('change', carregarItensEdicao);
+    $('editItemSelect').addEventListener('change', preencherCamposEdicaoItem);
+    $('btnSalvarEdicaoItem').addEventListener('click', salvarEdicaoItem);
+    $('adminVtrSelect').addEventListener('change', preencherCamposVtr);
+    $('btnAddVtr').addEventListener('click', adicionarVtr);
+    $('btnSalvarVtr').addEventListener('click', salvarVtr);
+    $('adminCompEditVtr').addEventListener('change', carregarCompartimentosAdminEdit);
+    $('adminCompSelect').addEventListener('change', preencherCamposCompartimentoEdit);
+    $('btnAddCompartimentoRapido').addEventListener('click', adicionarCompartimentoAdminEdit);
+    $('btnSalvarCompartimentoEdit').addEventListener('click', salvarCompartimentoEdit);
+    $('btnDesmarcarTodosCompartimentos').addEventListener('click', desmarcarTodosOsCompartimentos);
 
     $('relData').value = hojeISO();
     setTopoData();
+    setServicoDiaTexto();
+    setAdminPanel('vtr');
 
     window.abrirChecklistDireto = abrirChecklistDireto;
     window.setItemStatus = setItemStatus;
