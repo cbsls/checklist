@@ -716,6 +716,23 @@
             </div>
           </div>
         </div>
+
+          <div class="card" style="margin-bottom:12px">
+            <h3>Listar / Adicionar / Editar itens</h3>
+            <div class="col">
+              <div><label for="editItemVtr">VTR</label><select id="editItemVtr"></select></div>
+              <div><label for="editItemCompartimento">Compartimento</label><select id="editItemCompartimento"></select></div>
+              <div><label for="editItemSelect">Item existente</label><select id="editItemSelect"></select></div>
+              <div><label for="editItemNome">Nome do item</label><input id="editItemNome" type="text" placeholder="Nome do item" /></div>
+              <div class="row">
+                <div style="flex:1;min-width:120px"><label for="editItemQtd">Qtd padrão</label><input id="editItemQtd" type="number" step="0.01" /></div>
+                <div style="flex:1;min-width:120px"><label for="editItemOrdem">Ordem</label><input id="editItemOrdem" type="number" /></div>
+              </div>
+              <div><label for="editItemObs">Observação padrão</label><textarea id="editItemObs" placeholder="Opcional"></textarea></div>
+              <button class="btn btn-save" id="btnSalvarEdicaoItem">Salvar edição do item</button>
+            </div>
+          </div>
+
         <div id="adminNoAccess" class="card"><p class="muted">Esta área é exibida somente para usuários com perfil <b>admin</b>.</p></div>
       </section>
     </div>
@@ -740,6 +757,7 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_VXTVVV8BENUaKIMWjhrk2w_JRNQkEvg';
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const $ = (id) => document.getElementById(id);
+    const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
 
     const STATUS_LABEL = {
       pendente: 'Pendente',
@@ -761,6 +779,8 @@
       compMarkedAll:{},
       expandAllState:false,
       editItens:[],
+      globalMarkedAll:false,
+      editCompartimentos:[],
       globalMarkedAll:false,
       editCompartimentos:[]
     };
@@ -849,6 +869,7 @@
     }
 
     function preencherSelect(selectEl, items, valueKey='id', textKey='nome', placeholder='Selecione'){
+      if (!selectEl) return;
       selectEl.innerHTML = `<option value="">${placeholder}</option>` + items.map(item =>
         `<option value="${item[valueKey]}">${escapeHtml(item[textKey])}</option>`
       ).join('');
@@ -1025,7 +1046,7 @@
       if (btn){
         if (allConf){
           btn.className = 'btn btn-card active-green';
-          btn.innerHTML = '✅&nbsp; CONFERIDO ✅️';
+          btn.innerHTML = 'CONFERIDO ✅️';
         } else {
           btn.className = 'btn btn-card';
           btn.innerHTML = '☑️&nbsp; MARCAR TODOS';
@@ -1084,7 +1105,7 @@
             <div class="comp-body ${collapsed ? 'hidden' : ''}">
               <div class="comp-body-head">
                 <div class="body-caption">Itens do compartimento</div>
-                <button class="btn ${state.compMarkedAll[comp.id] ? 'btn-card active-green' : 'btn-ghost'} btn-inline" onclick="marcarTodosCompartimento('${comp.id}')">${state.compMarkedAll[comp.id] ? '✅ MARCAR TODOS COMO CONFERE' : '☑️ MARCAR TODOS COMO CONFERE'}</button>
+                <button class="btn ${state.compMarkedAll[comp.id] ? 'btn-card active-green' : 'btn-ghost'} btn-inline" onclick="marcarTodosCompartimento('${comp.id}')">${state.compMarkedAll[comp.id] ? 'CONFERIDO ✅️' : '☑️ MARCAR TODOS COMO CONFERE'}</button>
               </div>
 
               ${itens.length ? `
@@ -1617,32 +1638,32 @@
       btn.addEventListener('click', () => alternarTab(btn.dataset.tab));
     });
 
-    $('btnLogin').addEventListener('click', login);
-    $('btnCarregarChecklist').addEventListener('click', carregarItensChecklist);
-    $('btnSalvarChecklist').addEventListener('click', salvarChecklist);
-    $('btnSalvarTopo').addEventListener('click', salvarChecklist);
-    $('btnSalvarBarraFixa').addEventListener('click', salvarChecklist);
-    $('btnTopo').addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
-    $('btnAtualizarFaltantes').addEventListener('click', carregarFaltantesHoje);
-    $('btnRelatorioDia').addEventListener('click', gerarRelatorioDia);
-    $('btnImprimir').addEventListener('click', imprimirRelatorio);
-    $('btnAddCompartimento').addEventListener('click', adicionarCompartimento);
-    $('btnAddItem').addEventListener('click', adicionarItem);
-    $('adminItemVtr').addEventListener('change', carregarCompartimentosAdmin);
-    $('btnMarcarTodosCompartimentos').addEventListener('click', marcarTodosOsCompartimentos);
-    $('btnExpandirTodos').addEventListener('click', expandirOuRecolherTodos);
-    $('editItemVtr').addEventListener('change', carregarCompartimentosEdicao);
-    $('editItemCompartimento').addEventListener('change', carregarItensEdicao);
-    $('editItemSelect').addEventListener('change', preencherCamposEdicaoItem);
-    $('btnSalvarEdicaoItem').addEventListener('click', salvarEdicaoItem);
-    $('adminVtrSelect').addEventListener('change', preencherCamposVtr);
-    $('btnAddVtr').addEventListener('click', adicionarVtr);
-    $('btnSalvarVtr').addEventListener('click', salvarVtr);
-    $('adminCompEditVtr').addEventListener('change', carregarCompartimentosAdminEdit);
-    $('adminCompSelect').addEventListener('change', preencherCamposCompartimentoEdit);
-    $('btnAddCompartimentoRapido').addEventListener('click', adicionarCompartimentoAdminEdit);
-    $('btnSalvarCompartimentoEdit').addEventListener('click', salvarCompartimentoEdit);
-    $('btnDesmarcarTodosCompartimentos').addEventListener('click', desmarcarTodosOsCompartimentos);
+    on('btnLogin', 'click', login);
+    on('btnCarregarChecklist', 'click', carregarItensChecklist);
+    on('btnSalvarChecklist', 'click', salvarChecklist);
+    on('btnSalvarTopo', 'click', salvarChecklist);
+    on('btnSalvarBarraFixa', 'click', salvarChecklist);
+    on('btnTopo', 'click', () => window.scrollTo({ top:0, behavior:'smooth' }));
+    on('btnAtualizarFaltantes', 'click', carregarFaltantesHoje);
+    on('btnRelatorioDia', 'click', gerarRelatorioDia);
+    on('btnImprimir', 'click', imprimirRelatorio);
+    on('btnAddCompartimento', 'click', adicionarCompartimento);
+    on('btnAddItem', 'click', adicionarItem);
+    on('adminItemVtr', 'change', carregarCompartimentosAdmin);
+    on('btnMarcarTodosCompartimentos', 'click', marcarTodosOsCompartimentos);
+    on('btnExpandirTodos', 'click', expandirOuRecolherTodos);
+    on('editItemVtr', 'change', carregarCompartimentosEdicao);
+    on('editItemCompartimento', 'change', carregarItensEdicao);
+    on('editItemSelect', 'change', preencherCamposEdicaoItem);
+    on('btnSalvarEdicaoItem', 'click', salvarEdicaoItem);
+    on('adminVtrSelect', 'change', preencherCamposVtr);
+    on('btnAddVtr', 'click', adicionarVtr);
+    on('btnSalvarVtr', 'click', salvarVtr);
+    on('adminCompEditVtr', 'change', carregarCompartimentosAdminEdit);
+    on('adminCompSelect', 'change', preencherCamposCompartimentoEdit);
+    on('btnAddCompartimentoRapido', 'click', adicionarCompartimentoAdminEdit);
+    on('btnSalvarCompartimentoEdit', 'click', salvarCompartimentoEdit);
+    on('btnDesmarcarTodosCompartimentos', 'click', desmarcarTodosOsCompartimentos);
 
     $('relData').value = hojeISO();
     setTopoData();
