@@ -1,229 +1,380 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checklist VTR PRO</title>
-
-<style>
-:root{
-  --primary:#2ecc71;
-  --dark:#1f2a30;
-  --light:#f5f7fa;
-  --card:#ffffff;
-}
-
-body{
-  margin:0;
-  font-family:Arial;
-  background:var(--light);
-}
-
-/* TOPO */
-.header{
-  background:linear-gradient(90deg,#27ae60,#2ecc71);
-  color:white;
-  padding:16px;
-  font-size:18px;
-  font-weight:bold;
-}
-
-/* DIAS SCROLL */
-.days{
-  display:flex;
-  overflow-x:auto;
-  padding:10px;
-  gap:10px;
-  background:white;
-}
-
-.day{
-  min-width:60px;
-  padding:10px;
-  border-radius:12px;
-  text-align:center;
-  background:#eee;
-  cursor:pointer;
-}
-
-.day.active{
-  background:var(--primary);
-  color:white;
-}
-
-/* MENU LATERAL */
-.sidebar{
-  position:fixed;
-  left:-250px;
-  top:0;
-  width:250px;
-  height:100%;
-  background:#0f2027;
-  color:white;
-  transition:0.3s;
-  padding:20px;
-}
-
-.sidebar.open{
-  left:0;
-}
-
-.menu-btn{
-  position:absolute;
-  left:10px;
-  top:10px;
-  font-size:22px;
-  cursor:pointer;
-}
-
-/* CHECKLIST */
-.container{
-  padding:15px;
-}
-
-.card{
-  background:white;
-  border-radius:14px;
-  padding:12px;
-  margin-bottom:10px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-
-.left{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.check{
-  width:22px;
-  height:22px;
-}
-
-.done{
-  text-decoration:line-through;
-  opacity:0.6;
-}
-
-/* BOTÃO ADD */
-.add{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  background:var(--primary);
-  color:white;
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:30px;
-  cursor:pointer;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Checklist VTR • CBSLS</title>
+  <meta name="theme-color" content="#25313a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#eef3f6;--card:#fff;--line:#d6dde6;--text:#1f2937;--muted:#6b7280;--top:#25313a;--top2:#32414d;--blue:#2c67f2;--green:#1f9d60;--orange:#ef8b1e;--red:#d83c3c;--shadow:0 10px 24px rgba(16,24,40,.08)}
+    *{box-sizing:border-box} html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)} body{padding-bottom:92px}
+    button,input,select,textarea{font:inherit}.hidden{display:none!important}.app{width:min(980px,100%);margin:0 auto;padding:0 12px 120px}
+    .hero{position:sticky;top:0;z-index:30;margin:0 -12px;padding:14px 16px 16px;background:linear-gradient(180deg,var(--top),var(--top2));color:#fff;box-shadow:0 10px 24px rgba(0,0,0,.22)}
+    .hero-head{display:flex;gap:12px;align-items:flex-start}.hero-icon{font-size:42px;line-height:1}.hero-title{margin:0;font-size:18px;font-weight:900}.hero-sub{margin:6px 0 0;font-size:13px;font-weight:700}.hero-date{text-align:center;margin:12px 0 0;font-size:15px;font-weight:900}
+    .hero-actions,.toolbar,.grid2,.stats,.quick{display:grid;gap:10px}.hero-actions,.toolbar,.grid2{grid-template-columns:1fr 1fr}.stats,.quick{grid-template-columns:repeat(3,1fr)} .section{margin-top:14px}
+    .btn{border:none;border-radius:14px;padding:14px 16px;min-height:56px;font-weight:900;cursor:pointer}.btn:active{transform:scale(.98)} .btn-blue{background:var(--blue);color:#fff}.btn-gray{background:#808893;color:#fff}.btn-white{background:#fff;border:2px solid #cfd9e6;color:var(--blue)}.btn-green{background:#ecfaf2;border:2px solid #bee7cf;color:var(--green)}.btn-orange{background:#fff7ec;border:2px solid #ffd39f;color:var(--orange)}.btn-sm{padding:10px 12px;min-height:auto}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:14px}.title{font-size:16px;font-weight:900;color:#253041;margin:0 0 10px}.muted{color:var(--muted)}.small{font-size:12px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.col{display:flex;flex-direction:column;gap:10px} label{font-size:12px;font-weight:900;text-transform:uppercase;color:#425063} input,select,textarea{width:100%;border:1px solid #d0d8e2;border-radius:12px;padding:12px;background:#fff} textarea{min-height:72px;resize:vertical}
+    .stat{background:#f5f8fb;border:1px solid #dde5ee;border-radius:14px;padding:12px;text-align:center}.stat .n{display:block;font-size:20px;font-weight:900;margin-top:4px}
+    .vtr-list,.comp-list,.pending-list{display:grid;gap:12px}
+    .vtr-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:12px;align-items:center;box-shadow:var(--shadow)} .vtr-title{font-size:20px;font-weight:900}.vtr-sub{font-size:13px;color:var(--muted);margin-top:4px}.vtr-status{font-size:13px;font-weight:900;margin-top:10px}.vtr-status.ok{color:var(--green)}.vtr-status.open{color:var(--muted)}
+    .day-strip{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 2px}.day-pill{min-width:66px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px 8px;text-align:center;box-shadow:var(--shadow);cursor:pointer}.day-pill .dow{font-size:11px;font-weight:900;color:#6b7280}.day-pill .num{font-size:20px;font-weight:900;margin-top:4px}.day-pill .tag{font-size:10px;font-weight:900;margin-top:4px;color:var(--muted)}.day-pill.active{border-color:#b7cbff;background:#eef3ff}
+    .progress-card{background:#fff;border:1px solid #dce6ef;border-radius:16px;padding:14px;box-shadow:var(--shadow)}.progress-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.progress-title{font-size:13px;font-weight:900;color:#344b68}.progress-big{font-size:22px;font-weight:900}.pill{display:inline-flex;align-items:center;gap:6px;background:#eef3ff;border:1px solid #d6e1ff;color:#2a5bdd;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:900}.bar{height:14px;background:#e8eef5;border:1px solid #d7e0ea;border-radius:999px;overflow:hidden;margin-top:10px}.bar>div{height:100%;width:0;background:linear-gradient(90deg,#16c7c1,#2b79ff)} .q{background:#f5f8fb;border:1px solid #dde5ee;border-radius:12px;padding:10px;text-align:center}.q strong{display:block;font-size:18px}
+    .comp-card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}.comp-card.done{border-color:#c3ead2;background:#fbfffc}.comp-card.partial{border-color:#ffd8ad;background:#fffaf5}.comp-head{padding:14px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;cursor:pointer}.comp-num{width:42px;height:42px;border-radius:12px;background:#eef3fb;border:2px solid #d4e0ff;color:#2258da;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900}.comp-name{font-size:18px;font-weight:900}.meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}.status{font-size:13px;font-weight:900}.status.ok{color:var(--green)}.status.partial{color:var(--orange)}.status.open{color:var(--muted)}.arrow{width:46px;height:46px;border-radius:12px;border:1px solid #dae2ec;background:#f4f7fa;color:#415164;font-size:24px;font-weight:900}
+    .comp-body{display:none;border-top:1px solid #edf1f5;padding:12px;background:#fbfdff}.comp-body.open{display:block}.item-list{border:1px solid #dce3ec;border-radius:14px;overflow:hidden}.item-row{display:grid;grid-template-columns:54px 1fr 120px 28px;gap:10px;align-items:center;padding:0 10px;min-height:54px;border-top:1px solid #edf1f5;background:#fff}.item-row:nth-child(odd){background:#fbfcfe}.item-row:first-child{border-top:none}.item-detail{display:none;padding:12px;border-top:1px solid #edf1f5;background:#f8fbff}.item-detail.open{display:block}.mini-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+    .pending-card{background:#fff;border:1px solid #ffd8b5;border-left:6px solid var(--orange);border-radius:16px;padding:14px;cursor:pointer;box-shadow:var(--shadow)}.toast{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:9999;padding:12px 16px;border-radius:12px;font-weight:900;color:#fff;display:none;box-shadow:0 10px 24px rgba(0,0,0,.22)}
+    .tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;z-index:50;width:min(980px,calc(100% - 14px));background:rgba(255,255,255,.98);border:1px solid #d8e0ea;border-radius:18px;box-shadow:0 12px 26px rgba(0,0,0,.14);padding:8px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.tabbar button{background:transparent;border:none;border-radius:14px;padding:12px 6px;min-height:74px;color:#5f6977;font-weight:900}.tabbar button.active{background:#eef2ff;color:#245fe3}
+    .login-wrap{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}.login-card{width:min(420px,100%);background:#fff;border:1px solid #d7dee8;border-radius:18px;box-shadow:0 10px 24px rgba(0,0,0,.12);padding:22px}.msg{margin-top:8px;font-size:13px;font-weight:900}.msg.ok{color:var(--green)}.msg.err{color:var(--red)}
+    @media (max-width:760px){.grid2,.toolbar,.quick,.stats{grid-template-columns:1fr}.vtr-card{grid-template-columns:1fr}.item-row{grid-template-columns:46px 1fr 110px 24px}}
+  </style>
 </head>
-
 <body>
-
-<div class="sidebar" id="sidebar">
-  <h3>🚒 VTRs</h3>
-  <p>ABT 0535</p>
-  <p>AR 0426</p>
-  <p>ATP 1225</p>
+<div id="appToast" class="toast"></div>
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card">
+    <h1 style="margin:0">🚒 Checklist VTR</h1>
+    <p class="muted" style="margin:8px 0 14px">Versão operacional • CBSLS</p>
+    <div class="col">
+      <div><label for="loginIdFunc">Id Func</label><input id="loginIdFunc" type="text" placeholder="Digite seu Id Func"></div>
+      <div><label for="loginSenha">Senha</label><input id="loginSenha" type="password" placeholder="Digite sua senha"></div>
+      <button class="btn btn-blue" id="btnLogin">Entrar</button>
+      <div id="loginMsg" class="msg"></div>
+    </div>
+  </div>
 </div>
 
-<div class="header">
-  <span class="menu-btn" onclick="toggleMenu()">☰</span>
-  Checklist Diário
+<div id="appScreen" class="hidden">
+  <div class="app">
+    <header class="hero">
+      <div class="hero-head">
+        <div class="hero-icon">📋</div>
+        <div><h1 class="hero-title">CHECKLIST DE CONFERÊNCIA</h1><p class="hero-sub" id="brandInfo">CBSLS • Sistema online</p></div>
+      </div>
+      <div class="hero-date" id="dataAtualTopo">--/--/----</div>
+      <div class="hero-actions">
+        <button class="btn btn-blue" id="btnSalvarTopo">💾 SALVAR CHECKLIST</button>
+        <button class="btn btn-gray" id="btnSairTopo">⦸ SAIR</button>
+      </div>
+    </header>
+
+    <section id="tabInicio" class="section">
+      <div class="card">
+        <h2 class="title">Dias do mês</h2>
+        <div id="dayStrip" class="day-strip"></div>
+      </div>
+      <div class="section stats">
+        <div class="stat"><span class="small muted">Usuário</span><span class="n" id="heroUsuario">-</span></div>
+        <div class="stat"><span class="small muted">VTRs</span><span class="n" id="statVtrs">0</span></div>
+        <div class="stat"><span class="small muted">Pendências abertas</span><span class="n" id="statPendencias">0</span></div>
+      </div>
+      <div class="section">
+        <h2 class="title">Viaturas / Embarcações</h2>
+        <div id="vtrList" class="vtr-list"></div>
+      </div>
+    </section>
+
+    <section id="tabChecklist" class="section hidden">
+      <div class="card">
+        <h2 class="title">Checklist do dia</h2>
+        <div class="row">
+          <div style="flex:1;min-width:220px"><label for="checkVtrSelect">VTR / Embarcação</label><select id="checkVtrSelect"></select></div>
+          <div style="width:170px"><label for="checkTurno">Turno</label><select id="checkTurno"><option value="">Sem turno</option><option value="Manhã">Manhã</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option></select></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div style="flex:1;min-width:220px"><label for="servicoDia">Serviço do dia</label><input id="servicoDia" type="text" placeholder="Ex.: 22/04/2026 - 09:00HS A 09:00HS"></div>
+          <div style="flex:1;min-width:220px"><label for="cgDiaSelect">CG do dia</label><select id="cgDiaSelect"></select></div>
+        </div>
+        <div style="margin-top:10px"><label for="checkObsGeral">Observação geral</label><textarea id="checkObsGeral" placeholder="Use se houver alteração geral"></textarea></div>
+        <div id="checklistLockMsg" class="msg hidden"></div>
+        <div class="toolbar" style="margin-top:12px">
+          <button class="btn btn-blue" id="btnCarregarChecklist">Carregar itens</button>
+          <button class="btn btn-white" id="btnExpandirTodos">Expandir / Recolher todos</button>
+        </div>
+      </div>
+
+      <div class="progress-card section">
+        <div class="progress-head">
+          <div><div class="progress-title">Progresso geral</div><div class="progress-big" id="geralResumo">0 / 0 itens</div></div>
+          <span class="pill" id="geralPercentual">0%</span>
+        </div>
+        <div class="bar"><div id="geralBarra"></div></div>
+        <div class="quick">
+          <div class="q"><span class="small muted">Pendentes</span><strong id="qtdPendentes">0</strong></div>
+          <div class="q"><span class="small muted">Conferidos</span><strong id="qtdConferidos">0</strong></div>
+          <div class="q"><span class="small muted">Alterados</span><strong id="qtdAlterados">0</strong></div>
+        </div>
+      </div>
+
+      <div class="toolbar section">
+        <button class="btn btn-green" id="btnMarcarTodosCompartimentos">✅ MARCAR TUDO CONFERIDO</button>
+        <button class="btn btn-white" id="btnDesmarcarTodosCompartimentos">↺ DESMARCAR TODOS</button>
+      </div>
+      <div class="toolbar section">
+        <button class="btn btn-blue" id="btnSalvarChecklist">💾 SALVAR CHECKLIST</button>
+        <button class="btn btn-white" onclick="alternarTab('Faltantes')">⚠️ VER PENDÊNCIAS</button>
+      </div>
+      <div id="compartimentosWrap" class="comp-list section"></div>
+    </section>
+
+    <section id="tabFaltantes" class="section hidden">
+      <div class="card">
+        <h2 class="title">Pendências abertas</h2>
+        <div id="faltasList" class="pending-list"></div>
+      </div>
+    </section>
+
+    <section id="tabRelatorios" class="section hidden">
+      <div class="card">
+        <h2 class="title">Relatórios</h2>
+        <div class="row">
+          <div style="flex:1;min-width:220px"><label for="relVtr">VTR / Embarcação</label><select id="relVtr"></select></div>
+          <div style="width:180px"><label for="relData">Data</label><input type="date" id="relData"></div>
+        </div>
+        <div class="toolbar" style="margin-top:12px">
+          <button class="btn btn-blue" id="btnRelatorioDia">Gerar relatório</button>
+          <button class="btn btn-white" id="btnImprimir">Imprimir</button>
+        </div>
+        <div id="relatorioArea" style="margin-top:14px"></div>
+      </div>
+    </section>
+
+    <section id="tabAdmin" class="section hidden">
+      <div id="adminArea" class="card hidden">
+        <h2 class="title">Administração</h2>
+        <div class="row">
+          <div style="flex:1;min-width:220px"><label for="adminActionSelect">Ação</label><select id="adminActionSelect"><option value="">Selecione a ação</option><option value="adicionar">Adicionar</option><option value="editar">Editar</option><option value="excluir">Excluir</option></select></div>
+          <div style="flex:1;min-width:220px"><label for="adminTypeSelect">Tipo</label><select id="adminTypeSelect"><option value="">Selecione o tipo</option><option value="vtr">VTR</option><option value="compartimento">Compartimento</option><option value="item">Item</option></select></div>
+        </div>
+        <div id="adminWizardPanel" style="margin-top:14px"></div>
+        <div class="toolbar" style="margin-top:12px">
+          <button class="btn btn-blue" id="btnAdminSalvar">Salvar</button>
+          <button class="btn btn-white" id="btnAdminLimpar">Limpar</button>
+        </div>
+        <div class="toolbar" style="margin-top:10px">
+          <button class="btn btn-white" id="btnAdminVoltar">Voltar</button>
+          <button class="btn btn-gray" id="btnAdminSair">Sair</button>
+        </div>
+      </div>
+      <div id="adminNoAccess" class="card"><span class="muted">Esta área é exibida somente para usuários com perfil <b>admin</b>.</span></div>
+    </section>
+  </div>
+
+  <nav class="tabbar">
+    <button class="tabbtn active" data-tab="Inicio">🏠<br>Início</button>
+    <button class="tabbtn" data-tab="Checklist">☑️<br>Checklist</button>
+    <button class="tabbtn" data-tab="Faltantes">⚠️<br>Pendências</button>
+    <button class="tabbtn" data-tab="Relatorios">📄<br>Relatórios</button>
+    <button class="tabbtn" data-tab="Admin">⚙️<br>Admin</button>
+  </nav>
 </div>
-
-<div class="days" id="days"></div>
-
-<div class="container" id="list"></div>
-
-<div class="add" onclick="addItem()">+</div>
 
 <script>
+if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
+const SUPABASE_URL='https://nypebmbqcbrvbutamzrh.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_VXTVVV8BENUaKIMWjhrk2w_JRNQkEvg';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const $=(id)=>document.getElementById(id);
+const STATUS_LABEL={pendente:'Pendente',confere:'Conferido',alterado:'Alterado'};
+const state={user:null,vtrs:[],militares:[],compartimentos:[],itens:[],checklistItemsState:{},currentChecklist:null,checklistLocked:false,collapsed:{},itemOpen:{},compMarkedAll:{},expandAllState:false,adminCache:{vtrs:[],compartimentos:[],itens:[]},selectedDay:new Date().getDate()};
 
-// GERAR DIAS
-const daysEl = document.getElementById("days");
-const listEl = document.getElementById("list");
+function hojeISO(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function agoraISO(){return new Date().toISOString();}
+function hojeBR(){const d=new Date();return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;}
+function horaBR(dt){const d=new Date(dt);return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+function isoToBR(iso){if(!iso) return ''; const [y,m,d]=String(iso).slice(0,10).split('-'); return `${d}/${m}/${y}`;}
+function escapeHtml(str=''){return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;");}
+function bind(id,event,fn){const el=$(id); if(el) el.addEventListener(event,fn);}
+function setTopoData(){const el=$('dataAtualTopo'); if(el) el.textContent=hojeBR();}
+function setLoginMsg(msg,ok=false){const el=$('loginMsg'); if(!el) return; el.textContent=msg||''; el.className='msg '+(ok?'ok':'err');}
+function showToast(msg,ok=true){const el=$('appToast'); if(!el) return; el.style.background=ok?'#1f9d60':'#d83c3c'; el.textContent=msg; el.style.display='block'; clearTimeout(window.__toastTimer); window.__toastTimer=setTimeout(()=>el.style.display='none',2600);}
+function logout(){localStorage.removeItem('checklist_user'); state.user=null; window.location.reload();}
+function preencherSelect(selectEl,items,valueKey='id',textKey='nome',placeholder='Selecione'){if(!selectEl) return; selectEl.innerHTML=`<option value="">${placeholder}</option>`+items.map(item=>`<option value="${item[valueKey]}">${escapeHtml(item[textKey]??'')}</option>`).join('');}
 
-let currentDay = 0;
-
-for(let i=1;i<=31;i++){
-  const d = document.createElement("div");
-  d.className="day";
-  d.innerText=i;
-  d.onclick=()=>selectDay(i);
-  daysEl.appendChild(d);
+function montarFaixaDias(){
+  const wrap=$('dayStrip'); if(!wrap) return;
+  const now=new Date(), year=now.getFullYear(), month=now.getMonth(), daysInMonth=new Date(year,month+1,0).getDate(), dows=['dom.','seg.','ter.','qua.','qui.','sex.','sáb.'];
+  wrap.innerHTML='';
+  for(let day=1; day<=daysInMonth; day++){
+    const date=new Date(year,month,day);
+    const el=document.createElement('button');
+    el.className='day-pill'+(day===state.selectedDay?' active':'');
+    el.innerHTML=`<div class="dow">${dows[date.getDay()]}</div><div class="num">${day}</div><div class="tag">mês</div>`;
+    el.addEventListener('click',()=>{state.selectedDay=day; montarFaixaDias(); showToast(`Dia ${day} selecionado`,true);});
+    wrap.appendChild(el);
+  }
 }
-
-function selectDay(day){
-  currentDay = day;
-  document.querySelectorAll(".day").forEach(d=>d.classList.remove("active"));
-  daysEl.children[day-1].classList.add("active");
-  render();
+function setUserUI(){
+  const nome=state.user?.nome||'-';
+  if($('brandInfo')) $('brandInfo').textContent=state.user?`CBSLS • ${state.user.nome} • ${state.user.perfil}`:'CBSLS • Sistema online';
+  if($('heroUsuario')) $('heroUsuario').textContent=nome;
+  const isAdmin=state.user?.perfil==='admin';
+  if($('adminArea')) $('adminArea').classList.toggle('hidden',!isAdmin);
+  if($('adminNoAccess')) $('adminNoAccess').classList.toggle('hidden',isAdmin);
 }
-
-// DADOS
-let data = {};
-
-// RENDER
-function render(){
-  listEl.innerHTML="";
-  const items = data[currentDay] || [];
-
-  items.forEach((item,i)=>{
-    const card = document.createElement("div");
-    card.className="card";
-
-    const left = document.createElement("div");
-    left.className="left";
-
-    const check = document.createElement("input");
-    check.type="checkbox";
-    check.checked=item.done;
-
-    check.onchange=()=>{
-      item.done=!item.done;
-      render();
-    };
-
-    const text = document.createElement("div");
-    text.innerText=item.text;
-    if(item.done) text.classList.add("done");
-
-    left.appendChild(check);
-    left.appendChild(text);
-
-    card.appendChild(left);
-    listEl.appendChild(card);
-  });
+async function login(){
+  const idFunc=$('loginIdFunc')?.value.trim(), senha=$('loginSenha')?.value.trim();
+  if(!idFunc||!senha) return setLoginMsg('Informe Id Func e senha.');
+  setLoginMsg('Entrando...',true);
+  const {data,error}=await sb.from('militares').select('*').eq('id_func',idFunc).eq('senha',senha).eq('ativo',true).maybeSingle();
+  if(error||!data) return setLoginMsg('Login inválido.');
+  state.user=data; localStorage.setItem('checklist_user',JSON.stringify(data)); $('loginScreen')?.classList.add('hidden'); $('appScreen')?.classList.remove('hidden'); setUserUI(); montarFaixaDias(); await carregarBase();
 }
-
-// ADD ITEM
-function addItem(){
-  const text = prompt("Novo item:");
-  if(!text) return;
-
-  if(!data[currentDay]) data[currentDay]=[];
-  data[currentDay].push({text,done:false});
-  render();
+function restaurarLogin(){
+  try{
+    const saved=localStorage.getItem('checklist_user'); if(!saved) return false;
+    state.user=JSON.parse(saved); if(!state.user?.id) return false;
+    $('loginScreen')?.classList.add('hidden'); $('appScreen')?.classList.remove('hidden'); setUserUI(); montarFaixaDias(); carregarBase(); return true;
+  }catch{return false;}
 }
-
-// MENU
-function toggleMenu(){
-  document.getElementById("sidebar").classList.toggle("open");
+async function carregarBase(){await Promise.all([carregarMilitares(),carregarVtrs(),carregarPendenciasAbertas(),carregarCachesAdmin()]);}
+async function carregarMilitares(){const {data,error}=await sb.from('militares').select('*').eq('ativo',true).order('nome',{ascending:true}); if(error) return console.error(error); state.militares=data||[]; preencherSelect($('cgDiaSelect'),state.militares,'id','nome','Selecione o CG do dia');}
+async function carregarVtrs(){
+  const {data,error}=await sb.from('vtrs').select('*').eq('ativo',true).order('codigo',{ascending:true}); if(error) return console.error(error);
+  state.vtrs=data||[]; if($('statVtrs')) $('statVtrs').textContent=String(state.vtrs.length);
+  preencherSelect($('checkVtrSelect'),state.vtrs,'id','codigo','Selecione a VTR'); preencherSelect($('relVtr'),state.vtrs,'id','codigo','Selecione a VTR');
+  if($('vtrList')) $('vtrList').innerHTML=state.vtrs.map(vtr=>{const ult=vtr.ultimo_checklist_em?`✅ Conferido em ${isoToBR(vtr.ultimo_checklist_em)}${vtr.ultimo_checklist_hora?' às '+vtr.ultimo_checklist_hora:''} • CG ${escapeHtml(vtr.ultimo_checklist_por_nome||'-')}`:'Ainda não conferido hoje'; return `<div class="vtr-card"><div><div class="vtr-title">${escapeHtml(vtr.codigo)}</div><div class="vtr-sub">${escapeHtml(vtr.nome)} • ${escapeHtml(vtr.tipo||'vtr')}</div><div class="vtr-status ${vtr.ultimo_checklist_em?'ok':'open'}">${ult}</div></div><div><button class="btn btn-blue" style="width:100%" onclick="abrirChecklistDireto('${vtr.id}')">Abrir checklist</button></div></div>`;}).join('');
 }
+async function carregarCachesAdmin(){
+  const [vtrsRes,compRes,itemRes]=await Promise.all([sb.from('vtrs').select('*').order('codigo',{ascending:true}),sb.from('compartimentos').select('*').order('nome',{ascending:true}),sb.from('itens').select('*').order('nome',{ascending:true})]);
+  state.adminCache.vtrs=vtrsRes.data||[]; state.adminCache.compartimentos=compRes.data||[]; state.adminCache.itens=itemRes.data||[];
+}
+async function carregarPendenciasAbertas(){
+  if(!state.adminCache.compartimentos.length||!state.adminCache.itens.length) await carregarCachesAdmin();
+  const {data,error}=await sb.from('checklist_itens').select(`id,item_id,status_item,observacao,created_at,item:item_id (id,nome,compartimento_id,vtr_id),checklist:checklist_id (id,vtr_id,data_checklist,salvo_por_nome)`).order('created_at',{ascending:false});
+  if(error) return console.error(error);
+  const latestByItem=new Map();
+  for(const row of (data||[])){const itemId=row.item_id||row.item?.id; if(!itemId||latestByItem.has(String(itemId))) continue; latestByItem.set(String(itemId),row);}
+  const pendencias=[]; for(const row of latestByItem.values()) if(row?.status_item==='alterado') pendencias.push(row);
+  if($('statPendencias')) $('statPendencias').textContent=String(pendencias.length);
+  const compMap=Object.fromEntries((state.adminCache.compartimentos||[]).map(c=>[String(c.id),c])); const vtrMap=Object.fromEntries((state.vtrs||[]).map(v=>[String(v.id),v]));
+  if($('faltasList')){
+    if(!pendencias.length) $('faltasList').innerHTML=`<div class="card">Nenhuma pendência aberta.</div>`;
+    else $('faltasList').innerHTML=pendencias.map(row=>{const item=row.item||{}, checklist=row.checklist||{}, comp=compMap[String(item.compartimento_id)]||null, vtr=vtrMap[String(checklist.vtr_id||item.vtr_id)]||null; return `<div class="pending-card" onclick="abrirPendenciaNoAdmin('${String(checklist.vtr_id||item.vtr_id||'')}','${String(item.compartimento_id||'')}','${String(item.id||row.item_id||'')}')"><div style="font-weight:900">${escapeHtml(item.nome||'Item')}</div><div class="small muted" style="margin-top:6px">VTR: <b>${escapeHtml(vtr?.codigo||'-')}</b></div><div class="small muted">Compartimento: <b>${escapeHtml(comp?.nome||'-')}</b></div><div class="small muted">Status: <b>Alterado</b></div><div class="small muted">Obs: ${escapeHtml(row.observacao||'Sem observação')}</div><div class="small muted">Desde: <b>${escapeHtml(checklist.data_checklist||'-')}</b></div><div class="small muted">Registrado por: <b>${escapeHtml(checklist.salvo_por_nome||'-')}</b></div><div class="small" style="margin-top:10px;color:var(--blue);font-weight:900">Toque para abrir no Admin → Editar Item</div></div>`;}).join('');
+  }
+}
+async function abrirChecklistDireto(vtrId){alternarTab('Checklist'); if($('checkVtrSelect')) $('checkVtrSelect').value=String(vtrId); await carregarItensChecklist(); window.scrollTo({top:0,behavior:'smooth'});}
+async function buscarChecklistExistente(vtrId,turno){const {data,error}=await sb.from('checklists').select('*').eq('vtr_id',vtrId).eq('data_checklist',hojeISO()).order('created_at',{ascending:false}).limit(1); if(error){console.error(error); return null;} let rows=data||[]; if(turno) rows=rows.filter(r=>(r.turno||'')===turno); return rows[0]||null;}
+async function carregarCompartimentosDaVtr(vtrId){const {data,error}=await sb.from('compartimentos').select('*').eq('vtr_id',vtrId).eq('ativo',true).order('ordem',{ascending:true}); if(error){console.error(error); return [];} return data||[];}
+async function carregarItensDaVtr(vtrId){const {data,error}=await sb.from('itens').select('*').eq('vtr_id',vtrId).eq('ativo',true).order('ordem',{ascending:true}); if(error){console.error(error); return [];} return data||[];}
+async function carregarChecklistExistenteItens(checklistId){const {data,error}=await sb.from('checklist_itens').select('*').eq('checklist_id',checklistId); if(error){console.error(error); return [];} return data||[];}
+function setChecklistLock(msg,ok=false){const el=$('checklistLockMsg'); if(!el) return; el.textContent=msg||''; el.className='msg '+(ok?'ok':'err')+(msg?'':' hidden'); if(!msg) el.classList.add('hidden'); else el.classList.remove('hidden');}
+function toggleChecklistEditing(enabled){['checkObsGeral','servicoDia','cgDiaSelect','btnSalvarChecklist','btnSalvarTopo','btnMarcarTodosCompartimentos','btnDesmarcarTodosCompartimentos'].forEach(id=>{const el=$(id); if(el) el.disabled=!enabled;});}
+async function carregarItensChecklist(){
+  const vtrId=$('checkVtrSelect')?.value, turno=$('checkTurno')?.value||''; if(!vtrId) return alert('Selecione uma VTR.');
+  state.compartimentos=await carregarCompartimentosDaVtr(vtrId); state.itens=await carregarItensDaVtr(vtrId); state.checklistItemsState={}; state.itemOpen={}; state.compMarkedAll={}; state.expandAllState=false; state.currentChecklist=await buscarChecklistExistente(vtrId,turno); state.checklistLocked=false;
+  state.compartimentos.forEach(comp=>{if(typeof state.collapsed[comp.id]==='undefined') state.collapsed[comp.id]=true;});
+  for(const item of state.itens) state.checklistItemsState[item.id]={status:'pendente',quantidade_encontrada:item.quantidade_padrao,observacao:''};
+  if(state.currentChecklist){
+    if($('checkObsGeral')) $('checkObsGeral').value=state.currentChecklist.observacao_geral||''; if($('servicoDia')) $('servicoDia').value=state.currentChecklist.servico_dia||''; if($('cgDiaSelect')) $('cgDiaSelect').value=state.currentChecklist.cg_dia_id||'';
+    const rows=await carregarChecklistExistenteItens(state.currentChecklist.id);
+    rows.forEach(r=>{if(state.checklistItemsState[r.item_id]) state.checklistItemsState[r.item_id]={status:r.status_item||'pendente',quantidade_encontrada:r.quantidade_encontrada,observacao:r.observacao||''};});
+    state.checklistLocked=true; setChecklistLock(`Checklist já salvo por ${state.currentChecklist.salvo_por_nome||'-'} às ${state.currentChecklist.salvo_em?horaBR(state.currentChecklist.salvo_em):'--:--'}. ${state.user?.perfil==='admin'?'Somente admin pode reabrir.':'Usuário comum só pode visualizar.'}`,false); toggleChecklistEditing(false);
+  } else {
+    if($('checkObsGeral')) $('checkObsGeral').value=''; if($('servicoDia')) $('servicoDia').value=`${hojeBR()} - 09:00HS A 09:00HS`; if($('cgDiaSelect')) $('cgDiaSelect').value=''; state.checklistLocked=false; state.currentChecklist=null; setChecklistLock('',true); toggleChecklistEditing(true);
+  }
+  if(state.compartimentos[0]) state.collapsed[state.compartimentos[0].id]=false; renderChecklist();
+}
+function getItensCompartimento(compId){return state.itens.filter(i=>i.compartimento_id===compId);}
+function getOverallProgress(){const itens=state.itens||[]; let pendentes=0,conferidos=0,alterados=0; for(const item of itens){const st=state.checklistItemsState[item.id]?.status||'pendente'; if(st==='pendente') pendentes++; else if(st==='confere') conferidos++; else alterados++;} const total=itens.length, feitos=total-pendentes, percentual=total?Math.round((feitos/total)*100):0; return {total,pendentes,conferidos,alterados,feitos,percentual};}
+function getCompStatus(compId){const itens=getItensCompartimento(compId); if(!itens.length) return {kind:'open',text:'PENDENTE',cardClass:''}; const states=itens.map(i=>state.checklistItemsState[i.id]?.status||'pendente'); const hasAlterado=states.some(s=>s==='alterado'), allConfere=states.every(s=>s==='confere'), hasAnyTouched=states.some(s=>s!=='pendente'); if(hasAlterado) return {kind:'partial',text:'ALTERADO',cardClass:'partial'}; if(allConfere||state.compMarkedAll[compId]) return {kind:'ok',text:'CONFERIDO',cardClass:'done'}; if(hasAnyTouched) return {kind:'partial',text:'EM ANDAMENTO',cardClass:'partial'}; return {kind:'open',text:'PENDENTE',cardClass:''};}
+function renderChecklist(){
+  const wrap=$('compartimentosWrap'), geral=getOverallProgress(); if($('geralResumo')) $('geralResumo').textContent=`${geral.feitos} / ${geral.total} itens`; if($('geralPercentual')) $('geralPercentual').textContent=`${geral.percentual}%`; if($('geralBarra')) $('geralBarra').style.width=`${geral.percentual}%`; if($('qtdPendentes')) $('qtdPendentes').textContent=String(geral.pendentes); if($('qtdConferidos')) $('qtdConferidos').textContent=String(geral.conferidos); if($('qtdAlterados')) $('qtdAlterados').textContent=String(geral.alterados);
+  if(!wrap) return; if(!state.compartimentos.length){wrap.innerHTML=`<div class="card">Nenhum compartimento cadastrado para esta VTR.</div>`; return;}
+  wrap.innerHTML=state.compartimentos.map((comp,idx)=>{const itens=getItensCompartimento(comp.id), collapsed=!!state.collapsed[comp.id], compStatus=getCompStatus(comp.id), feitos=itens.filter(i=>(state.checklistItemsState[i.id]?.status||'pendente')!=='pendente').length; return `<div class="comp-card ${compStatus.cardClass||''}"><div class="comp-head" onclick="toggleComp('${comp.id}')"><div class="comp-num">${idx+1}</div><div><div class="comp-name">${escapeHtml(comp.nome)}</div><div class="meta"><span class="pill">${itens.length} itens</span><span class="pill">${feitos}/${itens.length} feitos</span><span class="status ${compStatus.kind}">${escapeHtml(compStatus.text)}</span></div></div><button class="arrow" type="button">${collapsed?'⌄':'⌃'}</button></div><div class="comp-body ${collapsed?'':'open'}"><div class="row" style="justify-content:space-between;margin-bottom:10px"><div class="small" style="font-weight:900;color:#445;text-transform:uppercase">Itens do compartimento</div><button class="btn btn-green btn-sm" type="button" onclick="event.stopPropagation();marcarTodosCompartimento('${comp.id}')">✅ Marcar todos conferido</button></div>${itens.length?`<div class="item-list">${itens.map((item,itemIdx)=>{const st=state.checklistItemsState[item.id]||{}, detailOpen=!!state.itemOpen[item.id], stClass=st.status==='confere'?'ok':(st.status==='alterado'?'partial':'open'); return `<div><div class="item-row"><div>${idx+1}.${itemIdx+1}</div><div>${escapeHtml(item.nome)}</div><div class="status ${stClass}">${escapeHtml(STATUS_LABEL[st.status]||'Pendente')}</div><div style="font-size:24px;color:#7a8595;cursor:pointer" onclick="toggleItem('${item.id}')">${detailOpen?'⌃':'›'}</div></div><div class="item-detail ${detailOpen?'open':''}"><div class="mini-actions"><button class="btn ${st.status==='confere'?'btn-green':'btn-white'} btn-sm" type="button" onclick="setItemStatus('${item.id}','confere')">✅ Conferido</button><button class="btn ${st.status==='alterado'?'btn-orange':'btn-white'} btn-sm" type="button" onclick="setItemStatus('${item.id}','alterado')">⚠️ Alterado</button></div><div class="row"><div style="flex:1;min-width:120px"><label>Qtd encontrada</label><input type="number" step="0.01" value="${st.quantidade_encontrada??''}" onchange="setItemQuantidade('${item.id}', this.value)" ${state.checklistLocked?'disabled':''}></div><div style="flex:1;min-width:120px"><label>Qtd padrão</label><input type="text" value="${escapeHtml(item.quantidade_padrao??'')}" disabled></div></div>${st.status==='alterado'?`<div style="margin-top:10px"><label>Observação</label><input type="text" value="${escapeHtml(st.observacao||'')}" onchange="setItemObservacao('${item.id}', this.value)" placeholder="Descreva a alteração encontrada" ${state.checklistLocked?'disabled':''}></div>`:''}</div></div>`;}).join('')}</div>`:`<div class="muted">Sem itens neste compartimento.</div>`}</div></div>`;}).join('');
+}
+function setItemStatus(itemId,status){if(state.checklistLocked) return; if(!state.checklistItemsState[itemId]) return; state.checklistItemsState[itemId].status=status; if(status!=='alterado') state.checklistItemsState[itemId].observacao=''; renderChecklist();}
+function setItemQuantidade(itemId,valor){if(state.checklistLocked) return; if(!state.checklistItemsState[itemId]) return; state.checklistItemsState[itemId].quantidade_encontrada=valor===''?null:Number(valor);}
+function setItemObservacao(itemId,valor){if(state.checklistLocked) return; if(!state.checklistItemsState[itemId]) return; state.checklistItemsState[itemId].observacao=valor||'';}
+function toggleItem(itemId){state.itemOpen[itemId]=!state.itemOpen[itemId]; renderChecklist();}
+function marcarTodosCompartimento(compId){if(state.checklistLocked) return; getItensCompartimento(compId).forEach(item=>{if(!state.checklistItemsState[item.id]) return; state.checklistItemsState[item.id].status='confere'; state.checklistItemsState[item.id].observacao='';}); state.compMarkedAll[compId]=true; renderChecklist();}
+function marcarTodosOsCompartimentos(){if(state.checklistLocked) return; state.compartimentos.forEach(comp=>{getItensCompartimento(comp.id).forEach(item=>{if(!state.checklistItemsState[item.id]) return; state.checklistItemsState[item.id].status='confere'; state.checklistItemsState[item.id].observacao='';}); state.compMarkedAll[comp.id]=true;}); renderChecklist();}
+function desmarcarTodosOsCompartimentos(){if(state.checklistLocked) return; state.compartimentos.forEach(comp=>{getItensCompartimento(comp.id).forEach(item=>{if(!state.checklistItemsState[item.id]) return; state.checklistItemsState[item.id].status='pendente'; state.checklistItemsState[item.id].observacao='';}); state.compMarkedAll[comp.id]=false;}); renderChecklist();}
+function toggleComp(compId){state.collapsed[compId]=!state.collapsed[compId]; renderChecklist();}
+function expandirOuRecolherTodos(){state.expandAllState=!state.expandAllState; state.compartimentos.forEach(comp=>state.collapsed[comp.id]=!state.expandAllState); renderChecklist();}
+async function salvarChecklist(){
+  const vtrId=$('checkVtrSelect')?.value, turno=$('checkTurno')?.value||null, observacaoGeral=$('checkObsGeral')?.value.trim()||'', servicoDia=$('servicoDia')?.value.trim()||'', cgDiaId=$('cgDiaSelect')?.value||null, cgDiaNome=state.militares.find(m=>String(m.id)===String(cgDiaId))?.nome||null;
+  if(!vtrId) return alert('Selecione uma VTR.'); if(!state.user?.id) return alert('Usuário não identificado.'); if(state.checklistLocked) return alert('Checklist bloqueado.');
+  const possuiPendentes=state.itens.some(item=>(state.checklistItemsState[item.id]?.status||'pendente')==='pendente'); if(possuiPendentes){showToast('Há itens pendentes. Marque todos os itens antes de salvar.',false); return;}
+  let checklistId=state.currentChecklist?.id||null;
+  if(!checklistId){
+    const {data:inserted,error:insertErr}=await sb.from('checklists').insert({vtr_id:vtrId,militar_id:state.user.id,data_checklist:hojeISO(),turno,observacao_geral:observacaoGeral,status:'finalizado',servico_dia:servicoDia,cg_dia_id:cgDiaId,cg_dia_nome:cgDiaNome,salvo_por_nome:state.user.nome||null,salvo_em:agoraISO()}).select().single();
+    if(insertErr){console.error(insertErr); showToast('Erro ao criar checklist.',false); return;}
+    checklistId=inserted.id; state.currentChecklist=inserted;
+  } else {
+    const {error:updErr}=await sb.from('checklists').update({observacao_geral:observacaoGeral,turno,status:'finalizado',servico_dia:servicoDia,cg_dia_id:cgDiaId,cg_dia_nome:cgDiaNome,salvo_por_nome:state.user.nome||null,salvo_em:agoraISO(),militar_id:state.user.id}).eq('id',checklistId);
+    if(updErr){console.error(updErr); showToast('Erro ao atualizar checklist.',false); return;}
+  }
+  const itensPayload=state.itens.map(item=>({checklist_id:checklistId,item_id:item.id,status_item:state.checklistItemsState[item.id]?.status||'pendente',quantidade_encontrada:state.checklistItemsState[item.id]?.quantidade_encontrada,observacao:state.checklistItemsState[item.id]?.status==='alterado'?(state.checklistItemsState[item.id]?.observacao||null):null}));
+  const {error:itensError}=await sb.from('checklist_itens').upsert(itensPayload,{onConflict:'checklist_id,item_id'});
+  if(itensError){console.error(itensError); showToast('Erro ao salvar itens do checklist.',false); return;}
+  const hora=horaBR(new Date().toISOString());
+  const {error:vtrUpdErr}=await sb.from('vtrs').update({ultimo_checklist_em:hojeISO(),ultimo_checklist_por_nome:cgDiaNome||state.user.nome||null,ultimo_checklist_hora:hora}).eq('id',vtrId);
+  if(vtrUpdErr){console.error(vtrUpdErr); showToast('Checklist salvo, mas falhou ao atualizar status da VTR.',false); return;}
+  showToast('Checklist salvo com sucesso.',true); state.checklistLocked=true; toggleChecklistEditing(false); await carregarVtrs(); await carregarPendenciasAbertas();
+}
+async function abrirPendenciaNoAdmin(vtrId,compartimentoId,itemId){
+  if(state.user?.perfil!=='admin'){showToast('Somente admin pode abrir a correção no Admin.',false); return;}
+  if($('adminActionSelect')) $('adminActionSelect').value='editar'; if($('adminTypeSelect')) $('adminTypeSelect').value='item';
+  await carregarCachesAdmin(); alternarTab('Admin'); renderAdminWizard();
+  requestAnimationFrame(()=>{if($('wizItemVtr')) $('wizItemVtr').value=String(vtrId||''); preencherWizardItemCompartimentos(); if($('wizItemComp')) $('wizItemComp').value=String(compartimentoId||''); preencherWizardItensPorCompartimento(); if($('wizItemSelect')) $('wizItemSelect').value=String(itemId||''); preencherWizardItem();});
+}
+function alternarTab(tabName){['Inicio','Checklist','Faltantes','Relatorios','Admin'].forEach(n=>document.getElementById('tab'+n)?.classList.add('hidden')); document.querySelectorAll('.tabbtn').forEach(btn=>btn.classList.remove('active')); document.getElementById('tab'+tabName)?.classList.remove('hidden'); document.querySelector(`.tabbtn[data-tab="${tabName}"]`)?.classList.add('active'); if(tabName==='Faltantes') carregarPendenciasAbertas(); if(tabName==='Relatorios'&&$('relData')) $('relData').value=hojeISO(); if(tabName==='Admin') renderAdminWizard();}
+function renderAdminWizard(){
+  const panel=$('adminWizardPanel'); if(!panel) return; const action=$('adminActionSelect')?.value||'', type=$('adminTypeSelect')?.value||''; if(!action||!type){panel.innerHTML=`<div class="muted">Selecione ação e tipo para continuar.</div>`; return;}
+  if(type==='vtr'){panel.innerHTML=`${action!=='adicionar'?`<div><label for="wizVtrSelect">Selecionar VTR</label><select id="wizVtrSelect"></select></div>`:''}<div class="col" style="margin-top:10px"><div><label for="wizVtrCodigo">Código da VTR</label><input id="wizVtrCodigo" type="text"></div><div><label for="wizVtrNome">Nome da VTR</label><input id="wizVtrNome" type="text"></div><div><label for="wizVtrTipo">Tipo</label><input id="wizVtrTipo" type="text"></div><div><label for="wizVtrAtivo">Ativa</label><select id="wizVtrAtivo"><option value="true">Sim</option><option value="false">Não</option></select></div></div>`; if(action!=='adicionar'){preencherSelect($('wizVtrSelect'),state.adminCache.vtrs,'id','codigo','Selecione a VTR'); bind('wizVtrSelect','change',preencherWizardVtr);}}
+  if(type==='compartimento'){panel.innerHTML=`<div class="col"><div><label for="wizCompVtr">VTR</label><select id="wizCompVtr"></select></div>${action!=='adicionar'?`<div><label for="wizCompSelect">Selecionar compartimento</label><select id="wizCompSelect"></select></div>`:''}<div><label for="wizCompNome">Nome do compartimento</label><input id="wizCompNome" type="text"></div><div><label for="wizCompOrdem">Ordem</label><input id="wizCompOrdem" type="number"></div><div><label for="wizCompAtivo">Ativo</label><select id="wizCompAtivo"><option value="true">Sim</option><option value="false">Não</option></select></div></div>`; preencherSelect($('wizCompVtr'),state.adminCache.vtrs,'id','codigo','Selecione a VTR'); if(action!=='adicionar'){bind('wizCompVtr','change',preencherWizardCompartimentosPorVtr); bind('wizCompSelect','change',preencherWizardCompartimento);}}
+  if(type==='item'){panel.innerHTML=`<div class="col"><div><label for="wizItemVtr">VTR</label><select id="wizItemVtr"></select></div><div><label for="wizItemComp">Compartimento</label><select id="wizItemComp"></select></div>${action!=='adicionar'?`<div><label for="wizItemSelect">Selecionar item</label><select id="wizItemSelect"></select></div>`:''}<div><label for="wizItemNome">Nome do item</label><input id="wizItemNome" type="text"></div><div><label for="wizItemQtd">Qtd padrão</label><input id="wizItemQtd" type="number" step="0.01"></div><div><label for="wizItemOrdem">Ordem</label><input id="wizItemOrdem" type="number"></div><div><label for="wizItemObs">Observação padrão</label><textarea id="wizItemObs"></textarea></div><div><label for="wizItemAtivo">Ativo</label><select id="wizItemAtivo"><option value="true">Sim</option><option value="false">Não</option></select></div></div>`; preencherSelect($('wizItemVtr'),state.adminCache.vtrs,'id','codigo','Selecione a VTR'); bind('wizItemVtr','change',preencherWizardItemCompartimentos); bind('wizItemComp','change',preencherWizardItensPorCompartimento); if(action!=='adicionar') bind('wizItemSelect','change',preencherWizardItem);}
+}
+function preencherWizardVtr(){const id=$('wizVtrSelect')?.value, vtr=state.adminCache.vtrs.find(v=>String(v.id)===String(id)); if(!vtr) return; $('wizVtrCodigo').value=vtr.codigo||''; $('wizVtrNome').value=vtr.nome||''; $('wizVtrTipo').value=vtr.tipo||''; $('wizVtrAtivo').value=String(vtr.ativo??true);}
+function preencherWizardCompartimentosPorVtr(){const vtrId=$('wizCompVtr')?.value, list=state.adminCache.compartimentos.filter(c=>String(c.vtr_id)===String(vtrId)); preencherSelect($('wizCompSelect'),list,'id','nome','Selecione o compartimento');}
+function preencherWizardCompartimento(){const id=$('wizCompSelect')?.value, comp=state.adminCache.compartimentos.find(c=>String(c.id)===String(id)); if(!comp) return; $('wizCompNome').value=comp.nome||''; $('wizCompOrdem').value=comp.ordem??''; $('wizCompAtivo').value=String(comp.ativo??true);}
+function preencherWizardItemCompartimentos(){const vtrId=$('wizItemVtr')?.value, comps=state.adminCache.compartimentos.filter(c=>String(c.vtr_id)===String(vtrId)); preencherSelect($('wizItemComp'),comps,'id','nome','Selecione o compartimento'); if($('wizItemSelect')) $('wizItemSelect').innerHTML='<option value="">Selecione o item</option>';}
+function preencherWizardItensPorCompartimento(){if(($('adminActionSelect')?.value||'')==='adicionar') return; const compId=$('wizItemComp')?.value, items=state.adminCache.itens.filter(i=>String(i.compartimento_id)===String(compId)); preencherSelect($('wizItemSelect'),items,'id','nome','Selecione o item');}
+function preencherWizardItem(){const id=$('wizItemSelect')?.value, item=state.adminCache.itens.find(i=>String(i.id)===String(id)); if(!item) return; $('wizItemNome').value=item.nome||''; $('wizItemQtd').value=item.quantidade_padrao??''; $('wizItemOrdem').value=item.ordem??''; $('wizItemObs').value=item.observacao_padrao||''; $('wizItemAtivo').value=String(item.ativo??true);}
+async function salvarAdminWizard(){
+  const action=$('adminActionSelect')?.value||'', type=$('adminTypeSelect')?.value||''; if(!action||!type) return alert('Selecione ação e tipo.');
+  if(type==='vtr'){
+    if(action==='adicionar'){const {error}=await sb.from('vtrs').insert({codigo:$('wizVtrCodigo').value.trim(),nome:$('wizVtrNome').value.trim(),tipo:$('wizVtrTipo').value.trim()||null,ativo:$('wizVtrAtivo').value==='true'}); if(error) return console.error(error),showToast('Erro ao adicionar VTR.',false); showToast('VTR adicionada com sucesso.',true);}
+    else if(action==='editar'){const {error}=await sb.from('vtrs').update({codigo:$('wizVtrCodigo').value.trim(),nome:$('wizVtrNome').value.trim(),tipo:$('wizVtrTipo').value.trim()||null,ativo:$('wizVtrAtivo').value==='true'}).eq('id',$('wizVtrSelect')?.value); if(error) return console.error(error),showToast('Erro ao editar VTR.',false); showToast('VTR editada com sucesso.',true);}
+    else if(action==='excluir'){if(!confirm('Excluir VTR definitivamente do banco?')) return; const {error}=await sb.from('vtrs').delete().eq('id',$('wizVtrSelect')?.value); if(error) return console.error(error),showToast('Erro ao excluir VTR.',false); showToast('VTR excluída com sucesso.',true);}
+  }
+  if(type==='compartimento'){
+    if(action==='adicionar'){const {error}=await sb.from('compartimentos').insert({vtr_id:$('wizCompVtr').value,nome:$('wizCompNome').value.trim(),ordem:$('wizCompOrdem').value===''?0:Number($('wizCompOrdem').value),ativo:$('wizCompAtivo').value==='true'}); if(error) return console.error(error),showToast('Erro ao adicionar compartimento.',false); showToast('Compartimento adicionado com sucesso.',true);}
+    else if(action==='editar'){const {error}=await sb.from('compartimentos').update({nome:$('wizCompNome').value.trim(),ordem:$('wizCompOrdem').value===''?null:Number($('wizCompOrdem').value),ativo:$('wizCompAtivo').value==='true'}).eq('id',$('wizCompSelect')?.value); if(error) return console.error(error),showToast('Erro ao editar compartimento.',false); showToast('Compartimento editado com sucesso.',true);}
+    else if(action==='excluir'){if(!confirm('Excluir compartimento definitivamente do banco?')) return; const {error}=await sb.from('compartimentos').delete().eq('id',$('wizCompSelect')?.value); if(error) return console.error(error),showToast('Erro ao excluir compartimento.',false); showToast('Compartimento excluído com sucesso.',true);}
+  }
+  if(type==='item'){
+    if(action==='adicionar'){const {error}=await sb.from('itens').insert({vtr_id:$('wizItemVtr').value,compartimento_id:$('wizItemComp').value,nome:$('wizItemNome').value.trim(),quantidade_padrao:$('wizItemQtd').value===''?1:Number($('wizItemQtd').value),ordem:$('wizItemOrdem').value===''?0:Number($('wizItemOrdem').value),observacao_padrao:$('wizItemObs').value.trim()||null,ativo:$('wizItemAtivo').value==='true'}); if(error) return console.error(error),showToast('Erro ao adicionar item.',false); showToast('Item adicionado com sucesso.',true);}
+    else if(action==='editar'){const {error}=await sb.from('itens').update({nome:$('wizItemNome').value.trim(),quantidade_padrao:$('wizItemQtd').value===''?null:Number($('wizItemQtd').value),ordem:$('wizItemOrdem').value===''?null:Number($('wizItemOrdem').value),observacao_padrao:$('wizItemObs').value.trim()||null,ativo:$('wizItemAtivo').value==='true'}).eq('id',$('wizItemSelect')?.value); if(error) return console.error(error),showToast('Erro ao editar item.',false); showToast('Item editado com sucesso.',true);}
+    else if(action==='excluir'){if(!confirm('Excluir item definitivamente do banco?')) return; const {error}=await sb.from('itens').delete().eq('id',$('wizItemSelect')?.value); if(error) return console.error(error),showToast('Erro ao excluir item.',false); showToast('Item excluído com sucesso.',true);}
+  }
+  await carregarCachesAdmin(); await carregarVtrs(); renderAdminWizard();
+}
+function limparAdminWizard(){if($('adminWizardPanel')) $('adminWizardPanel').querySelectorAll('input, textarea').forEach(el=>el.value=''); if($('adminWizardPanel')) $('adminWizardPanel').querySelectorAll('select').forEach((el,idx)=>{if(idx>1) el.value='';});}
+function voltarAdminWizard(){if($('adminActionSelect')) $('adminActionSelect').value=''; if($('adminTypeSelect')) $('adminTypeSelect').value=''; renderAdminWizard();}
+async function gerarRelatorioDia(){
+  const vtrId=$('relVtr')?.value, data=$('relData')?.value||hojeISO(); if(!vtrId) return alert('Selecione uma VTR.');
+  const vtr=state.vtrs.find(v=>String(v.id)===String(vtrId));
+  const {data:checklist,error:errChecklist}=await sb.from('checklists').select('*').eq('vtr_id',vtrId).eq('data_checklist',data).order('created_at',{ascending:false}).limit(1).maybeSingle();
+  if(errChecklist||!checklist){if($('relatorioArea')) $('relatorioArea').innerHTML=`<div class="card">Nenhum checklist encontrado para a data informada.</div>`; return;}
+  const {data:itensRel,error:errItens}=await sb.from('checklist_itens').select('*, item:item_id (nome)').eq('checklist_id',checklist.id);
+  if(errItens){console.error(errItens); if($('relatorioArea')) $('relatorioArea').innerHTML=`<div class="card">Erro ao gerar relatório.</div>`; return;}
+  if($('relatorioArea')) $('relatorioArea').innerHTML=`<div class="card"><h3 style="margin-top:0">Relatório diário</h3><div class="small muted">VTR: <b>${escapeHtml(vtr?.codigo||'-')}</b></div><div class="small muted">Data: <b>${escapeHtml(data)}</b></div><div class="small muted">Serviço do dia: <b>${escapeHtml(checklist.servico_dia||'-')}</b></div><div class="small muted">CG do dia: <b>${escapeHtml(checklist.cg_dia_nome||'-')}</b></div><div class="small muted">Salvo por: <b>${escapeHtml(checklist.salvo_por_nome||'-')}</b></div><div class="small muted">Hora do salvamento: <b>${checklist.salvo_em?horaBR(checklist.salvo_em):'--:--'}</b></div><div style="margin-top:14px;display:grid;gap:10px">${(itensRel||[]).map(row=>`<div style="border:1px solid #dde5ee;border-radius:12px;padding:10px;background:#fafcfe"><div style="font-weight:900">${escapeHtml(row.item?.nome||'Item')}</div><div class="small muted">Status: <b>${escapeHtml(STATUS_LABEL[row.status_item]||row.status_item)}</b></div><div class="small muted">Qtd encontrada: <b>${escapeHtml(row.quantidade_encontrada??'')}</b></div><div class="small muted">Obs: ${escapeHtml(row.observacao||'Sem observação')}</div></div>`).join('')}</div></div>`;
+}
+function imprimirRelatorio(){window.print();}
 
-// INICIAL
-selectDay(new Date().getDate());
+document.querySelectorAll('.tabbtn').forEach(btn=>btn.addEventListener('click',()=>alternarTab(btn.dataset.tab)));
+bind('btnLogin','click',login); bind('btnCarregarChecklist','click',carregarItensChecklist); bind('btnSalvarChecklist','click',salvarChecklist); bind('btnSalvarTopo','click',salvarChecklist); bind('btnSairTopo','click',logout); bind('btnExpandirTodos','click',expandirOuRecolherTodos); bind('btnMarcarTodosCompartimentos','click',marcarTodosOsCompartimentos); bind('btnDesmarcarTodosCompartimentos','click',desmarcarTodosOsCompartimentos); bind('btnRelatorioDia','click',gerarRelatorioDia); bind('btnImprimir','click',imprimirRelatorio); bind('btnAdminSalvar','click',salvarAdminWizard); bind('btnAdminLimpar','click',limparAdminWizard); bind('btnAdminVoltar','click',voltarAdminWizard); bind('btnAdminSair','click',logout); bind('adminActionSelect','change',async()=>{await carregarCachesAdmin(); renderAdminWizard();}); bind('adminTypeSelect','change',async()=>{await carregarCachesAdmin(); renderAdminWizard();});
 
+if($('relData')) $('relData').value=hojeISO(); setTopoData();
+window.alternarTab=alternarTab; window.abrirChecklistDireto=abrirChecklistDireto; window.toggleComp=toggleComp; window.toggleItem=toggleItem; window.setItemStatus=setItemStatus; window.setItemQuantidade=setItemQuantidade; window.setItemObservacao=setItemObservacao; window.marcarTodosCompartimento=marcarTodosCompartimento; window.abrirPendenciaNoAdmin=abrirPendenciaNoAdmin;
+restaurarLogin();
 </script>
-
 </body>
 </html>
