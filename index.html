@@ -1,456 +1,405 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Checklist de Conferência • CBSLS</title>
-<meta name="theme-color" content="#263642" />
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root{
-  --bg:#eef3f5; --top:#263642; --top2:#1f2f39; --card:#fff; --text:#1f2937;
-  --muted:#6b7280; --line:#d9e0e6; --blue:#2f67f2; --ok:#16a34a; --warn:#f59e0b;
-  --danger:#dc2626; --soft:#f6f8fb; --radius:20px; --shadow:0 10px 28px rgba(15,23,42,.10);
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
-body{padding-bottom:96px}
-button,input,select,textarea{font:inherit}
-button{border:0;cursor:pointer}
-.top{
-  background:linear-gradient(180deg,var(--top),var(--top2));color:white;padding:20px 18px 18px;
-  box-shadow:0 8px 24px rgba(0,0,0,.18);position:sticky;top:0;z-index:50
-}
-.topline{display:flex;align-items:center;gap:12px}
-.logo{font-size:42px;line-height:1}
-.title{font-weight:900;font-size:24px;line-height:1.05;text-transform:uppercase}
-.sub{font-weight:800;font-size:15px;opacity:.92;margin-top:8px}
-.top-actions{margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.date-mini{font-size:20px;font-weight:900;letter-spacing:.3px}
-.logout{
-  width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;
-  display:flex;align-items:center;justify-content:center;font-size:20px
-}
-.logout:active{transform:scale(.98)}
-.wrap{max-width:980px;margin:0 auto;padding:16px 14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
-.days-card{padding:16px;margin:10px 0 14px}
-.card-title{font-size:19px;font-weight:900;margin-bottom:10px}
-.month-tools{display:flex;gap:8px;margin-bottom:12px;align-items:center}
-.month-tools select{
-  background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:10px 12px;
-  font-weight:800;color:#374151;min-width:0
-}
-.days-row{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;padding:2px 2px 10px;scrollbar-width:none}
-.days-row::-webkit-scrollbar{display:none}
-.day-chip{
-  min-width:78px;height:92px;border-radius:20px;background:white;border:1px solid var(--line);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;scroll-snap-align:center;
-  box-shadow:0 4px 12px rgba(15,23,42,.05);position:relative
-}
-.day-chip .dow{font-size:13px;font-weight:800;color:var(--muted)}
-.day-chip .num{font-size:30px;font-weight:950;color:#111827;line-height:1.1}
-.day-chip .mes{font-size:12px;font-weight:800;color:var(--muted)}
-.day-chip.today{border:2px solid var(--blue)}
-.day-chip.active{background:var(--blue);border-color:var(--blue);color:white}
-.day-chip.active *{color:white}
-.day-chip.closed:after{
-  content:"✓";position:absolute;top:7px;right:8px;background:#dcfce7;color:#166534;border-radius:999px;
-  font-size:12px;font-weight:900;width:20px;height:20px;display:flex;align-items:center;justify-content:center
-}
-.pending-card{padding:18px;margin-bottom:18px;text-align:center}
-.pending-card .lbl{font-size:16px;color:var(--muted);font-weight:700}
-.pending-card .num{font-size:32px;font-weight:950;margin-top:2px}
-.pending-card small{display:block;color:var(--muted);font-weight:700;margin-top:4px}
-.section-title{font-size:21px;font-weight:950;margin:18px 0 10px}
-.vtr-card{padding:16px;margin-bottom:14px;overflow:hidden}
-.vtr-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.vtr-name{font-size:25px;font-weight:950}
-.vtr-desc{color:var(--muted);font-weight:650;margin-top:4px}
-.status-pill{padding:8px 11px;border-radius:999px;background:#eef2ff;color:#1d4ed8;font-weight:900;font-size:12px;white-space:nowrap}
-.vtr-actions{display:grid;grid-template-columns:1fr 1fr;margin-top:14px;gap:10px}
-.btn{border-radius:16px;padding:14px 12px;font-weight:950;min-height:52px}
-.btn.blue{background:var(--blue);color:white}
-.btn.light{background:#eef2f7;color:#374151;border:1px solid var(--line)}
-.btn.green{background:#dcfce7;color:#166534}
-.btn.warn{background:#fef3c7;color:#92400e}
-.btn.danger{background:#fee2e2;color:#991b1b}
-.compart{border:1px solid var(--line);border-radius:18px;margin-top:12px;background:#fbfcfe;overflow:hidden}
-.compart summary{list-style:none;padding:13px 14px;font-weight:950;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.compart summary::-webkit-details-marker{display:none}
-.mark-all{font-size:12px;background:#e0ecff;color:#1d4ed8;border-radius:999px;padding:8px 10px;font-weight:900}
-.item{padding:12px 14px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:white}
-.item-name{font-weight:850}
-.item-opts{display:flex;gap:7px}
-.opt{width:42px;height:38px;border-radius:13px;background:#f3f4f6;color:#374151;font-weight:950;border:1px solid #e5e7eb}
-.opt.active.c{background:#dcfce7;color:#166534;border-color:#86efac}
-.opt.active.a{background:#fef3c7;color:#92400e;border-color:#fcd34d}
-.obs{grid-column:1 / -1;display:none;width:100%;border:1px solid var(--line);border-radius:14px;padding:10px;background:#fff}
-.item.alterado .obs{display:block}
-.pend-list .pend{padding:14px;margin-bottom:10px;border-radius:16px;border:1px solid var(--line);background:#fff}
-.pend b{display:block;font-size:16px}
-.pend span{display:block;color:var(--muted);font-weight:700;margin-top:4px}
-.report-card{padding:10px;overflow:auto}
-.report-table{border-collapse:collapse;width:max-content;min-width:100%;background:white;font-size:12px}
-.report-table th,.report-table td{border:1px solid #cfd7df;padding:8px 9px;text-align:center;white-space:nowrap}
-.report-table th{background:#e8eef5;font-weight:950;position:sticky;top:0;z-index:1}
-.report-table td:first-child,.report-table th:first-child{text-align:left;position:sticky;left:0;background:#fff;z-index:2;font-weight:900}
-.report-table th:first-child{background:#e8eef5;z-index:3}
-.badge-c{color:#166534;font-weight:950}
-.badge-a{color:#92400e;font-weight:950}
-.tabbar{
-  position:fixed;left:50%;transform:translateX(-50%);bottom:10px;z-index:80;width:min(760px,calc(100% - 14px));
-  background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:24px;box-shadow:0 12px 30px rgba(0,0,0,.18);
-  padding:7px;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;backdrop-filter:blur(14px)
-}
-.tabbar button{background:transparent;color:#5b6470;border-radius:17px;padding:8px 2px;font-size:11px;font-weight:900;min-width:0}
-.tabbar .ico{display:block;font-size:19px;margin-bottom:2px}
-.tabbar button.active{background:#eef2ff;color:#1d4ed8}
-.screen{display:none}.screen.active{display:block}
-.empty{padding:22px;text-align:center;color:var(--muted);font-weight:800}
-@media (min-width:720px){
-  .title{font-size:30px}.sub{font-size:18px}.day-chip{min-width:96px}.tabbar button{font-size:12px}
-}
-@media (max-width:380px){
-  .title{font-size:21px}.logo{font-size:36px}.tabbar{gap:2px;padding:6px}.tabbar button{font-size:10px}.tabbar .ico{font-size:17px}
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Checklist VTR • CBSLS</title>
+  <meta name="theme-color" content="#25313a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--bg:#eef3f6;--card:#fff;--line:#d6dde6;--text:#1f2937;--muted:#6b7280;--top:#25313a;--top2:#32414d;--blue:#2c67f2;--green:#1f9d60;--orange:#ef8b1e;--red:#d83c3c;--shadow:0 10px 24px rgba(16,24,40,.08)}
+    *{box-sizing:border-box} html,body{margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)} body{padding-bottom:92px}
+    button,input,select,textarea{font:inherit}.hidden{display:none!important}.app{width:min(980px,100%);margin:0 auto;padding:0 12px 120px}
+    .hero{position:sticky;top:0;z-index:30;margin:0 -12px;padding:14px 16px 16px;background:linear-gradient(180deg,var(--top),var(--top2));color:#fff;box-shadow:0 10px 24px rgba(0,0,0,.22)}
+    .hero-head{display:flex;gap:12px;align-items:flex-start}.hero-main{flex:1}.hero-icon{font-size:42px;line-height:1}.hero-title{margin:0;font-size:18px;font-weight:900}.hero-sub{margin:6px 0 0;font-size:13px;font-weight:700}.hero-date{text-align:center;margin:12px 0 0;font-size:15px;font-weight:900}.logout-mini{margin-left:auto;width:42px;height:42px;border-radius:14px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.12);color:#fff;font-size:20px;font-weight:900;cursor:pointer}.logout-mini:active{transform:scale(.96)}
+    .hero-actions,.toolbar,.grid2,.stats,.quick{display:grid;gap:10px}.hero-actions,.toolbar,.grid2{grid-template-columns:1fr 1fr}.stats,.quick{grid-template-columns:repeat(3,1fr)} .section{margin-top:14px}
+    .btn{border:none;border-radius:14px;padding:14px 16px;min-height:56px;font-weight:900;cursor:pointer}.btn:active{transform:scale(.98)} .btn-blue{background:var(--blue);color:#fff}.btn-gray{background:#808893;color:#fff}.btn-white{background:#fff;border:2px solid #cfd9e6;color:var(--blue)}.btn-green{background:#ecfaf2;border:2px solid #bee7cf;color:var(--green)}.btn-orange{background:#fff7ec;border:2px solid #ffd39f;color:var(--orange)}.btn-sm{padding:10px 12px;min-height:auto}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:14px}.title{font-size:16px;font-weight:900;color:#253041;margin:0 0 10px}.muted{color:var(--muted)}.small{font-size:12px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.col{display:flex;flex-direction:column;gap:10px} label{font-size:12px;font-weight:900;text-transform:uppercase;color:#425063} input,select,textarea{width:100%;border:1px solid #d0d8e2;border-radius:12px;padding:12px;background:#fff} textarea{min-height:72px;resize:vertical}
+    .stat{background:#f5f8fb;border:1px solid #dde5ee;border-radius:14px;padding:12px;text-align:center}.stat .n{display:block;font-size:20px;font-weight:900;margin-top:4px}
+    .vtr-list,.comp-list,.pending-list{display:grid;gap:12px}
+    .vtr-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:12px;align-items:center;box-shadow:var(--shadow)} .vtr-title{font-size:20px;font-weight:900}.vtr-sub{font-size:13px;color:var(--muted);margin-top:4px}.vtr-status{font-size:13px;font-weight:900;margin-top:10px}.vtr-status.ok{color:var(--green)}.vtr-status.open{color:var(--muted)}
+    .date-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.date-filter select{width:auto;min-width:86px;padding:9px 10px;border-radius:12px;background:#f7f9fc}.date-filter .btn-hoje{border:1px solid #d0d8e2;background:#eef3f8;border-radius:12px;padding:9px 12px;font-weight:900;color:#334155}.day-strip{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 2px;scroll-snap-type:x mandatory}.day-pill{min-width:66px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px 8px;text-align:center;box-shadow:var(--shadow);cursor:pointer;scroll-snap-align:center}.day-pill .dow{font-size:11px;font-weight:900;color:#6b7280}.day-pill .num{font-size:20px;font-weight:900;margin-top:4px}.day-pill .tag{font-size:10px;font-weight:900;margin-top:4px;color:var(--muted)}.day-pill.active{border-color:#2c67f2;background:#eef3ff;box-shadow:0 0 0 3px rgba(44,103,242,.10)}.day-pill.today .tag{color:#2c67f2}.pending-home{cursor:pointer}.pending-home:active{transform:scale(.99)}
+    .progress-card{background:#fff;border:1px solid #dce6ef;border-radius:16px;padding:14px;box-shadow:var(--shadow)}.progress-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.progress-title{font-size:13px;font-weight:900;color:#344b68}.progress-big{font-size:22px;font-weight:900}.pill{display:inline-flex;align-items:center;gap:6px;background:#eef3ff;border:1px solid #d6e1ff;color:#2a5bdd;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:900}.bar{height:14px;background:#e8eef5;border:1px solid #d7e0ea;border-radius:999px;overflow:hidden;margin-top:10px}.bar>div{height:100%;width:0;background:linear-gradient(90deg,#16c7c1,#2b79ff)} .q{background:#f5f8fb;border:1px solid #dde5ee;border-radius:12px;padding:10px;text-align:center}.q strong{display:block;font-size:18px}
+    .comp-card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}.comp-card.done{border-color:#c3ead2;background:#fbfffc}.comp-card.partial{border-color:#ffd8ad;background:#fffaf5}.comp-head{padding:14px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;cursor:pointer}.comp-num{width:42px;height:42px;border-radius:12px;background:#eef3fb;border:2px solid #d4e0ff;color:#2258da;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900}.comp-name{font-size:18px;font-weight:900}.meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}.status{font-size:13px;font-weight:900}.status.ok{color:var(--green)}.status.partial{color:var(--orange)}.status.open{color:var(--muted)}.arrow{width:46px;height:46px;border-radius:12px;border:1px solid #dae2ec;background:#f4f7fa;color:#415164;font-size:24px;font-weight:900}
+    .comp-body{display:none;border-top:1px solid #edf1f5;padding:12px;background:#fbfdff}.comp-body.open{display:block}.item-list{border:1px solid #dce3ec;border-radius:14px;overflow:hidden}.item-row{display:grid;grid-template-columns:54px 1fr 120px 28px;gap:10px;align-items:center;padding:0 10px;min-height:54px;border-top:1px solid #edf1f5;background:#fff}.item-row:nth-child(odd){background:#fbfcfe}.item-row:first-child{border-top:none}.item-detail{display:none;padding:12px;border-top:1px solid #edf1f5;background:#f8fbff}.item-detail.open{display:block}.mini-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+    .pending-card{background:#fff;border:1px solid #ffd8b5;border-left:6px solid var(--orange);border-radius:16px;padding:14px;cursor:pointer;box-shadow:var(--shadow)}.toast{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:9999;padding:12px 16px;border-radius:12px;font-weight:900;color:#fff;display:none;box-shadow:0 10px 24px rgba(0,0,0,.22)}
+    .tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:8px;z-index:50;width:min(980px,calc(100% - 10px));background:rgba(255,255,255,.98);border:1px solid #d8e0ea;border-radius:18px;box-shadow:0 12px 26px rgba(0,0,0,.14);padding:6px;display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.tabbar button{background:transparent;border:none;border-radius:14px;padding:8px 2px;min-height:58px;color:#5f6977;font-weight:900;font-size:11px;line-height:1.15}.tabbar button .ico{display:block;font-size:18px;margin-bottom:2px}.tabbar button.active{background:#eef2ff;color:#245fe3}
+    .login-wrap{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}.login-card{width:min(420px,100%);background:#fff;border:1px solid #d7dee8;border-radius:18px;box-shadow:0 10px 24px rgba(0,0,0,.12);padding:22px}.msg{margin-top:8px;font-size:13px;font-weight:900}.msg.ok{color:var(--green)}.msg.err{color:var(--red)}
+    @media (max-width:760px){.grid2,.toolbar,.quick,.stats{grid-template-columns:1fr}.vtr-card{grid-template-columns:1fr}.item-row{grid-template-columns:46px 1fr 110px 24px}}
+  </style>
 </head>
 <body>
-<header class="top">
-  <div class="topline">
-    <div class="logo">📋</div>
-    <div>
-      <div class="title">Checklist de Conferência</div>
-      <div class="sub">CBSLS • <span id="userTop">SD BORGES</span> • <span id="roleTop">admin</span></div>
+<div id="appToast" class="toast"></div>
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card">
+    <h1 style="margin:0">🚒 Checklist VTR</h1>
+    <p class="muted" style="margin:8px 0 14px">Versão operacional • CBSLS</p>
+    <div class="col">
+      <div><label for="loginIdFunc">Id Func</label><input id="loginIdFunc" type="text" placeholder="Digite seu Id Func"></div>
+      <div><label for="loginSenha">Senha</label><input id="loginSenha" type="password" placeholder="Digite sua senha"></div>
+      <button class="btn btn-blue" id="btnLogin">Entrar</button>
+      <div id="loginMsg" class="msg"></div>
     </div>
   </div>
-  <div class="top-actions">
-    <div class="date-mini" id="topDate">--/--/----</div>
-    <button class="logout" onclick="sair()" title="Sair">↩</button>
-  </div>
-</header>
+</div>
 
-<main class="wrap">
-  <section id="inicio" class="screen active">
-    <div class="card days-card">
-      <div class="card-title">Dias do mês</div>
-      <div class="month-tools">
-        <select id="selMes" onchange="mudarMesAno()"></select>
-        <select id="selAno" onchange="mudarMesAno()"></select>
-        <button class="btn light" style="min-height:42px;padding:10px 12px" onclick="irHoje()">Hoje</button>
+<div id="appScreen" class="hidden">
+  <div class="app">
+    <header class="hero">
+      <div class="hero-head">
+        <div class="hero-icon">📋</div>
+        <div class="hero-main"><h1 class="hero-title">CHECKLIST DE CONFERÊNCIA</h1><p class="hero-sub" id="brandInfo">CBSLS • Sistema online</p></div>
+        <button class="logout-mini" id="btnSairTopo" title="Sair" aria-label="Sair">↪</button>
       </div>
-      <div class="days-row" id="daysRow"></div>
-    </div>
+      <div class="hero-date" id="dataAtualTopo">--/--/----</div>
+    </header>
 
-    <div class="card pending-card" onclick="go('pendencias')" role="button">
-      <div class="lbl">Pendências abertas</div>
-      <div class="num" id="pendCount">0</div>
-      <small>Toque para abrir a lista de pendências</small>
-    </div>
+    <section id="tabInicio" class="section">
+      <div class="card">
+        <h2 class="title">Dias do mês</h2>
+        <div class="date-filter">
+          <select id="selDia" title="Dia"></select>
+          <select id="selMes" title="Mês"></select>
+          <select id="selAno" title="Ano"></select>
+          <button class="btn-hoje" id="btnHojeData" type="button">Hoje</button>
+        </div>
+        <div id="dayStrip" class="day-strip"></div>
+      </div>
+      <div class="section">
+        <div class="stat pending-home" id="cardPendenciasInicio"><span class="small muted">Pendências abertas</span><span class="n" id="statPendencias">0</span><span class="small muted">Toque para abrir a lista de pendências</span></div>
+      </div>
+      <div class="section">
+        <h2 class="title">Viaturas / Embarcações</h2>
+        <div id="vtrList" class="vtr-list"></div>
+      </div>
+    </section>
 
-    <div class="section-title">Viaturas / Embarcações</div>
-    <div id="vtrList"></div>
-  </section>
+    <section id="tabChecklist" class="section hidden">
+      <div class="card">
+        <h2 class="title">Checklist do dia</h2>
+        <div class="row">
+          <div style="flex:1;min-width:220px"><label for="checkVtrSelect">VTR / Embarcação</label><select id="checkVtrSelect"></select></div>
+          <div style="width:170px"><label for="checkTurno">Turno</label><select id="checkTurno"><option value="">Sem turno</option><option value="Manhã">Manhã</option><option value="Tarde">Tarde</option><option value="Noite">Noite</option></select></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <div style="flex:1;min-width:220px"><label for="servicoDia">Serviço do dia</label><input id="servicoDia" type="text" placeholder="Ex.: 22/04/2026 - 09:00HS A 09:00HS"></div>
+          <div style="flex:1;min-width:220px"><label for="cgDiaSelect">CG do dia</label><select id="cgDiaSelect"></select></div>
+        </div>
+        <div style="margin-top:10px"><label for="checkObsGeral">Observação geral</label><textarea id="checkObsGeral" placeholder="Use se houver alteração geral"></textarea></div>
+        <div id="checklistLockMsg" class="msg hidden"></div>
+        <div class="toolbar" style="margin-top:12px">
+          <button class="btn btn-blue" id="btnCarregarChecklist">Carregar itens</button>
+          <button class="btn btn-white" id="btnExpandirTodos">Expandir / Recolher todos</button>
+        </div>
+      </div>
 
-  <section id="checklist" class="screen">
-    <div class="section-title">Checklist do dia <span id="checkDate"></span></div>
-    <div id="checkArea"></div>
-    <button class="btn blue" style="width:100%;margin-top:12px" onclick="salvarChecklist()">💾 Salvar conferência</button>
-  </section>
+      <div class="progress-card section">
+        <div class="progress-head">
+          <div><div class="progress-title">Progresso geral</div><div class="progress-big" id="geralResumo">0 / 0 itens</div></div>
+          <span class="pill" id="geralPercentual">0%</span>
+        </div>
+        <div class="bar"><div id="geralBarra"></div></div>
+        <div class="quick">
+          <div class="q"><span class="small muted">Pendentes</span><strong id="qtdPendentes">0</strong></div>
+          <div class="q"><span class="small muted">Conferidos</span><strong id="qtdConferidos">0</strong></div>
+          <div class="q"><span class="small muted">Alterados</span><strong id="qtdAlterados">0</strong></div>
+        </div>
+      </div>
 
-  <section id="pendencias" class="screen">
-    <div class="section-title">Pendências abertas</div>
-    <div id="pendList" class="pend-list"></div>
-  </section>
+      <div class="toolbar section">
+        <button class="btn btn-green" id="btnMarcarTodosCompartimentos">✅ MARCAR TUDO CONFERIDO</button>
+        <button class="btn btn-white" id="btnDesmarcarTodosCompartimentos">↺ DESMARCAR TODOS</button>
+      </div>
+      <div class="toolbar section">
+        <button class="btn btn-blue" id="btnSalvarChecklist">💾 SALVAR CHECKLIST</button>
+        <button class="btn btn-white" onclick="alternarTab('Faltantes')">⚠️ VER PENDÊNCIAS</button>
+      </div>
+      <div id="compartimentosWrap" class="comp-list section"></div>
+    </section>
 
-  <section id="relatorios" class="screen">
-    <div class="section-title">Relatório mensal</div>
-    <div class="card report-card">
-      <table class="report-table" id="reportTable"></table>
-    </div>
-  </section>
+    <section id="tabFaltantes" class="section hidden">
+      <div class="card">
+        <h2 class="title">Pendências abertas</h2>
+        <div id="faltasList" class="pending-list"></div>
+      </div>
+    </section>
 
-  <section id="admin" class="screen">
-    <div class="section-title">Admin</div>
-    <div class="card" style="padding:16px">
-      <p style="margin:0 0 10px;color:var(--muted);font-weight:750">Ajustes rápidos de status por viatura.</p>
-      <div id="adminArea"></div>
-    </div>
-  </section>
-</main>
+    <section id="tabRelatorios" class="section hidden">
+      <div class="card">
+        <h2 class="title">Relatórios</h2>
+        <div class="row">
+          <div style="flex:1;min-width:220px"><label for="relVtr">VTR / Embarcação</label><select id="relVtr"></select></div>
+          <div style="width:180px"><label for="relData">Data</label><input type="date" id="relData"></div>
+        </div>
+        <div class="toolbar" style="margin-top:12px">
+          <button class="btn btn-blue" id="btnRelatorioDia">Gerar relatório</button>
+          <button class="btn btn-white" id="btnImprimir">Imprimir</button>
+        </div>
+        <div id="relatorioArea" style="margin-top:14px"></div>
+      </div>
+    </section>
 
-<nav class="tabbar">
-  <button id="tab-inicio" class="active" onclick="go('inicio')"><span class="ico">🏠</span>Início</button>
-  <button id="tab-checklist" onclick="go('checklist')"><span class="ico">☑️</span>Check</button>
-  <button id="tab-pendencias" onclick="go('pendencias')"><span class="ico">⚠️</span>Pend.</button>
-  <button id="tab-relatorios" onclick="go('relatorios')"><span class="ico">📄</span>Relat.</button>
-  <button id="tab-admin" onclick="go('admin')"><span class="ico">⚙️</span>Admin</button>
-</nav>
+    <section id="tabAdmin" class="section hidden">
+      <div id="adminArea" class="card hidden">
+        <h2 class="title">Administração</h2>
+        <div class="row">
+          <div style="flex:1;min-width:220px"><label for="adminActionSelect">Ação</label><select id="adminActionSelect"><option value="">Selecione a ação</option><option value="adicionar">Adicionar</option><option value="editar">Editar</option><option value="excluir">Excluir</option></select></div>
+          <div style="flex:1;min-width:220px"><label for="adminTypeSelect">Tipo</label><select id="adminTypeSelect"><option value="">Selecione o tipo</option><option value="vtr">VTR</option><option value="compartimento">Compartimento</option><option value="item">Item</option></select></div>
+        </div>
+        <div id="adminWizardPanel" style="margin-top:14px"></div>
+        <div class="toolbar" style="margin-top:12px">
+          <button class="btn btn-blue" id="btnAdminSalvar">Salvar</button>
+          <button class="btn btn-white" id="btnAdminLimpar">Limpar</button>
+        </div>
+        <div class="toolbar" style="margin-top:10px">
+          <button class="btn btn-white" id="btnAdminVoltar">Voltar</button>
+          <button class="btn btn-gray" id="btnAdminSair">Sair</button>
+        </div>
+      </div>
+      <div id="adminNoAccess" class="card"><span class="muted">Esta área é exibida somente para usuários com perfil <b>admin</b>.</span></div>
+    </section>
+  </div>
+
+  <nav class="tabbar">
+    <button class="tabbtn active" data-tab="Inicio"><span class="ico">🏠</span>Início</button>
+    <button class="tabbtn" data-tab="Checklist"><span class="ico">☑️</span>Check</button>
+    <button class="tabbtn" data-tab="Faltantes"><span class="ico">⚠️</span>Pend.</button>
+    <button class="tabbtn" data-tab="Relatorios"><span class="ico">📄</span>Relat.</button>
+    <button class="tabbtn" data-tab="Admin"><span class="ico">⚙️</span>Admin</button>
+  </nav>
+</div>
 
 <script>
-/* ===================== SUPABASE =====================
-   Cole sua URL e ANON KEY aqui. Se deixar vazio, funciona em modo local.
-*/
-const SUPABASE_URL = "";
-const SUPABASE_ANON_KEY = "";
-const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase)
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
+if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
+const SUPABASE_URL='https://nypebmbqcbrvbutamzrh.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_VXTVVV8BENUaKIMWjhrk2w_JRNQkEvg';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const $=(id)=>document.getElementById(id);
+const STATUS_LABEL={pendente:'Pendente',confere:'Conferido',alterado:'Alterado'};
+const state={user:null,vtrs:[],militares:[],compartimentos:[],itens:[],checklistItemsState:{},currentChecklist:null,checklistLocked:false,collapsed:{},itemOpen:{},compMarkedAll:{},expandAllState:false,adminCache:{vtrs:[],compartimentos:[],itens:[]},selectedDay:new Date().getDate(),selectedMonth:new Date().getMonth(),selectedYear:new Date().getFullYear()};
 
-/* Tabela sugerida:
-create table if not exists public.checklists_conferencia (
-  id text primary key,
-  data date not null,
-  vtr text not null,
-  usuario text,
-  fechado boolean default false,
-  itens jsonb default '{}'::jsonb,
-  pendencias jsonb default '[]'::jsonb,
-  updated_at timestamptz default now()
-);
-*/
+function hojeISO(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function agoraISO(){return new Date().toISOString();}
+function hojeBR(){const d=new Date();return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;}
+function horaBR(dt){const d=new Date(dt);return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+function isoToBR(iso){if(!iso) return ''; const [y,m,d]=String(iso).slice(0,10).split('-'); return `${d}/${m}/${y}`;}
+function escapeHtml(str=''){return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;");}
+function bind(id,event,fn){const el=$(id); if(el) el.addEventListener(event,fn);}
+function setTopoData(){const el=$('dataAtualTopo'); if(el) el.textContent=hojeBR();}
+function setLoginMsg(msg,ok=false){const el=$('loginMsg'); if(!el) return; el.textContent=msg||''; el.className='msg '+(ok?'ok':'err');}
+function showToast(msg,ok=true){const el=$('appToast'); if(!el) return; el.style.background=ok?'#1f9d60':'#d83c3c'; el.textContent=msg; el.style.display='block'; clearTimeout(window.__toastTimer); window.__toastTimer=setTimeout(()=>el.style.display='none',2600);}
+function logout(){localStorage.removeItem('checklist_user'); state.user=null; window.location.reload();}
+function preencherSelect(selectEl,items,valueKey='id',textKey='nome',placeholder='Selecione'){if(!selectEl) return; selectEl.innerHTML=`<option value="">${placeholder}</option>`+items.map(item=>`<option value="${item[valueKey]}">${escapeHtml(item[textKey]??'')}</option>`).join('');}
 
-const usuarioAtual = localStorage.getItem("check_user") || "SD BORGES";
-const roleAtual = localStorage.getItem("check_role") || "admin";
-
-const VTRS = [
-  {codigo:"ABT 0535", desc:"Auto Bomba Tanque 0535 • vtr", grupos:{
-    "Cabine":["Documento da VTR","Rádio comunicador","Lanterna","Chave de roda"],
-    "Bomba / Combate":["Mangueira 1½","Mangueira 2½","Esguicho regulável","Chave storz"],
-    "Materiais diversos":["Cones","Fita zebrada","Caixa de ferramentas"]
-  }},
-  {codigo:"AR 0426", desc:"Auto Resgate 0426 • vtr", grupos:{
-    "Cabine":["Documento da VTR","Rádio comunicador","Prancheta"],
-    "Atendimento":["Maca","Colar cervical","Oxímetro","Maleta APH"],
-    "Sinalização":["Cones","Triângulo","Lanterna"]
-  }},
-  {codigo:"ATP 1225", desc:"Auto Transporte de Pessoal • vtr", grupos:{
-    "Cabine":["Documento da VTR","Rádio comunicador","Extintor"],
-    "Segurança":["Triângulo","Macaco","Chave de roda"]
-  }},
-  {codigo:"FlexBoat 25 HP", desc:"Embarcação • 25 HP", grupos:{
-    "Casco / Motor":["Motor de popa","Tanque combustível","Remo"],
-    "Segurança":["Coletes","Cabo de reboque","Âncora"]
-  }}
-];
-
-let dataSelecionada = hojeISO();
-let mesVisivel = new Date().getMonth();
-let anoVisivel = new Date().getFullYear();
-let registros = {};
-let vtrAtual = VTRS[0].codigo;
-
-function hojeISO(){ const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
-function brDate(iso){ const [y,m,d]=iso.split("-"); return `${d}/${m}/${y}`; }
-function isoDate(y,m,d){ return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`; }
-function key(data,vtr){ return `${data}_${vtr}`; }
-
-function init(){
-  document.getElementById("userTop").textContent = usuarioAtual;
-  document.getElementById("roleTop").textContent = roleAtual;
-  montarMesAno();
-  renderAll();
-  carregarMes();
+function montarSeletoresData(){
+  const now=new Date();
+  const selDia=$('selDia'), selMes=$('selMes'), selAno=$('selAno');
+  if(!selDia||!selMes||!selAno) return;
+  const meses=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const daysInMonth=new Date(state.selectedYear,state.selectedMonth+1,0).getDate();
+  selDia.innerHTML=Array.from({length:daysInMonth},(_,i)=>`<option value="${i+1}">${String(i+1).padStart(2,'0')}</option>`).join('');
+  selMes.innerHTML=meses.map((m,i)=>`<option value="${i}">${m}</option>`).join('');
+  const start=now.getFullYear()-1, end=now.getFullYear()+1;
+  selAno.innerHTML=Array.from({length:end-start+1},(_,i)=>start+i).map(y=>`<option value="${y}">${y}</option>`).join('');
+  selDia.value=String(state.selectedDay); selMes.value=String(state.selectedMonth); selAno.value=String(state.selectedYear);
 }
-function montarMesAno(){
-  const meses=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-  selMes.innerHTML = meses.map((m,i)=>`<option value="${i}">${m}</option>`).join("");
-  const yNow=new Date().getFullYear();
-  selAno.innerHTML = Array.from({length:7},(_,i)=>yNow-3+i).map(y=>`<option value="${y}">${y}</option>`).join("");
-  selMes.value=mesVisivel; selAno.value=anoVisivel;
+function dataSelecionadaISO(){return `${state.selectedYear}-${String(state.selectedMonth+1).padStart(2,'0')}-${String(state.selectedDay).padStart(2,'0')}`;}
+function dataSelecionadaBR(){return `${String(state.selectedDay).padStart(2,'0')}/${String(state.selectedMonth+1).padStart(2,'0')}/${state.selectedYear}`;}
+function selecionarHoje(){const d=new Date(); state.selectedDay=d.getDate(); state.selectedMonth=d.getMonth(); state.selectedYear=d.getFullYear(); montarFaixaDias();}
+function aplicarSeletoresData(){
+  const d=Number($('selDia')?.value||state.selectedDay), m=Number($('selMes')?.value??state.selectedMonth), y=Number($('selAno')?.value||state.selectedYear);
+  state.selectedDay=d; state.selectedMonth=m; state.selectedYear=y; montarFaixaDias(); showToast(`Dia ${dataSelecionadaBR()} selecionado`,true);
 }
-function mudarMesAno(){ mesVisivel=+selMes.value; anoVisivel=+selAno.value; renderDias(); carregarMes(); }
-function irHoje(){ dataSelecionada=hojeISO(); const d=new Date(); mesVisivel=d.getMonth(); anoVisivel=d.getFullYear(); selMes.value=mesVisivel; selAno.value=anoVisivel; renderAll(); carregarMes(); }
-
-function renderAll(){
-  topDate.textContent = brDate(dataSelecionada);
-  checkDate.textContent = brDate(dataSelecionada);
-  renderDias(); renderInicio(); renderChecklist(); renderPendencias(); renderRelatorio(); renderAdmin();
-}
-function renderDias(){
-  const last = new Date(anoVisivel, mesVisivel+1, 0).getDate();
-  const nomes=["dom.","seg.","ter.","qua.","qui.","sex.","sáb."];
-  daysRow.innerHTML = "";
-  for(let d=1; d<=last; d++){
-    const iso=isoDate(anoVisivel,mesVisivel,d);
-    const dow=nomes[new Date(anoVisivel,mesVisivel,d).getDay()];
-    const closed = VTRS.some(v=>registros[key(iso,v.codigo)]?.fechado);
-    const btn=document.createElement("button");
-    btn.className="day-chip"+(iso===hojeISO()?" today":"")+(iso===dataSelecionada?" active":"")+(closed?" closed":"");
-    btn.innerHTML=`<span class="dow">${dow}</span><span class="num">${d}</span><span class="mes">mês</span>`;
-    btn.onclick=()=>{dataSelecionada=iso; renderAll();};
-    daysRow.appendChild(btn);
+function montarFaixaDias(){
+  const wrap=$('dayStrip'); if(!wrap) return;
+  const now=new Date(), year=state.selectedYear, month=state.selectedMonth, todayISO=hojeISO();
+  const daysInMonth=new Date(year,month+1,0).getDate(), dows=['dom.','seg.','ter.','qua.','qui.','sex.','sáb.'];
+  if(state.selectedDay>daysInMonth) state.selectedDay=daysInMonth;
+  montarSeletoresData();
+  wrap.innerHTML='';
+  for(let day=1; day<=daysInMonth; day++){
+    const date=new Date(year,month,day);
+    const iso=`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const el=document.createElement('button');
+    el.className='day-pill'+(day===state.selectedDay?' active':'')+(iso===todayISO?' today':'');
+    el.innerHTML=`<div class="dow">${dows[date.getDay()]}</div><div class="num">${day}</div><div class="tag">${iso===todayISO?'hoje':'mês'}</div>`;
+    el.addEventListener('click',()=>{state.selectedDay=day; montarFaixaDias(); showToast(`Dia ${dataSelecionadaBR()} selecionado`,true);});
+    wrap.appendChild(el);
+    if(day===state.selectedDay) setTimeout(()=>el.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'}),80);
   }
-  setTimeout(()=>{
-    const active=daysRow.querySelector(".active");
-    if(active) active.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"});
-  },60);
 }
-function renderInicio(){
-  const p=pendenciasAbertas();
-  pendCount.textContent=p.length;
-  vtrList.innerHTML = VTRS.map(v=>{
-    const r=registros[key(dataSelecionada,v.codigo)] || {};
-    const st=r.fechado ? "Fechado" : (temAlteracao(r) ? "Com alteração" : "Aberto");
-    return `<div class="card vtr-card">
-      <div class="vtr-head">
-        <div><div class="vtr-name">${v.codigo}</div><div class="vtr-desc">${v.desc}</div></div>
-        <div class="status-pill">${st}</div>
-      </div>
-      <div class="vtr-actions">
-        <button class="btn blue" onclick="abrirCheck('${v.codigo}')">Abrir checklist</button>
-        <button class="btn light" onclick="abrirRelatorioVtr('${v.codigo}')">Ver relatório</button>
-      </div>
-    </div>`;
-  }).join("");
+function setUserUI(){
+  const nome=state.user?.nome||'-';
+  if($('brandInfo')) $('brandInfo').textContent=state.user?`CBSLS • ${state.user.nome} • ${state.user.perfil}`:'CBSLS • Sistema online';
+  if($('heroUsuario')) $('heroUsuario').textContent=nome;
+  const isAdmin=state.user?.perfil==='admin';
+  if($('adminArea')) $('adminArea').classList.toggle('hidden',!isAdmin);
+  if($('adminNoAccess')) $('adminNoAccess').classList.toggle('hidden',isAdmin);
 }
-function abrirCheck(vtr){ vtrAtual=vtr; go("checklist"); renderChecklist(); }
-function abrirRelatorioVtr(vtr){ vtrAtual=vtr; go("relatorios"); renderRelatorio(); }
-
-function renderChecklist(){
-  const v = VTRS.find(x=>x.codigo===vtrAtual) || VTRS[0];
-  const r = registros[key(dataSelecionada,v.codigo)] || {itens:{},pendencias:[]};
-  let html=`<div class="card vtr-card"><div class="vtr-head"><div><div class="vtr-name">${v.codigo}</div><div class="vtr-desc">${v.desc}</div></div><div class="status-pill">${brDate(dataSelecionada)}</div></div>`;
-  Object.entries(v.grupos).forEach(([grupo,itens])=>{
-    html += `<details class="compart" open>
-      <summary>${grupo}<button class="mark-all" type="button" onclick="event.preventDefault();marcarGrupo('${v.codigo}','${grupo}')">Marcar todos C</button></summary>`;
-    itens.forEach(item=>{
-      const it = r.itens?.[item] || {};
-      html += `<div class="item ${it.status==='A'?'alterado':''}" data-item="${item}">
-        <div class="item-name">${item}</div>
-        <div class="item-opts">
-          <button class="opt ${it.status==='C'?'active c':''}" onclick="setItem('${v.codigo}','${item}','C')">C</button>
-          <button class="opt ${it.status==='A'?'active a':''}" onclick="setItem('${v.codigo}','${item}','A')">A</button>
-        </div>
-        <textarea class="obs" placeholder="Descreva a alteração / pendência" onchange="setObs('${v.codigo}','${item}',this.value)">${it.obs||""}</textarea>
-      </div>`;
-    });
-    html += `</details>`;
-  });
-  html += `<button class="btn green" style="width:100%;margin-top:12px" onclick="fecharChecklist('${v.codigo}')">✅ Fechar checklist do dia</button></div>`;
-  checkArea.innerHTML=html;
+async function login(){
+  const idFunc=$('loginIdFunc')?.value.trim(), senha=$('loginSenha')?.value.trim();
+  if(!idFunc||!senha) return setLoginMsg('Informe Id Func e senha.');
+  setLoginMsg('Entrando...',true);
+  const {data,error}=await sb.from('militares').select('*').eq('id_func',idFunc).eq('senha',senha).eq('ativo',true).maybeSingle();
+  if(error||!data) return setLoginMsg('Login inválido.');
+  state.user=data; localStorage.setItem('checklist_user',JSON.stringify(data)); $('loginScreen')?.classList.add('hidden'); $('appScreen')?.classList.remove('hidden'); setUserUI(); montarFaixaDias(); await carregarBase();
 }
-function ensureReg(vtr){
-  const k=key(dataSelecionada,vtr);
-  if(!registros[k]) registros[k]={id:k,data:dataSelecionada,vtr,usuario:usuarioAtual,fechado:false,itens:{},pendencias:[]};
-  return registros[k];
-}
-function setItem(vtr,item,status){
-  const r=ensureReg(vtr);
-  r.itens[item]=r.itens[item]||{};
-  r.itens[item].status=status;
-  if(status==="C") r.itens[item].obs="";
-  atualizarPendencias(r);
-  salvarLocal(); renderAll();
-}
-function setObs(vtr,item,obs){
-  const r=ensureReg(vtr);
-  r.itens[item]=r.itens[item]||{status:"A"};
-  r.itens[item].obs=obs;
-  atualizarPendencias(r);
-  salvarLocal();
-}
-function marcarGrupo(vtr,grupo){
-  const v=VTRS.find(x=>x.codigo===vtr);
-  const r=ensureReg(vtr);
-  (v.grupos[grupo]||[]).forEach(item=>r.itens[item]={status:"C",obs:""});
-  atualizarPendencias(r); salvarLocal(); renderAll();
-}
-function fecharChecklist(vtr){ const r=ensureReg(vtr); r.fechado=true; r.fechado_em=new Date().toISOString(); salvarChecklist(); }
-function atualizarPendencias(r){
-  r.pendencias = Object.entries(r.itens||{})
-    .filter(([_,v])=>v.status==="A")
-    .map(([item,v])=>({item,obs:v.obs||"Alterado sem observação",status:"aberta"}));
-}
-function temAlteracao(r){ return (r?.pendencias||[]).length>0; }
-
-function pendenciasAbertas(){
-  return Object.values(registros).flatMap(r=>(r.pendencias||[]).map(p=>({...p,data:r.data,vtr:r.vtr,usuario:r.usuario})))
-    .filter(p=>p.status!=="resolvida");
-}
-function renderPendencias(){
-  const p=pendenciasAbertas();
-  pendList.innerHTML = p.length ? p.map(x=>`<div class="pend" onclick="dataSelecionada='${x.data}';vtrAtual='${x.vtr}';go('checklist');renderAll();">
-    <b>${x.vtr} • ${x.item}</b>
-    <span>${brDate(x.data)} • ${x.obs}</span>
-    <span>Toque para abrir o item no checklist/admin</span>
-  </div>`).join("") : `<div class="empty">Nenhuma pendência aberta.</div>`;
-}
-
-function renderRelatorio(){
-  const last = new Date(anoVisivel, mesVisivel+1, 0).getDate();
-  let th = `<tr><th>VTR / Embarcação</th>`;
-  for(let d=1; d<=last; d++) th += `<th>${String(d).padStart(2,"0")}</th>`;
-  th += `</tr>`;
-  let rows = VTRS.map(v=>{
-    let tr=`<tr><td>${v.codigo}</td>`;
-    for(let d=1; d<=last; d++){
-      const iso=isoDate(anoVisivel,mesVisivel,d);
-      const r=registros[key(iso,v.codigo)];
-      let val="";
-      if(r?.fechado || r?.itens){
-        val = temAlteracao(r) ? `<span class="badge-a">A</span>` : (r.fechado ? `<span class="badge-c">C</span>` : "");
-      }
-      tr += `<td onclick="dataSelecionada='${iso}';vtrAtual='${v.codigo}';go('checklist');renderAll();">${val}</td>`;
-    }
-    tr+=`</tr>`;
-    return tr;
-  }).join("");
-  reportTable.innerHTML = th + rows;
-}
-function renderAdmin(){
-  adminArea.innerHTML = VTRS.map(v=>`<label style="display:flex;align-items:center;gap:10px;padding:12px;border-top:1px solid var(--line);font-weight:850">
-    <input type="checkbox" onchange="vtrAtual='${v.codigo}';fecharChecklist('${v.codigo}')" ${registros[key(dataSelecionada,v.codigo)]?.fechado?"checked":""}>
-    ${v.codigo} — marcar checklist como fechado em ${brDate(dataSelecionada)}
-  </label>`).join("");
-}
-
-function go(id){
-  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-  document.querySelectorAll(".tabbar button").forEach(b=>b.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  document.getElementById("tab-"+id).classList.add("active");
-  if(id==="relatorios") renderRelatorio();
-  if(id==="pendencias") renderPendencias();
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
-function salvarLocal(){ localStorage.setItem("check_registros", JSON.stringify(registros)); }
-async function carregarMes(){
+function restaurarLogin(){
   try{
-    registros = JSON.parse(localStorage.getItem("check_registros")||"{}");
-    if(supabase){
-      const ini=isoDate(anoVisivel,mesVisivel,1), fim=isoDate(anoVisivel,mesVisivel,new Date(anoVisivel,mesVisivel+1,0).getDate());
-      const {data,error}=await supabase.from("checklists_conferencia").select("*").gte("data",ini).lte("data",fim);
-      if(!error && data){
-        data.forEach(r=>registros[key(r.data,r.vtr)]={...r,itens:r.itens||{},pendencias:r.pendencias||[]});
-        salvarLocal();
-      }
-    }
-  }catch(e){ console.warn(e); }
-  renderAll();
+    const saved=localStorage.getItem('checklist_user'); if(!saved) return false;
+    state.user=JSON.parse(saved); if(!state.user?.id) return false;
+    $('loginScreen')?.classList.add('hidden'); $('appScreen')?.classList.remove('hidden'); setUserUI(); montarFaixaDias(); carregarBase(); return true;
+  }catch{return false;}
 }
-async function salvarChecklist(){
-  salvarLocal();
-  if(supabase){
-    const payload=Object.values(registros).filter(r=>r.data===dataSelecionada);
-    for(const r of payload){
-      await supabase.from("checklists_conferencia").upsert({
-        id:r.id,data:r.data,vtr:r.vtr,usuario:r.usuario,fechado:!!r.fechado,
-        itens:r.itens||{},pendencias:r.pendencias||[],updated_at:new Date().toISOString()
-      });
-    }
+async function carregarBase(){await Promise.all([carregarMilitares(),carregarVtrs(),carregarPendenciasAbertas(),carregarCachesAdmin()]);}
+async function carregarMilitares(){const {data,error}=await sb.from('militares').select('*').eq('ativo',true).order('nome',{ascending:true}); if(error) return console.error(error); state.militares=data||[]; preencherSelect($('cgDiaSelect'),state.militares,'id','nome','Selecione o CG do dia');}
+async function carregarVtrs(){
+  const {data,error}=await sb.from('vtrs').select('*').eq('ativo',true).order('codigo',{ascending:true}); if(error) return console.error(error);
+  state.vtrs=data||[];
+  preencherSelect($('checkVtrSelect'),state.vtrs,'id','codigo','Selecione a VTR'); preencherSelect($('relVtr'),state.vtrs,'id','codigo','Selecione a VTR');
+  if($('vtrList')) $('vtrList').innerHTML=state.vtrs.map(vtr=>{const ult=vtr.ultimo_checklist_em?`✅ Conferido em ${isoToBR(vtr.ultimo_checklist_em)}${vtr.ultimo_checklist_hora?' às '+vtr.ultimo_checklist_hora:''} • CG ${escapeHtml(vtr.ultimo_checklist_por_nome||'-')}`:'Ainda não conferido hoje'; return `<div class="vtr-card"><div><div class="vtr-title">${escapeHtml(vtr.codigo)}</div><div class="vtr-sub">${escapeHtml(vtr.nome)} • ${escapeHtml(vtr.tipo||'vtr')}</div><div class="vtr-status ${vtr.ultimo_checklist_em?'ok':'open'}">${ult}</div></div><div><button class="btn btn-blue" style="width:100%" onclick="abrirChecklistDireto('${vtr.id}')">Abrir checklist</button></div></div>`;}).join('');
+}
+async function carregarCachesAdmin(){
+  const [vtrsRes,compRes,itemRes]=await Promise.all([sb.from('vtrs').select('*').order('codigo',{ascending:true}),sb.from('compartimentos').select('*').order('nome',{ascending:true}),sb.from('itens').select('*').order('nome',{ascending:true})]);
+  state.adminCache.vtrs=vtrsRes.data||[]; state.adminCache.compartimentos=compRes.data||[]; state.adminCache.itens=itemRes.data||[];
+}
+async function carregarPendenciasAbertas(){
+  if(!state.adminCache.compartimentos.length||!state.adminCache.itens.length) await carregarCachesAdmin();
+  const {data,error}=await sb.from('checklist_itens').select(`id,item_id,status_item,observacao,created_at,item:item_id (id,nome,compartimento_id,vtr_id),checklist:checklist_id (id,vtr_id,data_checklist,salvo_por_nome)`).order('created_at',{ascending:false});
+  if(error) return console.error(error);
+  const latestByItem=new Map();
+  for(const row of (data||[])){const itemId=row.item_id||row.item?.id; if(!itemId||latestByItem.has(String(itemId))) continue; latestByItem.set(String(itemId),row);}
+  const pendencias=[]; for(const row of latestByItem.values()) if(row?.status_item==='alterado') pendencias.push(row);
+  if($('statPendencias')) $('statPendencias').textContent=String(pendencias.length);
+  const compMap=Object.fromEntries((state.adminCache.compartimentos||[]).map(c=>[String(c.id),c])); const vtrMap=Object.fromEntries((state.vtrs||[]).map(v=>[String(v.id),v]));
+  if($('faltasList')){
+    if(!pendencias.length) $('faltasList').innerHTML=`<div class="card">Nenhuma pendência aberta.</div>`;
+    else $('faltasList').innerHTML=pendencias.map(row=>{const item=row.item||{}, checklist=row.checklist||{}, comp=compMap[String(item.compartimento_id)]||null, vtr=vtrMap[String(checklist.vtr_id||item.vtr_id)]||null; return `<div class="pending-card" onclick="abrirPendenciaNoAdmin('${String(checklist.vtr_id||item.vtr_id||'')}','${String(item.compartimento_id||'')}','${String(item.id||row.item_id||'')}')"><div style="font-weight:900">${escapeHtml(item.nome||'Item')}</div><div class="small muted" style="margin-top:6px">VTR: <b>${escapeHtml(vtr?.codigo||'-')}</b></div><div class="small muted">Compartimento: <b>${escapeHtml(comp?.nome||'-')}</b></div><div class="small muted">Status: <b>Alterado</b></div><div class="small muted">Obs: ${escapeHtml(row.observacao||'Sem observação')}</div><div class="small muted">Desde: <b>${escapeHtml(checklist.data_checklist||'-')}</b></div><div class="small muted">Registrado por: <b>${escapeHtml(checklist.salvo_por_nome||'-')}</b></div><div class="small" style="margin-top:10px;color:var(--blue);font-weight:900">Toque para abrir no Admin → Editar Item</div></div>`;}).join('');
   }
-  alert("Checklist salvo.");
-  renderAll();
 }
-function sair(){
-  localStorage.removeItem("check_user");
-  localStorage.removeItem("check_role");
-  alert("Sessão encerrada.");
+async function abrirChecklistDireto(vtrId){alternarTab('Checklist'); if($('checkVtrSelect')) $('checkVtrSelect').value=String(vtrId); await carregarItensChecklist(); window.scrollTo({top:0,behavior:'smooth'});}
+async function buscarChecklistExistente(vtrId,turno){const {data,error}=await sb.from('checklists').select('*').eq('vtr_id',vtrId).eq('data_checklist',hojeISO()).order('created_at',{ascending:false}).limit(1); if(error){console.error(error); return null;} let rows=data||[]; if(turno) rows=rows.filter(r=>(r.turno||'')===turno); return rows[0]||null;}
+async function carregarCompartimentosDaVtr(vtrId){const {data,error}=await sb.from('compartimentos').select('*').eq('vtr_id',vtrId).eq('ativo',true).order('ordem',{ascending:true}); if(error){console.error(error); return [];} return data||[];}
+async function carregarItensDaVtr(vtrId){const {data,error}=await sb.from('itens').select('*').eq('vtr_id',vtrId).eq('ativo',true).order('ordem',{ascending:true}); if(error){console.error(error); return [];} return data||[];}
+async function carregarChecklistExistenteItens(checklistId){const {data,error}=await sb.from('checklist_itens').select('*').eq('checklist_id',checklistId); if(error){console.error(error); return [];} return data||[];}
+function setChecklistLock(msg,ok=false){const el=$('checklistLockMsg'); if(!el) return; el.textContent=msg||''; el.className='msg '+(ok?'ok':'err')+(msg?'':' hidden'); if(!msg) el.classList.add('hidden'); else el.classList.remove('hidden');}
+function toggleChecklistEditing(enabled){['checkObsGeral','servicoDia','cgDiaSelect','btnSalvarChecklist','btnSalvarTopo','btnMarcarTodosCompartimentos','btnDesmarcarTodosCompartimentos'].forEach(id=>{const el=$(id); if(el) el.disabled=!enabled;});}
+async function carregarItensChecklist(){
+  const vtrId=$('checkVtrSelect')?.value, turno=$('checkTurno')?.value||''; if(!vtrId) return alert('Selecione uma VTR.');
+  state.compartimentos=await carregarCompartimentosDaVtr(vtrId); state.itens=await carregarItensDaVtr(vtrId); state.checklistItemsState={}; state.itemOpen={}; state.compMarkedAll={}; state.expandAllState=false; state.currentChecklist=await buscarChecklistExistente(vtrId,turno); state.checklistLocked=false;
+  state.compartimentos.forEach(comp=>{if(typeof state.collapsed[comp.id]==='undefined') state.collapsed[comp.id]=true;});
+  for(const item of state.itens) state.checklistItemsState[item.id]={status:'pendente',quantidade_encontrada:item.quantidade_padrao,observacao:''};
+  if(state.currentChecklist){
+    if($('checkObsGeral')) $('checkObsGeral').value=state.currentChecklist.observacao_geral||''; if($('servicoDia')) $('servicoDia').value=state.currentChecklist.servico_dia||''; if($('cgDiaSelect')) $('cgDiaSelect').value=state.currentChecklist.cg_dia_id||'';
+    const rows=await carregarChecklistExistenteItens(state.currentChecklist.id);
+    rows.forEach(r=>{if(state.checklistItemsState[r.item_id]) state.checklistItemsState[r.item_id]={status:r.status_item||'pendente',quantidade_encontrada:r.quantidade_encontrada,observacao:r.observacao||''};});
+    state.checklistLocked=true; setChecklistLock(`Checklist já salvo por ${state.currentChecklist.salvo_por_nome||'-'} às ${state.currentChecklist.salvo_em?horaBR(state.currentChecklist.salvo_em):'--:--'}. ${state.user?.perfil==='admin'?'Somente admin pode reabrir.':'Usuário comum só pode visualizar.'}`,false); toggleChecklistEditing(false);
+  } else {
+    if($('checkObsGeral')) $('checkObsGeral').value=''; if($('servicoDia')) $('servicoDia').value=`${hojeBR()} - 09:00HS A 09:00HS`; if($('cgDiaSelect')) $('cgDiaSelect').value=''; state.checklistLocked=false; state.currentChecklist=null; setChecklistLock('',true); toggleChecklistEditing(true);
+  }
+  if(state.compartimentos[0]) state.collapsed[state.compartimentos[0].id]=false; renderChecklist();
 }
-init();
+function getItensCompartimento(compId){return state.itens.filter(i=>i.compartimento_id===compId);}
+function getOverallProgress(){const itens=state.itens||[]; let pendentes=0,conferidos=0,alterados=0; for(const item of itens){const st=state.checklistItemsState[item.id]?.status||'pendente'; if(st==='pendente') pendentes++; else if(st==='confere') conferidos++; else alterados++;} const total=itens.length, feitos=total-pendentes, percentual=total?Math.round((feitos/total)*100):0; return {total,pendentes,conferidos,alterados,feitos,percentual};}
+function getCompStatus(compId){const itens=getItensCompartimento(compId); if(!itens.length) return {kind:'open',text:'PENDENTE',cardClass:''}; const states=itens.map(i=>state.checklistItemsState[i.id]?.status||'pendente'); const hasAlterado=states.some(s=>s==='alterado'), allConfere=states.every(s=>s==='confere'), hasAnyTouched=states.some(s=>s!=='pendente'); if(hasAlterado) return {kind:'partial',text:'ALTERADO',cardClass:'partial'}; if(allConfere||state.compMarkedAll[compId]) return {kind:'ok',text:'CONFERIDO',cardClass:'done'}; if(hasAnyTouched) return {kind:'partial',text:'EM ANDAMENTO',cardClass:'partial'}; return {kind:'open',text:'PENDENTE',cardClass:''};}
+function renderChecklist(){
+  const wrap=$('compartimentosWrap'), geral=getOverallProgress(); if($('geralResumo')) $('geralResumo').textContent=`${geral.feitos} / ${geral.total} itens`; if($('geralPercentual')) $('geralPercentual').textContent=`${geral.percentual}%`; if($('geralBarra')) $('geralBarra').style.width=`${geral.percentual}%`; if($('qtdPendentes')) $('qtdPendentes').textContent=String(geral.pendentes); if($('qtdConferidos')) $('qtdConferidos').textContent=String(geral.conferidos); if($('qtdAlterados')) $('qtdAlterados').textContent=String(geral.alterados);
+  if(!wrap) return; if(!state.compartimentos.length){wrap.innerHTML=`<div class="card">Nenhum compartimento cadastrado para esta VTR.</div>`; return;}
+  wrap.innerHTML=state.compartimentos.map((comp,idx)=>{const itens=getItensCompartimento(comp.id), collapsed=!!state.collapsed[comp.id], compStatus=getCompStatus(comp.id), feitos=itens.filter(i=>(state.checklistItemsState[i.id]?.status||'pendente')!=='pendente').length; return `<div class="comp-card ${compStatus.cardClass||''}"><div class="comp-head" onclick="toggleComp('${comp.id}')"><div class="comp-num">${idx+1}</div><div><div class="comp-name">${escapeHtml(comp.nome)}</div><div class="meta"><span class="pill">${itens.length} itens</span><span class="pill">${feitos}/${itens.length} feitos</span><span class="status ${compStatus.kind}">${escapeHtml(compStatus.text)}</span></div></div><button class="arrow" type="button">${collapsed?'⌄':'⌃'}</button></div><div class="comp-body ${collapsed?'':'open'}"><div class="row" style="justify-content:space-between;margin-bottom:10px"><div class="small" style="font-weight:900;color:#445;text-transform:uppercase">Itens do compartimento</div><button class="btn btn-green btn-sm" type="button" onclick="event.stopPropagation();marcarTodosCompartimento('${comp.id}')">✅ Marcar todos conferido</button></div>${itens.length?`<div class="item-list">${itens.map((item,itemIdx)=>{const st=state.checklistItemsState[item.id]||{}, detailOpen=!!state.itemOpen[item.id], stClass=st.status==='confere'?'ok':(st.status==='alterado'?'partial':'open'); return `<div><div class="item-row"><div>${idx+1}.${itemIdx+1}</div><div>${escapeHtml(item.nome)}</div><div class="status ${stClass}">${escapeHtml(STATUS_LABEL[st.status]||'Pendente')}</div><div style="font-size:24px;color:#7a8595;cursor:pointer" onclick="toggleItem('${item.id}')">${detailOpen?'⌃':'›'}</div></div><div class="item-detail ${detailOpen?'open':''}"><div class="mini-actions"><button class="btn ${st.status==='confere'?'btn-green':'btn-white'} btn-sm" type="button" onclick="setItemStatus('${item.id}','confere')">✅ Conferido</button><button class="btn ${st.status==='alterado'?'btn-orange':'btn-white'} btn-sm" type="button" onclick="setItemStatus('${item.id}','alterado')">⚠️ Alterado</button></div><div class="row"><div style="flex:1;min-width:120px"><label>Qtd encontrada</label><input type="number" step="0.01" value="${st.quantidade_encontrada??''}" onchange="setItemQuantidade('${item.id}', this.value)" ${state.checklistLocked?'disabled':''}></div><div style="flex:1;min-width:120px"><label>Qtd padrão</label><input type="text" value="${escapeHtml(item.quantidade_padrao??'')}" disabled></div></div>${st.status==='alterado'?`<div style="margin-top:10px"><label>Observação</label><input type="text" value="${escapeHtml(st.observacao||'')}" onchange="setItemObservacao('${item.id}', this.value)" placeholder="Descreva a alteração encontrada" ${state.checklistLocked?'disabled':''}></div>`:''}</div></div>`;}).join('')}</div>`:`<div class="muted">Sem itens neste compartimento.</div>`}</div></div>`;}).join('');
+}
+function setItemStatus(itemId,status){if(state.checklistLocked) return; if(!state.checklistItemsState[itemId]) return; state.checklistItemsState[itemId].status=status; if(status!=='alterado') state.checklistItemsState[itemId].observacao=''; renderChecklist();}
+function setItemQuantidade(itemId,valor){if(state.checklistLocked) return; if(!state.checklistItemsState[itemId]) return; state.checklistItemsState[itemId].quantidade_encontrada=valor===''?null:Number(valor);}
+function setItemObservacao(itemId,valor){if(state.checklistLocked) return; if(!state.checklistItemsState[itemId]) return; state.checklistItemsState[itemId].observacao=valor||'';}
+function toggleItem(itemId){state.itemOpen[itemId]=!state.itemOpen[itemId]; renderChecklist();}
+function marcarTodosCompartimento(compId){if(state.checklistLocked) return; getItensCompartimento(compId).forEach(item=>{if(!state.checklistItemsState[item.id]) return; state.checklistItemsState[item.id].status='confere'; state.checklistItemsState[item.id].observacao='';}); state.compMarkedAll[compId]=true; renderChecklist();}
+function marcarTodosOsCompartimentos(){if(state.checklistLocked) return; state.compartimentos.forEach(comp=>{getItensCompartimento(comp.id).forEach(item=>{if(!state.checklistItemsState[item.id]) return; state.checklistItemsState[item.id].status='confere'; state.checklistItemsState[item.id].observacao='';}); state.compMarkedAll[comp.id]=true;}); renderChecklist();}
+function desmarcarTodosOsCompartimentos(){if(state.checklistLocked) return; state.compartimentos.forEach(comp=>{getItensCompartimento(comp.id).forEach(item=>{if(!state.checklistItemsState[item.id]) return; state.checklistItemsState[item.id].status='pendente'; state.checklistItemsState[item.id].observacao='';}); state.compMarkedAll[comp.id]=false;}); renderChecklist();}
+function toggleComp(compId){state.collapsed[compId]=!state.collapsed[compId]; renderChecklist();}
+function expandirOuRecolherTodos(){state.expandAllState=!state.expandAllState; state.compartimentos.forEach(comp=>state.collapsed[comp.id]=!state.expandAllState); renderChecklist();}
+async function salvarChecklist(){
+  const vtrId=$('checkVtrSelect')?.value, turno=$('checkTurno')?.value||null, observacaoGeral=$('checkObsGeral')?.value.trim()||'', servicoDia=$('servicoDia')?.value.trim()||'', cgDiaId=$('cgDiaSelect')?.value||null, cgDiaNome=state.militares.find(m=>String(m.id)===String(cgDiaId))?.nome||null;
+  if(!vtrId) return alert('Selecione uma VTR.'); if(!state.user?.id) return alert('Usuário não identificado.'); if(state.checklistLocked) return alert('Checklist bloqueado.');
+  const possuiPendentes=state.itens.some(item=>(state.checklistItemsState[item.id]?.status||'pendente')==='pendente'); if(possuiPendentes){showToast('Há itens pendentes. Marque todos os itens antes de salvar.',false); return;}
+  let checklistId=state.currentChecklist?.id||null;
+  if(!checklistId){
+    const {data:inserted,error:insertErr}=await sb.from('checklists').insert({vtr_id:vtrId,militar_id:state.user.id,data_checklist:hojeISO(),turno,observacao_geral:observacaoGeral,status:'finalizado',servico_dia:servicoDia,cg_dia_id:cgDiaId,cg_dia_nome:cgDiaNome,salvo_por_nome:state.user.nome||null,salvo_em:agoraISO()}).select().single();
+    if(insertErr){console.error(insertErr); showToast('Erro ao criar checklist.',false); return;}
+    checklistId=inserted.id; state.currentChecklist=inserted;
+  } else {
+    const {error:updErr}=await sb.from('checklists').update({observacao_geral:observacaoGeral,turno,status:'finalizado',servico_dia:servicoDia,cg_dia_id:cgDiaId,cg_dia_nome:cgDiaNome,salvo_por_nome:state.user.nome||null,salvo_em:agoraISO(),militar_id:state.user.id}).eq('id',checklistId);
+    if(updErr){console.error(updErr); showToast('Erro ao atualizar checklist.',false); return;}
+  }
+  const itensPayload=state.itens.map(item=>({checklist_id:checklistId,item_id:item.id,status_item:state.checklistItemsState[item.id]?.status||'pendente',quantidade_encontrada:state.checklistItemsState[item.id]?.quantidade_encontrada,observacao:state.checklistItemsState[item.id]?.status==='alterado'?(state.checklistItemsState[item.id]?.observacao||null):null}));
+  const {error:itensError}=await sb.from('checklist_itens').upsert(itensPayload,{onConflict:'checklist_id,item_id'});
+  if(itensError){console.error(itensError); showToast('Erro ao salvar itens do checklist.',false); return;}
+  const hora=horaBR(new Date().toISOString());
+  const {error:vtrUpdErr}=await sb.from('vtrs').update({ultimo_checklist_em:hojeISO(),ultimo_checklist_por_nome:cgDiaNome||state.user.nome||null,ultimo_checklist_hora:hora}).eq('id',vtrId);
+  if(vtrUpdErr){console.error(vtrUpdErr); showToast('Checklist salvo, mas falhou ao atualizar status da VTR.',false); return;}
+  showToast('Checklist salvo com sucesso.',true); state.checklistLocked=true; toggleChecklistEditing(false); await carregarVtrs(); await carregarPendenciasAbertas();
+}
+async function abrirPendenciaNoAdmin(vtrId,compartimentoId,itemId){
+  if(state.user?.perfil!=='admin'){showToast('Somente admin pode abrir a correção no Admin.',false); return;}
+  if($('adminActionSelect')) $('adminActionSelect').value='editar'; if($('adminTypeSelect')) $('adminTypeSelect').value='item';
+  await carregarCachesAdmin(); alternarTab('Admin'); renderAdminWizard();
+  requestAnimationFrame(()=>{if($('wizItemVtr')) $('wizItemVtr').value=String(vtrId||''); preencherWizardItemCompartimentos(); if($('wizItemComp')) $('wizItemComp').value=String(compartimentoId||''); preencherWizardItensPorCompartimento(); if($('wizItemSelect')) $('wizItemSelect').value=String(itemId||''); preencherWizardItem();});
+}
+function alternarTab(tabName){['Inicio','Checklist','Faltantes','Relatorios','Admin'].forEach(n=>document.getElementById('tab'+n)?.classList.add('hidden')); document.querySelectorAll('.tabbtn').forEach(btn=>btn.classList.remove('active')); document.getElementById('tab'+tabName)?.classList.remove('hidden'); document.querySelector(`.tabbtn[data-tab="${tabName}"]`)?.classList.add('active'); if(tabName==='Faltantes') carregarPendenciasAbertas(); if(tabName==='Relatorios'&&$('relData')) $('relData').value=hojeISO(); if(tabName==='Admin') renderAdminWizard();}
+function renderAdminWizard(){
+  const panel=$('adminWizardPanel'); if(!panel) return; const action=$('adminActionSelect')?.value||'', type=$('adminTypeSelect')?.value||''; if(!action||!type){panel.innerHTML=`<div class="muted">Selecione ação e tipo para continuar.</div>`; return;}
+  if(type==='vtr'){panel.innerHTML=`${action!=='adicionar'?`<div><label for="wizVtrSelect">Selecionar VTR</label><select id="wizVtrSelect"></select></div>`:''}<div class="col" style="margin-top:10px"><div><label for="wizVtrCodigo">Código da VTR</label><input id="wizVtrCodigo" type="text"></div><div><label for="wizVtrNome">Nome da VTR</label><input id="wizVtrNome" type="text"></div><div><label for="wizVtrTipo">Tipo</label><input id="wizVtrTipo" type="text"></div><div><label for="wizVtrAtivo">Ativa</label><select id="wizVtrAtivo"><option value="true">Sim</option><option value="false">Não</option></select></div></div>`; if(action!=='adicionar'){preencherSelect($('wizVtrSelect'),state.adminCache.vtrs,'id','codigo','Selecione a VTR'); bind('wizVtrSelect','change',preencherWizardVtr);}}
+  if(type==='compartimento'){panel.innerHTML=`<div class="col"><div><label for="wizCompVtr">VTR</label><select id="wizCompVtr"></select></div>${action!=='adicionar'?`<div><label for="wizCompSelect">Selecionar compartimento</label><select id="wizCompSelect"></select></div>`:''}<div><label for="wizCompNome">Nome do compartimento</label><input id="wizCompNome" type="text"></div><div><label for="wizCompOrdem">Ordem</label><input id="wizCompOrdem" type="number"></div><div><label for="wizCompAtivo">Ativo</label><select id="wizCompAtivo"><option value="true">Sim</option><option value="false">Não</option></select></div></div>`; preencherSelect($('wizCompVtr'),state.adminCache.vtrs,'id','codigo','Selecione a VTR'); if(action!=='adicionar'){bind('wizCompVtr','change',preencherWizardCompartimentosPorVtr); bind('wizCompSelect','change',preencherWizardCompartimento);}}
+  if(type==='item'){panel.innerHTML=`<div class="col"><div><label for="wizItemVtr">VTR</label><select id="wizItemVtr"></select></div><div><label for="wizItemComp">Compartimento</label><select id="wizItemComp"></select></div>${action!=='adicionar'?`<div><label for="wizItemSelect">Selecionar item</label><select id="wizItemSelect"></select></div>`:''}<div><label for="wizItemNome">Nome do item</label><input id="wizItemNome" type="text"></div><div><label for="wizItemQtd">Qtd padrão</label><input id="wizItemQtd" type="number" step="0.01"></div><div><label for="wizItemOrdem">Ordem</label><input id="wizItemOrdem" type="number"></div><div><label for="wizItemObs">Observação padrão</label><textarea id="wizItemObs"></textarea></div><div><label for="wizItemAtivo">Ativo</label><select id="wizItemAtivo"><option value="true">Sim</option><option value="false">Não</option></select></div></div>`; preencherSelect($('wizItemVtr'),state.adminCache.vtrs,'id','codigo','Selecione a VTR'); bind('wizItemVtr','change',preencherWizardItemCompartimentos); bind('wizItemComp','change',preencherWizardItensPorCompartimento); if(action!=='adicionar') bind('wizItemSelect','change',preencherWizardItem);}
+}
+function preencherWizardVtr(){const id=$('wizVtrSelect')?.value, vtr=state.adminCache.vtrs.find(v=>String(v.id)===String(id)); if(!vtr) return; $('wizVtrCodigo').value=vtr.codigo||''; $('wizVtrNome').value=vtr.nome||''; $('wizVtrTipo').value=vtr.tipo||''; $('wizVtrAtivo').value=String(vtr.ativo??true);}
+function preencherWizardCompartimentosPorVtr(){const vtrId=$('wizCompVtr')?.value, list=state.adminCache.compartimentos.filter(c=>String(c.vtr_id)===String(vtrId)); preencherSelect($('wizCompSelect'),list,'id','nome','Selecione o compartimento');}
+function preencherWizardCompartimento(){const id=$('wizCompSelect')?.value, comp=state.adminCache.compartimentos.find(c=>String(c.id)===String(id)); if(!comp) return; $('wizCompNome').value=comp.nome||''; $('wizCompOrdem').value=comp.ordem??''; $('wizCompAtivo').value=String(comp.ativo??true);}
+function preencherWizardItemCompartimentos(){const vtrId=$('wizItemVtr')?.value, comps=state.adminCache.compartimentos.filter(c=>String(c.vtr_id)===String(vtrId)); preencherSelect($('wizItemComp'),comps,'id','nome','Selecione o compartimento'); if($('wizItemSelect')) $('wizItemSelect').innerHTML='<option value="">Selecione o item</option>';}
+function preencherWizardItensPorCompartimento(){if(($('adminActionSelect')?.value||'')==='adicionar') return; const compId=$('wizItemComp')?.value, items=state.adminCache.itens.filter(i=>String(i.compartimento_id)===String(compId)); preencherSelect($('wizItemSelect'),items,'id','nome','Selecione o item');}
+function preencherWizardItem(){const id=$('wizItemSelect')?.value, item=state.adminCache.itens.find(i=>String(i.id)===String(id)); if(!item) return; $('wizItemNome').value=item.nome||''; $('wizItemQtd').value=item.quantidade_padrao??''; $('wizItemOrdem').value=item.ordem??''; $('wizItemObs').value=item.observacao_padrao||''; $('wizItemAtivo').value=String(item.ativo??true);}
+async function salvarAdminWizard(){
+  const action=$('adminActionSelect')?.value||'', type=$('adminTypeSelect')?.value||''; if(!action||!type) return alert('Selecione ação e tipo.');
+  if(type==='vtr'){
+    if(action==='adicionar'){const {error}=await sb.from('vtrs').insert({codigo:$('wizVtrCodigo').value.trim(),nome:$('wizVtrNome').value.trim(),tipo:$('wizVtrTipo').value.trim()||null,ativo:$('wizVtrAtivo').value==='true'}); if(error) return console.error(error),showToast('Erro ao adicionar VTR.',false); showToast('VTR adicionada com sucesso.',true);}
+    else if(action==='editar'){const {error}=await sb.from('vtrs').update({codigo:$('wizVtrCodigo').value.trim(),nome:$('wizVtrNome').value.trim(),tipo:$('wizVtrTipo').value.trim()||null,ativo:$('wizVtrAtivo').value==='true'}).eq('id',$('wizVtrSelect')?.value); if(error) return console.error(error),showToast('Erro ao editar VTR.',false); showToast('VTR editada com sucesso.',true);}
+    else if(action==='excluir'){if(!confirm('Excluir VTR definitivamente do banco?')) return; const {error}=await sb.from('vtrs').delete().eq('id',$('wizVtrSelect')?.value); if(error) return console.error(error),showToast('Erro ao excluir VTR.',false); showToast('VTR excluída com sucesso.',true);}
+  }
+  if(type==='compartimento'){
+    if(action==='adicionar'){const {error}=await sb.from('compartimentos').insert({vtr_id:$('wizCompVtr').value,nome:$('wizCompNome').value.trim(),ordem:$('wizCompOrdem').value===''?0:Number($('wizCompOrdem').value),ativo:$('wizCompAtivo').value==='true'}); if(error) return console.error(error),showToast('Erro ao adicionar compartimento.',false); showToast('Compartimento adicionado com sucesso.',true);}
+    else if(action==='editar'){const {error}=await sb.from('compartimentos').update({nome:$('wizCompNome').value.trim(),ordem:$('wizCompOrdem').value===''?null:Number($('wizCompOrdem').value),ativo:$('wizCompAtivo').value==='true'}).eq('id',$('wizCompSelect')?.value); if(error) return console.error(error),showToast('Erro ao editar compartimento.',false); showToast('Compartimento editado com sucesso.',true);}
+    else if(action==='excluir'){if(!confirm('Excluir compartimento definitivamente do banco?')) return; const {error}=await sb.from('compartimentos').delete().eq('id',$('wizCompSelect')?.value); if(error) return console.error(error),showToast('Erro ao excluir compartimento.',false); showToast('Compartimento excluído com sucesso.',true);}
+  }
+  if(type==='item'){
+    if(action==='adicionar'){const {error}=await sb.from('itens').insert({vtr_id:$('wizItemVtr').value,compartimento_id:$('wizItemComp').value,nome:$('wizItemNome').value.trim(),quantidade_padrao:$('wizItemQtd').value===''?1:Number($('wizItemQtd').value),ordem:$('wizItemOrdem').value===''?0:Number($('wizItemOrdem').value),observacao_padrao:$('wizItemObs').value.trim()||null,ativo:$('wizItemAtivo').value==='true'}); if(error) return console.error(error),showToast('Erro ao adicionar item.',false); showToast('Item adicionado com sucesso.',true);}
+    else if(action==='editar'){const {error}=await sb.from('itens').update({nome:$('wizItemNome').value.trim(),quantidade_padrao:$('wizItemQtd').value===''?null:Number($('wizItemQtd').value),ordem:$('wizItemOrdem').value===''?null:Number($('wizItemOrdem').value),observacao_padrao:$('wizItemObs').value.trim()||null,ativo:$('wizItemAtivo').value==='true'}).eq('id',$('wizItemSelect')?.value); if(error) return console.error(error),showToast('Erro ao editar item.',false); showToast('Item editado com sucesso.',true);}
+    else if(action==='excluir'){if(!confirm('Excluir item definitivamente do banco?')) return; const {error}=await sb.from('itens').delete().eq('id',$('wizItemSelect')?.value); if(error) return console.error(error),showToast('Erro ao excluir item.',false); showToast('Item excluído com sucesso.',true);}
+  }
+  await carregarCachesAdmin(); await carregarVtrs(); renderAdminWizard();
+}
+function limparAdminWizard(){if($('adminWizardPanel')) $('adminWizardPanel').querySelectorAll('input, textarea').forEach(el=>el.value=''); if($('adminWizardPanel')) $('adminWizardPanel').querySelectorAll('select').forEach((el,idx)=>{if(idx>1) el.value='';});}
+function voltarAdminWizard(){if($('adminActionSelect')) $('adminActionSelect').value=''; if($('adminTypeSelect')) $('adminTypeSelect').value=''; renderAdminWizard();}
+async function gerarRelatorioDia(){
+  const vtrId=$('relVtr')?.value, data=$('relData')?.value||hojeISO(); if(!vtrId) return alert('Selecione uma VTR.');
+  const vtr=state.vtrs.find(v=>String(v.id)===String(vtrId));
+  const {data:checklist,error:errChecklist}=await sb.from('checklists').select('*').eq('vtr_id',vtrId).eq('data_checklist',data).order('created_at',{ascending:false}).limit(1).maybeSingle();
+  if(errChecklist||!checklist){if($('relatorioArea')) $('relatorioArea').innerHTML=`<div class="card">Nenhum checklist encontrado para a data informada.</div>`; return;}
+  const {data:itensRel,error:errItens}=await sb.from('checklist_itens').select('*, item:item_id (nome)').eq('checklist_id',checklist.id);
+  if(errItens){console.error(errItens); if($('relatorioArea')) $('relatorioArea').innerHTML=`<div class="card">Erro ao gerar relatório.</div>`; return;}
+  if($('relatorioArea')) $('relatorioArea').innerHTML=`<div class="card"><h3 style="margin-top:0">Relatório diário</h3><div class="small muted">VTR: <b>${escapeHtml(vtr?.codigo||'-')}</b></div><div class="small muted">Data: <b>${escapeHtml(data)}</b></div><div class="small muted">Serviço do dia: <b>${escapeHtml(checklist.servico_dia||'-')}</b></div><div class="small muted">CG do dia: <b>${escapeHtml(checklist.cg_dia_nome||'-')}</b></div><div class="small muted">Salvo por: <b>${escapeHtml(checklist.salvo_por_nome||'-')}</b></div><div class="small muted">Hora do salvamento: <b>${checklist.salvo_em?horaBR(checklist.salvo_em):'--:--'}</b></div><div style="margin-top:14px;display:grid;gap:10px">${(itensRel||[]).map(row=>`<div style="border:1px solid #dde5ee;border-radius:12px;padding:10px;background:#fafcfe"><div style="font-weight:900">${escapeHtml(row.item?.nome||'Item')}</div><div class="small muted">Status: <b>${escapeHtml(STATUS_LABEL[row.status_item]||row.status_item)}</b></div><div class="small muted">Qtd encontrada: <b>${escapeHtml(row.quantidade_encontrada??'')}</b></div><div class="small muted">Obs: ${escapeHtml(row.observacao||'Sem observação')}</div></div>`).join('')}</div></div>`;
+}
+function imprimirRelatorio(){window.print();}
+
+document.querySelectorAll('.tabbtn').forEach(btn=>btn.addEventListener('click',()=>alternarTab(btn.dataset.tab)));
+bind('btnLogin','click',login); bind('cardPendenciasInicio','click',()=>alternarTab('Faltantes')); bind('selDia','change',aplicarSeletoresData); bind('selMes','change',aplicarSeletoresData); bind('selAno','change',aplicarSeletoresData); bind('btnHojeData','click',selecionarHoje); bind('btnCarregarChecklist','click',carregarItensChecklist); bind('btnSalvarChecklist','click',salvarChecklist); bind('btnSalvarTopo','click',salvarChecklist); bind('btnSairTopo','click',logout); bind('btnExpandirTodos','click',expandirOuRecolherTodos); bind('btnMarcarTodosCompartimentos','click',marcarTodosOsCompartimentos); bind('btnDesmarcarTodosCompartimentos','click',desmarcarTodosOsCompartimentos); bind('btnRelatorioDia','click',gerarRelatorioDia); bind('btnImprimir','click',imprimirRelatorio); bind('btnAdminSalvar','click',salvarAdminWizard); bind('btnAdminLimpar','click',limparAdminWizard); bind('btnAdminVoltar','click',voltarAdminWizard); bind('btnAdminSair','click',logout); bind('adminActionSelect','change',async()=>{await carregarCachesAdmin(); renderAdminWizard();}); bind('adminTypeSelect','change',async()=>{await carregarCachesAdmin(); renderAdminWizard();});
+
+if($('relData')) $('relData').value=hojeISO(); setTopoData();
+window.alternarTab=alternarTab; window.abrirChecklistDireto=abrirChecklistDireto; window.toggleComp=toggleComp; window.toggleItem=toggleItem; window.setItemStatus=setItemStatus; window.setItemQuantidade=setItemQuantidade; window.setItemObservacao=setItemObservacao; window.marcarTodosCompartimento=marcarTodosCompartimento; window.abrirPendenciaNoAdmin=abrirPendenciaNoAdmin;
+restaurarLogin();
 </script>
 </body>
 </html>
