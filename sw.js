@@ -1,4 +1,4 @@
-const CACHE_NAME = 'checklist-cbsls-v25';
+const CACHE_NAME = 'checklist-cbsls-v26';
 
 self.addEventListener('install', event => {
   self.skipWaiting();
