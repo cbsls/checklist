@@ -57,6 +57,19 @@
     .green{color:var(--green)} .green .dot{background:var(--green)}
     .gray{color:var(--gray)} .gray .dot{border:2px solid var(--gray);background:transparent}
     .red{color:var(--red)} .red .dot{background:var(--red)}
+    .amber{color:#b26b00} .amber .dot{background:#f5a524}
+    .progress-card{margin-top:12px;background:linear-gradient(180deg,#ffffff,#f8fbff);border:1px solid #d8e4ff}
+    .progress-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+    .progress-title{font-size:14px;font-weight:900;color:#29426b;text-transform:uppercase}
+    .progress-sub{font-size:22px;font-weight:900;color:#1f2937}
+    .progress-bar{height:14px;background:#e8edf4;border-radius:999px;overflow:hidden;border:1px solid #d3dae5}
+    .progress-fill{height:100%;background:linear-gradient(90deg,#2d6cdf,#39a0ff);border-radius:999px;transition:width .18s ease}
+    .comp-card.partial{border-color:#f2d28d;background:#fffdf8}
+    .quick-status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+    .quick-pill{background:#f3f6fb;border:1px solid #d9e1ec;border-radius:10px;padding:10px 8px;text-align:center}
+    .quick-pill strong{display:block;font-size:18px}
+    .comp-card .btn-small{min-width:210px}
+    .row.space-between{justify-content:space-between}
     .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
     .stat{background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);padding:14px}
     .stat.clickable{cursor:pointer;transition:.12s}
@@ -127,6 +140,7 @@
       .comp-name{font-size:16px}
       .vtr-card{grid-template-columns:1fr}
       .vtr-card .btn{width:100%}
+      .quick-status{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -205,6 +219,24 @@
             <button class="btn btn-primary" id="btnCarregarChecklist">Carregar itens</button>
             <button class="btn btn-green" id="btnSalvarChecklist">Salvar checklist</button>
             <button class="btn btn-outline hidden" id="btnReabrirChecklist">Reabrir / Editar</button>
+          </div>
+        </div>
+
+        <div class="card progress-card">
+          <div class="progress-head">
+            <div>
+              <div class="progress-title">Progresso geral da conferência</div>
+              <div class="progress-sub" id="geralResumo">0 / 0 itens</div>
+            </div>
+            <span class="pill" id="geralPercentual">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="geralBarra" style="width:0%"></div>
+          </div>
+          <div class="quick-status">
+            <div class="quick-pill"><span class="small muted">Pendentes</span><strong id="qtdPendentes">0</strong></div>
+            <div class="quick-pill"><span class="small muted">Conferidos</span><strong id="qtdConferidos">0</strong></div>
+            <div class="quick-pill"><span class="small muted">Problemas</span><strong id="qtdProblemas">0</strong></div>
           </div>
         </div>
 
@@ -706,15 +738,32 @@
       return { feitos, total };
     }
 
+    function getOverallProgress(){
+      const itens = state.itens || [];
+      const total = itens.length;
+      let pendentes = 0, conferidos = 0, problemas = 0;
+      for (const item of itens){
+        const st = state.checklistItemsState[item.id]?.status || 'pendente';
+        if (st === 'pendente') pendentes++;
+        else if (st === 'confere') conferidos++;
+        else problemas++;
+      }
+      const feitos = total - pendentes;
+      const percentual = total ? Math.round((feitos / total) * 100) : 0;
+      return { total, pendentes, conferidos, problemas, feitos, percentual };
+    }
+
     function getCompStatus(compId){
       const itens = getItensCompartimento(compId);
-      if (!itens.length) return { kind:'gray', text:'Pendente' };
+      if (!itens.length) return { kind:'gray', text:'Pendente', cardClass:'' };
       const states = itens.map(i => state.checklistItemsState[i.id]?.status || 'pendente');
       const hasProblem = states.some(s => ['faltando','alterado','avariado'].includes(s));
       const allConfere = states.every(s => s === 'confere');
-      if (hasProblem) return { kind:'red', text:'Com divergência' };
-      if (allConfere || state.compMarkedAll[compId]) return { kind:'green', text:'CONFERIDO ✅️' };
-      return { kind:'gray', text:'Pendente' };
+      const hasAnyTouched = states.some(s => s !== 'pendente');
+      if (hasProblem) return { kind:'red', text:'Com divergência', cardClass:'' };
+      if (allConfere || state.compMarkedAll[compId]) return { kind:'green', text:'CONFERIDO ✅️', cardClass:'' };
+      if (hasAnyTouched) return { kind:'amber', text:'EM ANDAMENTO', cardClass:'partial' };
+      return { kind:'gray', text:'Pendente', cardClass:'' };
     }
 
     function atualizarEstadoBotaoGlobal(){
@@ -735,6 +784,14 @@
     function renderChecklist(){
       const wrap = $('compartimentosWrap');
       atualizarEstadoBotaoGlobal();
+
+      const geral = getOverallProgress();
+      if ($('geralResumo')) $('geralResumo').textContent = `${geral.feitos} / ${geral.total} itens`;
+      if ($('geralPercentual')) $('geralPercentual').textContent = `${geral.percentual}%`;
+      if ($('geralBarra')) $('geralBarra').style.width = `${geral.percentual}%`;
+      if ($('qtdPendentes')) $('qtdPendentes').textContent = String(geral.pendentes);
+      if ($('qtdConferidos')) $('qtdConferidos').textContent = String(geral.conferidos);
+      if ($('qtdProblemas')) $('qtdProblemas').textContent = String(geral.problemas);
 
       if (!wrap) return;
       if (!state.compartimentos.length){
